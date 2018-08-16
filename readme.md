@@ -9,26 +9,26 @@
 >> Http
 >>> Controllers
 >>>> Admin         后台接口
->>>>> Accounts     
->>>>> Files
->>>>> Information
->>>>> News
->>>>> Operate
+>>>>>  Accounts     
+>>>>>  Files
+>>>>>  Information
+>>>>>  News
+>>>>>  Operate
 >>>> Auto          其他接口
->>>>> Share           分享
->>>>> Sms             短信
->>>>> ThirdLogin      第三方登录
+>>>>>  Share           分享
+>>>>>  Sms             短信
+>>>>>  ThirdLogin      第三方登录
 >>>> Front         前台接口
->>>>> Activity
->>>>> Coach
->>>>> Colleges
->>>>> Consult
->>>>> Index
->>>>> Reward
->>>>> UserCore
+>>>>>  Activity
+>>>>>  Coach
+>>>>>  Colleges
+>>>>>  Consult
+>>>>>  Index
+>>>>>  Reward
+>>>>>  UserCore
 >>>> Login         登录接口
->>>>> Admin          后台登录接口
->>>>> Front          前台登录接口
+>>>>>  Admin          后台登录接口
+>>>>>  Front          前台登录接口
 >>> Middleware     中间件
 >> libs            第三方类库SDK存放处
 >> Models          model接口
