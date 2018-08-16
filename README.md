@@ -3,21 +3,56 @@
 #### 项目介绍
 专硕联盟网站后端
 
-#### 软件架构
-软件架构说明
+#### 项目目录架构
+项目目录架构
+> app
+>> Http
+>>> Controllers
+>>>> Admin         后台接口
+>>>>> Accounts     
+>>>>> Files
+>>>>> Information
+>>>>> News
+>>>>> Operate
+>>>> Auto          其他接口
+>>>>> Share           分享
+>>>>> Sms             短信
+>>>>> ThirdLogin      第三方登录
+>>>> Front         前台接口
+>>>>> Activity
+>>>>> Coach
+>>>>> Colleges
+>>>>> Consult
+>>>>> Index
+>>>>> Reward
+>>>>> UserCore
+>>>> Login         登录接口
+>>>>> Admin          后台登录接口
+>>>>> Front          前台登录接口
+>>> Middleware     中间件
+>> libs            第三方类库SDK存放处
+>> Models          model接口
+> Helpers          自定义公共方法
+> routes           路由文件
+>> admin.php        后台路由
+>> front.php        前台路由
+>> login.php        登录路由
+>> web.php          路由入口
+> apidoc           API存放处
+
+
+
+
 
 
 #### 安装教程
 
-1. xxxx
-2. xxxx
-3. xxxx
+1. cd /var/www/html/
+2. sudo chmod -R 777 zslm_back_rmfd
+3. sudo cp ./.env.example ./.env
+4. php artisan key:generate
+5. composer install
 
-#### 使用说明
-
-1. xxxx
-2. xxxx
-3. xxxx
 
 #### 参与贡献
 
@@ -26,12 +61,3 @@
 3. 提交代码
 4. 新建 Pull Request
 
-
-#### 码云特技
-
-1. 使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2. 码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3. 你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4. [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5. 码云官方提供的使用手册 [http://git.mydoc.io/](http://git.mydoc.io/)
-6. 码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)

@@ -35,6 +35,7 @@ class AccountsController extends Controller
     *     {"code":"0","msg":"修改成功"}
     */
     public function index(Request $request) {
-        var_dump('test');
+        $a = test();
+        var_dump($a);
     }
 }
