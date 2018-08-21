@@ -44,7 +44,9 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
      * OPerate模块
      */
     Route::group(['prefix' => 'operate', 'namespace' => 'Operate'],function() {
+        Route::post('getIndexListName', 'BannerController@getIndexListName');
 
+        
     });
 
 });

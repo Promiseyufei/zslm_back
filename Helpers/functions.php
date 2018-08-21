@@ -8,6 +8,10 @@
      return "公共方法成功了～";
  }
 
+//  function setIdToNumber($id) {
+//     $number = mb_strlen($id,'utf-8') < 7 ? (7 - mb_strlen($id,'utf-8')) : $id;
+//  }
+
 
  /**
  * 页面json 输出
@@ -244,4 +248,10 @@ function get_session_user_id()
     $user = session("user");
 
     return $user ? $user->id : 0;
+}
+
+
+function getByteToMb($bytes) {
+    $mb = $bytes / 1048576;
+    return round($mb, 0);
 }
