@@ -47,8 +47,8 @@
         
         }
         
-        public function delteFile(){
-        
+        public function delteFile(Request $request){
+            $fileId = $request->fileId;
         }
         
     }

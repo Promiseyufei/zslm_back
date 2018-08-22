@@ -1,7 +1,7 @@
 define({ "api": [
   {
     "type": "post",
-    "url": "/admin/Files/deleteFile",
+    "url": "/admin/files/deleteFile",
     "title": "删除文件",
     "name": "deleteFile",
     "group": "Files",
@@ -12,7 +12,7 @@ define({ "api": [
             "group": "Parameter",
             "type": "number",
             "optional": false,
-            "field": "uploadFile",
+            "field": "fileId",
             "description": "<p>删除文件的id.</p>"
           }
         ]
@@ -146,7 +146,7 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/admin/Files/updateFile",
+    "url": "/admin/files/updateFile",
     "title": "更新文件",
     "name": "updateFile",
     "group": "Files",
@@ -243,7 +243,7 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/admin/Files/uploadFile",
+    "url": "/admin/files/uploadFile",
     "title": "上传文件",
     "name": "uploadFile",
     "group": "Files",

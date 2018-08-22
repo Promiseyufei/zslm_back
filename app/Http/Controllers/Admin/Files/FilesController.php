@@ -105,7 +105,7 @@ class FilesController extends Controller
      * @apiName deleteFile
      * @apiGroup Files
      *
-     * @apiParam {number} uploadFile 删除文件的id.
+     * @apiParam {number} fileId 删除文件的id.
      *
      * @apiSuccess {String} code 返回程序的状态码 0 表示成功 1表示失败.
      * @apiSuccess {String} message  成功就是success.
