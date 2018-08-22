@@ -71,7 +71,7 @@ class OperateIndexController extends Controller
      * @api {post} admin/operate/setAppointRegionName 修改指定区域的名称
      * @apiGroup operate
      *
-     * @apiParam {Number} regionId 指定区域的id
+     * @apiParam {Number} regionId 指定区域的id,0是区域一;1是区域二
      * @apiParam {String} regionName　要修改的名称
      *
      * @apiSuccessExample　{json} Success-Response:
