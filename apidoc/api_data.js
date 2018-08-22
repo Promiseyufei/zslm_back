@@ -155,6 +155,13 @@ define({ "api": [
         "Parameter": [
           {
             "group": "Parameter",
+            "type": "number",
+            "optional": false,
+            "field": "fileId",
+            "description": "<p>文件id</p>"
+          },
+          {
+            "group": "Parameter",
             "type": "String",
             "optional": false,
             "field": "fileName",

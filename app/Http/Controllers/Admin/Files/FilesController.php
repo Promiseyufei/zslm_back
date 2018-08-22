@@ -135,6 +135,7 @@ class FilesController extends Controller
      * @apiName updateFile
      * @apiGroup Files
      *
+     * @apiParam {number} fileId 文件id
      * @apiParam {String} fileName 文件名称.
      * @apiParam {int} fileType 文件类型
      * @apiParam {String} fileYear 文件年份
