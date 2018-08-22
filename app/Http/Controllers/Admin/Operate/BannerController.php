@@ -19,6 +19,7 @@ class BannerController extends Controller
 {
 
     
+
     /**
      * @api {post} admin/operate/getIndexListName 获得所有一级页面的名称
      * @apiGroup operate
@@ -51,7 +52,7 @@ class BannerController extends Controller
      *        "msg": '请求失败'
      *     }
      *
-     *      HTTP/1.1 200
+     *      HTTP/1.1 5xx
      *     {
      *       "code": "2",
      *        "msg": '请求方式错误'
@@ -70,7 +71,6 @@ class BannerController extends Controller
             return responseToJson(2,'请求方式错误');
     }
 
-    //获得banner
 
 
     /**
@@ -78,30 +78,40 @@ class BannerController extends Controller
      * @apiGroup operate
      *
      * @apiParam {Number} indexId 一级页面id
-     * @apiParam {Number} btType banner的类型　０是ｂａｎｎｅｒ
+     * @apiParam {Number} btType banner的类型　０是banner类型，1是广告类型
      *
-     * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "code": "0",
-     *       "msg": "使用成功",
-     *       "data":{
-     *              }
-     *     }
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "",
+     * "data": {
      *
-     * @apiError UserNotFound The id of the User was not found.
+     *          {
+     *              "id":"xxx",
+     *              "img":"xxxxxxxxxxxx",
+     *              "img_alt":"front/test/test",
+     *              "re_rul":"xxxxxxxxxxxx",
+     *              "re_alt":"xxxxxxxxxxxx",
+     *              "show_weight":"xxxxxxxxxxxx",
+     *              "create_time":"xxxxxxxxxxxx"
+     *          }
+     *   }
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
      *
      * @apiErrorExample Error-Response:
-     *     HTTP/1.1 200
+     *     HTTP/1.1 40x
      *     {
      *       "code": "1",
-     *        "msg": '响应的报错信息'
+     *        "msg": '请求失败'
      *     }
      *
-     *      HTTP/1.1 200
+     *      HTTP/1.1 5xx
      *     {
      *       "code": "2",
-     *        "msg": '数据加载完毕，已经无法加载相应数据'
+     *        "msg": '请求方式错误'
      *     }
      */
     public function getIndexBanner(Request $request) {
@@ -126,7 +136,37 @@ class BannerController extends Controller
         return responseToJson(2, '请求方式错误');
     }
 
-    //设置权重
+
+
+    /**
+     * @api {post} admin/operate/setBtWeight 设置一级页面上banner的权重
+     * @apiGroup operate
+     *
+     * @apiParam {Number} bannerAdId 指定banner的id
+     * @apiParam {Number} weight 要修改的权重，默认为0
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "更新成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
     public function setBtWeight(Request $request) {
         if($request->isMethod('post')) {
             $banner_ad_id = is_numeric($request->bannerAdId) ? $request->bannerAdId : 0;
@@ -139,11 +179,42 @@ class BannerController extends Controller
                 return responseToJson(1, '参数错误');
         }
         else 
-            return responseToJson(2,'请求错误');
+            return responseToJson(2,'请求方式错误');
     }
 
 
-    //编辑
+
+    /**
+     * @api {post} admin/operate/setBtMessage 修改一级页面上指定banner的信息
+     * @apiGroup operate
+     *
+     * @apiParam {String} btName 图片名称
+     * @apiParam {String} btImgAlt 图片alt
+     * @apiParam {String} reUrl 点击跳转的路由
+     * @apiParam {String} btId Banner的id
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "更新成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": 'xxxxxx'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
     public function setBtMessage(Request $request) {
         if($request->isMethod('post')) {
             if(trim($request->btName) ||  mb_strlen($request->btName, 'utf-8') > 30)
@@ -183,10 +254,39 @@ class BannerController extends Controller
             }
         }
         else 
-            return responseToJson(2,'请求错误');
+            return responseToJson(2,'请求方式错误');
     }
 
-    //删除
+
+
+    /**
+     * @api {post} admin/operate/deleteBannerAd 删除一级页面上的Banner
+     * @apiGroup operate
+     *
+     * @apiParam {String} btId 要删除的Banner的id
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "删除成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": 'xxxxxx'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
     public function deleteBannerAd(Request $request) {
         if($request->isMethod('post')) {
             $bt_id = (isset($request->btId) && is_numeric($request->btId)) ? $request->btId : 0;
@@ -200,7 +300,39 @@ class BannerController extends Controller
     }
 
 
-    //新增
+
+    /**
+     * @api {post} admin/operate/createBannerAd 新增一级页面上的banner
+     * @apiGroup operate
+     *
+     * @apiParam {String} imgName 图片名称
+     * @apiParam {String} imgAlt 图片alt
+     * @apiParam {String} reUrl 点击跳转的路由
+     * @apiParam {file} img 图片
+     * @apiParam {Number} urlId 一级页面的id
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "上传成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": 'xxxxxx'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
     public function createBannerAd(Request $request) {
         if($request->isMethod('post')) {
             $img_name = trim($request->imgName);
@@ -244,8 +376,14 @@ class BannerController extends Controller
                 return responseToJson(1, $e->getMessage());
             }
         }
+        else 
+            return responseToJson(2, '请求方式错误');
     }
 
+
+    /**
+     * 上传文件
+     */
     private function createDirImg($imgName = '', &$imgHandle) {
         if($imgHandle->isValid()) {
             // $originalName = $imgHandle->getClientOriginalName(); //源文件名
@@ -274,6 +412,9 @@ class BannerController extends Controller
         else [1, '图片未上传'];
     }
 
+    /**
+     * 修改图片名称
+     */
     private function updateDirImgName($imgUrl = '',$imgNewName = '') {
         if($imgUrl !== '' && $imgNewName !== '') {
             $img_arr = explode('/', $imgUrl); 
