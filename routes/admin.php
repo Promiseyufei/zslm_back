@@ -19,7 +19,7 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
      * Files模块
      */
     Route::group(['prefix' => 'files', 'namespace' => 'Files'],function() {
-
+        Route::get('getUploadFile','FilesController@getUploadFile');
     });
 
 
