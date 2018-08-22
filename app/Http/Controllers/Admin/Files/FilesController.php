@@ -67,7 +67,7 @@ class FilesController extends Controller
     }
     
     /**
-     * @api {post} /admin/Files/uploadFile 上传文件
+     * @api {post} /admin/files/uploadFile 上传文件
      * @apiName uploadFile
      * @apiGroup Files
      *
@@ -101,7 +101,7 @@ class FilesController extends Controller
     
     }
     /**
-     * @api {post} /admin/Files/deleteFile 删除文件
+     * @api {post} /admin/files/deleteFile 删除文件
      * @apiName deleteFile
      * @apiGroup Files
      *
@@ -131,7 +131,7 @@ class FilesController extends Controller
     }
     
     /**
-     * @api {post} /admin/Files/updateFile 更新文件
+     * @api {post} /admin/files/updateFile 更新文件
      * @apiName updateFile
      * @apiGroup Files
      *
