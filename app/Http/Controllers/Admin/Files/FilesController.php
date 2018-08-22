@@ -18,7 +18,7 @@ class FilesController extends Controller
         var_dump('test');
     }
     /**
-     * @api {get} /admin/files/getUploadFile?page=1&pageSize=5
+     * @api {get} /admin/files/getUploadFile?page=1&pageSize=5 获取上传过的文件信息
      * @apiName getUploadFile
      * @apiGroup Files
      *
@@ -48,7 +48,7 @@ class FilesController extends Controller
      *           }
      *     }
      *
-     * @apiError 未找到数据，或者程序执行期间宕机.
+     * @apiError dataError
      *
      * @apiErrorExample Error-Response:
      *     HTTP/1.1 200 OK
@@ -67,7 +67,7 @@ class FilesController extends Controller
     }
     
     /**
-     * @api {post} /admin/Files/uploadFile
+     * @api {post} /admin/Files/uploadFile 上传文件
      * @apiName uploadFile
      * @apiGroup Files
      *
@@ -88,7 +88,7 @@ class FilesController extends Controller
      *          "message":'success'
      *     }
      *
-     * @apiError 信息填写不正确，或者程序宕机
+     * @apiError dataError
      *
      * @apiErrorExample Error-Response:
      *     HTTP/1.1 200 OK
@@ -101,7 +101,7 @@ class FilesController extends Controller
     
     }
     /**
-     * @api {post} /admin/Files/deleteFile
+     * @api {post} /admin/Files/deleteFile 删除文件
      * @apiName deleteFile
      * @apiGroup Files
      *
@@ -117,7 +117,7 @@ class FilesController extends Controller
      *          "message":'success'
      *     }
      *
-     * @apiError 信息填写不正确，或者程序宕机
+     * @apiError dataError
      *
      * @apiErrorExample Error-Response:
      *     HTTP/1.1 200 OK
@@ -131,7 +131,7 @@ class FilesController extends Controller
     }
     
     /**
-     * @api {post} /admin/Files/updateFile
+     * @api {post} /admin/Files/updateFile 更新文件
      * @apiName updateFile
      * @apiGroup Files
      *
@@ -151,7 +151,7 @@ class FilesController extends Controller
      *          "message":'success'
      *     }
      *
-     * @apiError 信息填写不正确，或者程序宕机
+     * @apiError dataError
      *
      * @apiErrorExample Error-Response:
      *     HTTP/1.1 200 OK
