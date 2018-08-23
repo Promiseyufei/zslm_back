@@ -573,7 +573,7 @@
   },
   {
     "type": "post",
-    "url": "admin/operate/deleteAppoIninInformation",
+    "url": "admin/operate/deleteAppoinInformation",
     "title": "删除指定区域上的指定资讯",
     "group": "operate",
     "parameter": {
@@ -583,7 +583,14 @@
             "group": "Parameter",
             "type": "Number",
             "optional": false,
-            "field": "ininInformationId",
+            "field": "RegionId",
+            "description": "<p>指定区域的id</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "InformationId",
             "description": "<p>要删除的资讯的id</p>"
           }
         ]
@@ -621,59 +628,7 @@
     "version": "0.0.0",
     "filename": "app/Http/Controllers/Admin/Operate/OperateIndexController.php",
     "groupTitle": "operate",
-    "name": "PostAdminOperateDeleteappoinininformation"
-  },
-  {
-    "type": "post",
-    "url": "admin/operate/deleteBannerAd",
-    "title": "删除页面上的指定广告",
-    "group": "operate",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "btId",
-            "description": "<p>要删除的Billboard的id</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"删除成功\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "type": "Object[]",
-            "optional": false,
-            "field": "error",
-            "description": "<p>这里是失败时返回实例</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": 'xxxxxx'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Operate/BillboardController.php",
-    "groupTitle": "operate",
-    "name": "PostAdminOperateDeletebannerad"
+    "name": "PostAdminOperateDeleteappoininformation"
   },
   {
     "type": "post",
@@ -724,6 +679,58 @@
     },
     "version": "0.0.0",
     "filename": "app/Http/Controllers/Admin/Operate/BannerController.php",
+    "groupTitle": "operate",
+    "name": "PostAdminOperateDeletebannerad"
+  },
+  {
+    "type": "post",
+    "url": "admin/operate/deleteBannerAd",
+    "title": "删除页面上的指定广告",
+    "group": "operate",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "btId",
+            "description": "<p>要删除的Billboard的id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"删除成功\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": 'xxxxxx'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Operate/BillboardController.php",
     "groupTitle": "operate",
     "name": "PostAdminOperateDeletebannerad"
   },
@@ -918,7 +925,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"show_weight\":\"xxxxxxxxxxxx\",\n             \"title\":\"front/test/test\",\n             \"information_type\":\"xxxxxxxxxxxx\",\n             \"create_time\":\"xxxxxxxxxxxx\"\n         }\n  }\n}",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n         {\n             \"region_name\":\"text\",\n             \"zx_id\":[\n                 {\n                     \"id\":\"xxx\",\n                     \"weight\":\"xxxxxxxxxxxx\",\n                     \"zx_name\":\"front/test/test\",\n                     \"information_type\":\"xxxxxxxxxxxx\",\n                     \"create_time\":\"xxxxxxxxxxxx\"\n                 }\n             ]\n         }\n  }\n}",
           "type": "json"
         }
       ]
@@ -1062,8 +1069,15 @@
             "group": "Parameter",
             "type": "Number",
             "optional": false,
-            "field": "pageNumber",
-            "description": "<p>跳转页面下标</p>"
+            "field": "informationTypeId",
+            "description": "<p>资讯类型id(0是总量)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "titleKeyword",
+            "description": "<p>标题关键字</p>"
           },
           {
             "group": "Parameter",
@@ -1076,8 +1090,15 @@
             "group": "Parameter",
             "type": "Number",
             "optional": false,
+            "field": "pageNumber",
+            "description": "<p>跳转页面下标</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
             "field": "sortType",
-            "description": "<p>排序方式</p>"
+            "description": "<p>排序类型(0按时间升序；1按时间降序)</p>"
           }
         ]
       }
@@ -1086,7 +1107,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"name\":\"xxxxxxxxxxxx\",\n             \"information_type\":\"xxxxxxxxxxxx\",\n             \"create_time\":\"xxxxxxxxxxxx\"\n         }\n  }\n}",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"name\":\"xxxxxxxxxxxx\",\n             \"z_type\":\"xxxxxxxxxxxx\",\n             \"create_time\":\"xxxxxxxxxxxx\"\n         }\n  }\n}",
           "type": "json"
         }
       ]
@@ -1254,65 +1275,6 @@
     "filename": "app/Http/Controllers/Admin/Operate/ShareAdminController.php",
     "groupTitle": "operate",
     "name": "PostAdminOperateGetpagingdata"
-  },
-  {
-    "type": "post",
-    "url": "admin/operate/selectAppointInformData",
-    "title": "获得咨询列表添加页查询的指定数据",
-    "group": "operate",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "informationTypeId",
-            "description": "<p>资讯类型id</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "titleKeyword",
-            "description": "<p>标题关键字</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"name\":\"xxxxxxxxxxxx\",\n             \"information_type\":\"xxxxxxxxxxxx\",\n             \"create_time\":\"xxxxxxxxxxxx\"\n         }\n  }\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "type": "Object[]",
-            "optional": false,
-            "field": "error",
-            "description": "<p>这里是失败时返回实例</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Operate/OperateIndexController.php",
-    "groupTitle": "operate",
-    "name": "PostAdminOperateSelectappointinformdata"
   },
   {
     "type": "post",

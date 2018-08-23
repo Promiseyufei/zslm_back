@@ -6,10 +6,11 @@
 
 namespace App\Http\Controllers\Admin\Operate;
 
+use App\Models\information_index_region as InformationIndexRegion;
+use App\Models\dict_information_type as DictInformType;
+use App\Models\zslm_information as ZslmInformation;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\information_index_region as InformationIndexRegion;
-use App\Models\zslm_information as ZslmInformation;
 use DB;
 
 class OperateIndexController extends Controller 
@@ -241,10 +242,14 @@ class OperateIndexController extends Controller
     /**
      * @api {post} admin/operate/getInformPagingData 获取咨询列表添加分页数据
      * @apiGroup operate
-     *
-     * @apiParam {Number} pageNumber 跳转页面下标
+     * 
+     * 
+     * @apiParam {Number} informationTypeId 资讯类型id(0是总量)
+     * @apiParam {String} titleKeyword 标题关键字
      * @apiParam {Number} pageCount 页面显示行数
-     * @apiParam {Number} sortType 排序方式
+     * @apiParam {Number} pageNumber 跳转页面下标
+     * @apiParam {Number} sortType 排序类型(0按时间升序；1按时间降序)
+     * 
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -256,7 +261,7 @@ class OperateIndexController extends Controller
      *          {
      *              "id":"xxx",
      *              "name":"xxxxxxxxxxxx",
-     *              "information_type":"xxxxxxxxxxxx",
+     *              "z_type":"xxxxxxxxxxxx",
      *              "create_time":"xxxxxxxxxxxx"
      *          }
      *   }
@@ -278,53 +283,41 @@ class OperateIndexController extends Controller
      *     }
      */
      public function getInformPagingData(Request $request) {
+        if($request->isMethod('post')) {
+            $inform_type_id = (isset($request->informationTypeId) 
+                && is_numeric($request->informationTypeId)) 
+                ? $request->informationTypeId : 0; 
+            $page_count = (isset($request->pageCount) && is_numeric($request->pageCount)) ? $request->pageCount : 10;
+            $sort_type = (isset($request->sortType) && is_numeric($request->sortType)) ? $request->sortType : 0;
+            $page_number = (isset($request->pageNumber) && is_numeric($request->pageNumber)) ? $request->pageNumber : 0;
+    
+            $title_keyword = isset($request->titleKeyword) ? trim($request->titleKeyword) : '';
+    
+            $select_data = ZslmInformation::getInformPageData([
+                'inform_type_id' => $inform_type_id,
+                'page_count' => $page_count,
+                'sort_type' => $sort_type,
+                'page_number' => $page_number,
+                'title_keyword' => $title_keyword
+            ]);
+            if(count($select_data) > 0) {
+                $inform_type = DictInformType::getAllInformType()->toArray();
+    
+                foreach($select_data as $key => $item) {
+                    $select_data[$key]->z_type = $inform_type[$select_data[$key]->z_type];
+                    $select_data[$key]->create_time = date('Y-m-d H:i:s', $select_data[$key]->create_time);
+                }
+            }
+            return responseToJson(0, '', $select_data);
+
+        }
+        else 
+            return responseToJson(2, '请求方式错误');
+
+
 
      }
 
-
-
-
-    /**
-     * @api {post} admin/operate/selectAppointInformData 获得咨询列表添加页查询的指定数据
-     * @apiGroup operate
-     *
-     * @apiParam {Number} informationTypeId 资讯类型id
-     * @apiParam {String} titleKeyword 标题关键字
-     *
-     * @apiSuccessExample　{json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     * "code": 0,
-     * "msg": "",
-     * "data": {
-     *
-     *          {
-     *              "id":"xxx",
-     *              "name":"xxxxxxxxxxxx",
-     *              "information_type":"xxxxxxxxxxxx",
-     *              "create_time":"xxxxxxxxxxxx"
-     *          }
-     *   }
-     * }
-     *
-     * @apiError　{Object[]} error　 这里是失败时返回实例
-     *
-     * @apiErrorExample Error-Response:
-     *     HTTP/1.1 40x
-     *     {
-     *       "code": "1",
-     *        "msg": '请求失败'
-     *     }
-     *
-     *      HTTP/1.1 5xx
-     *     {
-     *       "code": "2",
-     *        "msg": '请求方式错误'
-     *     }
-     */
-     public function selectAppointInformData(Request $request) {
-
-     }
 
 
      //注意添加的时候需要判断资讯是否在这两个区域中
@@ -358,7 +351,15 @@ class OperateIndexController extends Controller
      *     }
      */
      public function addAppoinInformations(Request $request) {
-
+        $inform_arr = isset($request->informArr) && is_array($request->informArr) ? $request->informArr : [];
+        if(empty($inform_arr)) return responseToJson(1, '请选择加入推荐的咨询');
+        $appoint_id = isset($request->appointId) && is_numeric($request->appointId) ? $request->appointId : -1;
+        if($appoint_id > -1) {
+            $is_update = InformationIndexRegion::addRegionInform($appoint_id, $inform_arr);
+            return $is_update ? responseToJson(0, '添加成功') : responseToJson(1, '添加失败');
+        }
+        else 
+            return responseToJson(1, '请选择区域');
      }
 
 
@@ -405,11 +406,11 @@ class OperateIndexController extends Controller
      */
      public function getInformationType(Request $request) {
 
+        if($request->isMethod('post')) 
+            return responseToJson(0, '', DictInformType::getAllInformType());
+        else 
+            return responseToJson(1, '请求方式错误');
      }
-
-
-
-
 
 
 

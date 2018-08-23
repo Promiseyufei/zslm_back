@@ -32,4 +32,30 @@ class zslm_information
         ]);
     }
 
+
+    public static function getInformPageData(array $dataArr = []) {
+        $handel = DB::table(self::$sTableName)->where([
+            ['is_delete', '=', 0],
+            ['is_show', '=', 0]
+        ]);
+        if(!empty($dataArr['inform_type_id']))
+            $handel = $handel->where('z_type', $$dataArr['inform_type_id']);
+
+        $handel = $handel->where('zx_name', 'like', '%'.$dataArr['title_keyword']);
+
+        if($dataArr['sort_type'])
+            $handel = $handel->orderBy('create_time', 'desc');
+        else
+            $handel = $handel->orderBy('create_time', 'asc');
+
+        $handel = $handel
+            ->offset($dataArr['page_count'] * $dataArr['page_number'])
+            ->limit($dataArr['page_count'])
+            ->select('id', 'zx_name', 'z_type', 'create_time')
+            ->get()
+            ->toArray();
+
+        return $handel;
+    }
+
 }
