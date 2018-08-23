@@ -45,6 +45,10 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
      */
     Route::group(['prefix' => 'operate', 'namespace' => 'Operate'],function() {
         
+
+        /**
+         * Banner
+         */
         Route::post('getIndexListName', 'BannerController@getIndexListName');
 
         Route::post('getIndexBanner', 'BannerController@getIndexBanner');
@@ -57,7 +61,54 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
         Route::post('createBannerAd', 'BannerController@createBannerAd');
 
-        
+
+        /**
+         * 广告
+         */
+
+        Route::post('getAllPageListName', 'BannerController@getAllPageListName');
+
+        Route::post('getAppointPageBillboard', 'BannerController@getAppointPageBillboard');
+
+        Route::post('setBillboardWeight', 'BannerController@setBillboardWeight');
+
+        Route::post('setBillboardMessage', 'BannerController@setBillboardMessage');
+
+        Route::post('deletePageBillboard', 'BannerController@deletePageBillboard');
+
+        Route::post('createPageBillboard', 'BannerController@createPageBillboard');
+
+
+
+
+        /**
+         * 分享记录
+         */
+        Route::post('getPagingData', 'BannerController@getPagingData');
+
+        Route::post('getPagingCount', 'BannerController@getPagingCount');
+
+
+
+        /**
+         * 资讯首页
+         */
+
+        Route::post('getAppointRegionData', 'BannerController@getAppointRegionData');
+
+        Route::post('setAppointRegionName', 'BannerController@setAppointRegionName');
+
+        Route::post('setAppoinInformationWeight', 'BannerController@setAppoinInformationWeight');
+
+        Route::post('deleteAppoinInformation', 'BannerController@deleteAppoinInformation');
+
+        Route::post('getInformPagingData', 'BannerController@getInformPagingData');
+
+        Route::post('addAppoinInformations', 'BannerController@addAppoinInformations');
+
+        Route::post('getInformationType', 'BannerController@getInformationType');
+
+
     });
 
 });
