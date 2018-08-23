@@ -251,7 +251,23 @@ function get_session_user_id()
 }
 
 
+
+/**
+ * 字节转ＭＢ
+ */
 function getByteToMb($bytes) {
     $mb = $bytes / 1048576;
     return round($mb, 0);
 }
+
+
+/**
+ * 删除数组中指定的值
+ */
+ function deleteArrValue($arr, $val) {
+    array_splice($arr, array_search($val, $arr), 1);
+
+    return $arr;
+ }
+
+
