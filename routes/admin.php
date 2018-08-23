@@ -20,7 +20,7 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
      */
     Route::group(['prefix' => 'files', 'namespace' => 'Files'],function() {
         Route::get('getUploadFile','FilesController@getUploadFile');
-        Route::get('test','FilesController@test1');
+        Route::get('test','FilesController@updateFile');
     });
 
 

@@ -43,7 +43,7 @@ function responseToJson($code = 0, $msg = '', $paras = null)
  */
 function getFileName($ext)
 {
-    $filename = time() . '-' . uniqid() . '.' . $ext;
+    $filename = time() . '-' . uniqid() . '-' . $ext;
     return $filename;
 }
 
@@ -269,5 +269,34 @@ function getByteToMb($bytes) {
 
     return $arr;
  }
+    
+    /**
+     * @param       $type
+     * @param array $requestParams 请求包换的字段名数组
+     *
+     * @return bool 返回请求数组的key中是否含有 $requestParams 所包括的值 并且 该key所对应的value不得为null  返回值为yes表示通过，未通过会返回错误字段名
+     * @throws Exception type只能为1 or 2 其他情况会抛出异常
+     */
+ function judgeRequest($type,array $requestParams){
+     $requestArray = null;
+     if($type == 1)
+         $requestArray = $_GET;
+     else if($type == 2)
+         $requestArray = $_POST;
+     else
+         throw new Exception("Type must be in 1 or 2");
+//     foreach ($requestArray as $key => $value){
+//         $issetParam =  !in_array($key,$requestParams);
+//         $isNullParam = $value == null;
+//         if($issetParam || $isNullParam){
+//             return $key;
+//         }
+//     }
+     for($subscript = 0;$subscript<sizeof($requestParams);$subscript++){
 
+            if(!isset($requestArray[$requestParams[$subscript]]) || $requestArray[$requestParams[$subscript]]==null)
+                return $requestParams[$subscript];
+     }
+     return 'yes';
+ }
 

@@ -39,7 +39,8 @@
             return empty($searchData) ? null:$searchData;
         }
         
-        public function uploadFile(Request $request){
+        public static function uploadFile(Request $request){
+            
             $insertResult = DB::table(self::$sTableName)
                 ->insert(['file_name'=>$request->fileName,
                     'file_type'=>$request->fileType,
@@ -51,7 +52,7 @@
             return $insertResult;
         }
         
-        public function updateFile(Request $request){
+        public static function updateFile(Request $request){
             $updateResult = DB::table(self::$sTableName)
                 ->where('id',$request->fileId)
                 ->update(['file_name'=>$request->fileName,
