@@ -119,7 +119,7 @@ class BannerController extends Controller
             $url_id = is_numeric($request->indexId)? $request->indexId : 0;
             $bt_type = is_numeric($request->btType) ? $request->btType : -1;
     
-            if($url_id !== 0 && $bt_type < 0) {
+            if($url_id !== 0 && $bt_type >= 0) {
                 $url_bt = BannerAd::getIndexBt($url_id, $bt_type) || [];
                 if($url_bt !== []) {
                     foreach($url_bt as $key => &$value) {
@@ -171,7 +171,7 @@ class BannerController extends Controller
         if($request->isMethod('post')) {
             $banner_ad_id = is_numeric($request->bannerAdId) ? $request->bannerAdId : 0;
             $weight = is_numeric($request->weight) ? $request->weight : -1;
-            if($banner_ad_id !== 0 && $weight < 0) {
+            if($banner_ad_id !== 0 && $weight >= 0) {
                 $if_update = BannerAd::setBannerAdWeight($banner_ad_id, $weight);
                 return $if_update ? responseToJson(0, '更新成功') : responseToJson(1, '更新失败');
             }
@@ -301,6 +301,7 @@ class BannerController extends Controller
 
 
 
+
     /**
      * @api {post} admin/operate/createBannerAd 新增一级页面上的banner
      * @apiGroup operate
@@ -308,7 +309,7 @@ class BannerController extends Controller
      * @apiParam {String} imgName 图片名称
      * @apiParam {String} imgAlt 图片alt
      * @apiParam {String} reUrl 点击跳转的路由
-     * @apiParam {file} img 图片
+     * @apiParam {Object} img 图片
      * @apiParam {Number} urlId 一级页面的id
      *
      * @apiSuccessExample　{json} Success-Response:
@@ -332,7 +333,7 @@ class BannerController extends Controller
      *       "code": "2",
      *        "msg": '请求方式错误'
      *     }
-     */
+     */  
     public function createBannerAd(Request $request) {
         if($request->isMethod('post')) {
             $img_name = trim($request->imgName);

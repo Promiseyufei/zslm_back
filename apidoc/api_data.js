@@ -522,7 +522,7 @@ define({ "api": [
           },
           {
             "group": "Parameter",
-            "type": "file",
+            "type": "Object",
             "optional": false,
             "field": "img",
             "description": "<p>图片</p>"
@@ -626,58 +626,6 @@ define({ "api": [
   {
     "type": "post",
     "url": "admin/operate/deleteBannerAd",
-    "title": "删除一级页面上的Banner",
-    "group": "operate",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "btId",
-            "description": "<p>要删除的Banner的id</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"删除成功\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "type": "Object[]",
-            "optional": false,
-            "field": "error",
-            "description": "<p>这里是失败时返回实例</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": 'xxxxxx'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Operate/BannerController.php",
-    "groupTitle": "operate",
-    "name": "PostAdminOperateDeletebannerad"
-  },
-  {
-    "type": "post",
-    "url": "admin/operate/deleteBannerAd",
     "title": "删除页面上的指定广告",
     "group": "operate",
     "parameter": {
@@ -724,6 +672,58 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "app/Http/Controllers/Admin/Operate/BillboardController.php",
+    "groupTitle": "operate",
+    "name": "PostAdminOperateDeletebannerad"
+  },
+  {
+    "type": "post",
+    "url": "admin/operate/deleteBannerAd",
+    "title": "删除一级页面上的Banner",
+    "group": "operate",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "btId",
+            "description": "<p>要删除的Banner的id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"删除成功\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": 'xxxxxx'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Operate/BannerController.php",
     "groupTitle": "operate",
     "name": "PostAdminOperateDeletebannerad"
   },
@@ -798,7 +798,7 @@ define({ "api": [
             "type": "Number",
             "optional": false,
             "field": "btType",
-            "description": "<p>banner-Or-Billboard的类型　０是banner类型，1是广告类型</p>"
+            "description": "<p>banner-Or-Billboard的类型　０是banner类型，1是广告类型,这里应该传入1</p>"
           }
         ]
       }
@@ -1118,8 +1118,8 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "admin/operate/getPagingData",
-    "title": "获取分页数据",
+    "url": "admin/operate/getPagingCount",
+    "title": "获得不同类别的分享总数",
     "group": "operate",
     "parameter": {
       "fields": {
@@ -1128,22 +1128,8 @@ define({ "api": [
             "group": "Parameter",
             "type": "Number",
             "optional": false,
-            "field": "pageNumber",
-            "description": "<p>跳转页面下标</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "pageCount",
-            "description": "<p>页面显示行数</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "sortType",
-            "description": "<p>排序方式</p>"
+            "field": "type",
+            "description": "<p>分享类别</p>"
           }
         ]
       }
@@ -1152,7 +1138,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"name\":\"xxxxxxxxxxxx\",\n             \"wx_count\":\"xxxxxxxxxxxx\",\n             \"wb_count\":\"xxxxxxxxxxxx\",\n             \"wx_browse\":\"xxxxxxxxxxxx\",\n             \"wb_browse\":\"xxxxxxxxxxxx\"\n         }\n  }\n}",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n     5\n  }\n}",
           "type": "json"
         }
       ]
@@ -1180,12 +1166,12 @@ define({ "api": [
     "version": "0.0.0",
     "filename": "app/Http/Controllers/Admin/Operate/ShareAdminController.php",
     "groupTitle": "operate",
-    "name": "PostAdminOperateGetpagingdata"
+    "name": "PostAdminOperateGetpagingcount"
   },
   {
     "type": "post",
-    "url": "admin/operate/selectAppointData",
-    "title": "获得查询的指定数据",
+    "url": "admin/operate/getPagingData",
+    "title": "获取分页数据",
     "group": "operate",
     "parameter": {
       "fields": {
@@ -1194,8 +1180,36 @@ define({ "api": [
             "group": "Parameter",
             "type": "Number",
             "optional": false,
+            "field": "pageNumber",
+            "description": "<p>跳转页面下标</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageCount",
+            "description": "<p>页面显示行数</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "sortType",
+            "description": "<p>排序类型(按总浏览量０;按总引流（分享次数）１;按微信分享次数２;按微博分享次数３;按微信浏览量４;按微博浏览量５)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "NUmber",
+            "optional": false,
+            "field": "riseOrDrop",
+            "description": "<p>排序方式(0升序；1降序)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "NUmber",
+            "optional": false,
             "field": "contentType",
-            "description": "<p>内容类型</p>"
+            "description": "<p>内容类型(0院校专业主页；1活动详情；2资讯详情；3总量)</p>"
           },
           {
             "group": "Parameter",
@@ -1239,7 +1253,7 @@ define({ "api": [
     "version": "0.0.0",
     "filename": "app/Http/Controllers/Admin/Operate/ShareAdminController.php",
     "groupTitle": "operate",
-    "name": "PostAdminOperateSelectappointdata"
+    "name": "PostAdminOperateGetpagingdata"
   },
   {
     "type": "post",
@@ -1372,7 +1386,7 @@ define({ "api": [
             "type": "Number",
             "optional": false,
             "field": "regionId",
-            "description": "<p>指定区域的id</p>"
+            "description": "<p>指定区域的id,0是区域一;1是区域二</p>"
           },
           {
             "group": "Parameter",

@@ -8,6 +8,8 @@ namespace App\Http\Controllers\Admin\Operate;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\information_index_region as InformationIndexRegion;
+use App\Models\zslm_information as ZslmInformation;
 use DB;
 
 class OperateIndexController extends Controller 
@@ -33,13 +35,17 @@ class OperateIndexController extends Controller
      * "code": 0,
      * "msg": "",
      * "data": {
-     *
      *          {
-     *              "id":"xxx",
-     *              "show_weight":"xxxxxxxxxxxx",
-     *              "title":"front/test/test",
-     *              "information_type":"xxxxxxxxxxxx",
-     *              "create_time":"xxxxxxxxxxxx"
+     *              "region_name":"text",
+     *              "zx_id":[
+     *                  {
+     *                      "id":"xxx",
+     *                      "weight":"xxxxxxxxxxxx",
+     *                      "zx_name":"front/test/test",
+     *                      "information_type":"xxxxxxxxxxxx",
+     *                      "create_time":"xxxxxxxxxxxx"
+     *                  }
+     *              ]
      *          }
      *   }
      * }
@@ -60,7 +66,26 @@ class OperateIndexController extends Controller
      *     }
      */
     public function getAppointRegionData(Request $request) {
-
+        if($request->isMethod('post')) {
+            $region_id = isset($request->regionId) && is_numeric($request) ? $request->regionId : 0;
+            $region_data = InformationIndexRegion::getinformIndexRegionData($region_id, ['region_name', 'zx_id']);
+            if(!$region_data) return responseToJson(1, '请求失败');
+            
+            $region_data->zx_id = strpos(trim($region_data->zx_id), ',') > 0 ? explode(',', trim($region_data)) : [];
+            if(!empty($region_data->zx_id)) {
+                foreach($region_data->zx_id as $key => $value) {
+                    $region_data->zx_id[$key] = ZslmInformation::getInformIdToData($value);
+                    if(!empty($region_data->zx_id[$key])) {
+                        $region_data->zx_id[$key]->information_type = $region_data->zx_id[$key]->name;
+                        unset($region_data->zx_id[$key]->name);
+                        $region_data->zx_id[$key]->create_time = date('Y-m-d H:i:s', $region_data->zx_id[$key]->create_time);
+                    }
+                }
+            }
+            return responseToJson(0, '', $region_data);
+        }
+        else 
+            return responseToJson(2, '请求方式错误');
     }
 
 
@@ -71,7 +96,7 @@ class OperateIndexController extends Controller
      * @api {post} admin/operate/setAppointRegionName 修改指定区域的名称
      * @apiGroup operate
      *
-     * @apiParam {Number} regionId 指定区域的id
+     * @apiParam {Number} regionId 指定区域的id,0是区域一;1是区域二
      * @apiParam {String} regionName　要修改的名称
      *
      * @apiSuccessExample　{json} Success-Response:
@@ -97,7 +122,17 @@ class OperateIndexController extends Controller
      *     }
      */
     public function setAppointRegionName(Request $request) {
-
+        if($request->isMethod('post')) {
+            $region_id = isset($request->regionId) && is_numeric($request->regionId) ? $request->regionId : -1;
+            $region_name = !empty(trim($request->regionName)) && is_string(trim($request->regionName)) ? trim($request->regionName) : '';
+            if($region_name == '') return responseToJson(1, '名称不能为空');
+            if($region_id >= 0 && !empty($region_name)) {
+                $if_update = InformationIndexRegion::setRegionName($region_id, $region_name);
+                return $if_update ? responseToJson(0, '更新成功') : responseToJson(1, '更新失败');
+            }
+        }
+        else 
+            return responseToJson(2, '  请求方式错误');
     }
 
 
@@ -134,17 +169,29 @@ class OperateIndexController extends Controller
      *     }
      */
     public function setAppoinInformationWeight(Request $request) {
-
+        if($request->isMethod('post')) {
+            $information_id = is_numeric($request->informationId) ? $request->informationId : 0;
+            $weight = is_numeric($request->weight) ? $request->weight : -1;
+            if($information_id !== 0 && $weight >= 0) {
+                $if_update = ZslmInformation::setInformWeight($information_id, $weight);
+                return $if_update ? responseToJson(0, '更新成功') : responseToJson(1, '更新失败');
+            }
+            else 
+                return responseToJson(1, '参数错误');
+        }
+        else 
+            return responseToJson(2,'请求方式错误');
     }
 
 
 
 
     /**
-     * @api {post} admin/operate/deleteAppoIninInformation 删除指定区域上的指定资讯
+     * @api {post} admin/operate/deleteAppoinInformation 删除指定区域上的指定资讯
      * @apiGroup operate
      *
-     * @apiParam {Number} ininInformationId 要删除的资讯的id
+     * @apiParam {Number} RegionId 指定区域的id
+     * @apiParam {Number} InformationId 要删除的资讯的id
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -168,8 +215,20 @@ class OperateIndexController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
-    public function deleteAppoIninInformation(Request $request) {
+    public function deleteAppoinInformation(Request $request) {
+        if($request->isMethod('post')) {
+            $region_id = is_numeric($request->RegionId) ? $request->RegionId : 0;
+            $information_id = is_numeric($request->InformationId) ? $request->InformationId : 0;
 
+            if(!empty($region_id) && !empty($information_id)) {
+                $is_delete = InformationIndexRegion::deleteRegionInformation($region_id, $information_id);
+
+                return $is_delete ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
+            }
+
+        }
+        else 
+            return responseToJson(2, '请求方式错误');
     }
 
 

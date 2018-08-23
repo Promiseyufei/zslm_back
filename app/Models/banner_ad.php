@@ -26,7 +26,6 @@ class banner_ad
 
 
     public static function setBannerAdWeight($btId = 0, $weight = 0) {
-        if($btId == 0) return false;
         $is_update_weight = DB::table(self::$sTableName)
         ->where('id',$btId)
         ->update(['show_weight' => $weight]);
