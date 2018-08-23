@@ -7,13 +7,26 @@
 namespace App\Http\Controllers\Admin\Files;
 
 use App\Http\Controllers\Controller;
+
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use App\Models\major_files as MajorFiles;
 use DB;
 
+use Illuminate\Support\Facades\Storage;
+
 class FilesController extends Controller 
 {
 
+    private  $fileUrl = 'public/major_file/';
+    public function test(){
+        Storage::putFileAS($this->fileUrl,new File('D:\media.html'),'test.html');
+    }
+    
+    public function test1(Request $request){
+//        Storage::move($this->fileUrl.'/test.html',$this->fileUrl.'/ttt.html');
+    }
+    
     public function index(Request $request) {
         var_dump('test');
     }
@@ -58,10 +71,12 @@ class FilesController extends Controller
      *     }
      */
     public function getUploadFile(Request $request){
-        if(!$request->isMethod("get")) return responseToJson(1,'The request type error');
-        if(!isset($request->page) || !isset($request->pageSize)) return responseToJson(1,'The lack of data');
-        if(!is_numeric($request->page) || !is_numeric($request->pageSize)) return responseToJson(1,'The data format error');
-    
+        if(!$request->isMethod("get"))
+            return responseToJson(1,'The request type error');
+        if(!isset($request->page) || !isset($request->pageSize))
+            return responseToJson(1,'The lack of data');
+        if(!is_numeric($request->page) || !is_numeric($request->pageSize))
+            return responseToJson(1,'The data format error');
         $serachData = MajorFiles::getUploadFile($request);
         return $serachData != null ? responseToJson(0,'success',$serachData) : responseToJson(1,'no data');
     }
@@ -98,7 +113,7 @@ class FilesController extends Controller
      *     }
      */
     public function uploadFile(Request $request){
-    
+        
     }
     /**
      * @api {post} /admin/files/deleteFile 删除文件
@@ -127,7 +142,14 @@ class FilesController extends Controller
      *     }
      */
     public function deleteFile(Request $request){
-    
+        if(!$request->isMethod('post'))
+            return responseToJson('1','The request type error');
+        if(!isset($request->fileId))
+            return responseToJson(1,"No file id");
+        if(!is_numeric($request->fileId))
+            return responseToJson(1,'FileId is not Numbers');
+        $isDelete =  MajorFiles::delteFile($request);
+        return  $isDelete>0 ? responseToJson(0,'success'):responseToJson(1,'No data to be deleted');
     }
     
     /**
