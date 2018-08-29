@@ -1,4 +1,4 @@
-[
+define({ "api": [
   {
     "type": "post",
     "url": "/admin/files/deleteFile",
@@ -354,6 +354,58 @@
   },
   {
     "type": "get",
+    "url": "admin/information/selectActivityReception",
+    "title": "跳转到前台对应的活动主页",
+    "group": "information",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "activityId",
+            "description": "<p>指定活动的id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "重定向到前台对应的活动详情页",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '跳转失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Info/ActivityController.php",
+    "groupTitle": "information",
+    "name": "GetAdminInformationSelectactivityreception"
+  },
+  {
+    "type": "get",
     "url": "admin/information/selectReception",
     "title": "跳转到前台对应的院校专业主页",
     "group": "information",
@@ -400,7 +452,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "GetAdminInformationSelectreception"
   },
@@ -452,7 +504,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationCreatemajor"
   },
@@ -504,9 +556,61 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/StudentProjectController.php",
+    "filename": "app/Http/Controllers/Admin/Info/StudentProjectController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationCreateproject"
+  },
+  {
+    "type": "post",
+    "url": "admin/information/deleteActivity",
+    "title": "删除指定的活动",
+    "group": "information",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "activityId",
+            "description": "<p>指定活动的id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"删除成功\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": 'xxxxxx'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Info/ActivityController.php",
+    "groupTitle": "information",
+    "name": "PostAdminInformationDeleteactivity"
   },
   {
     "type": "post",
@@ -556,7 +660,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/StudentProjectController.php",
+    "filename": "app/Http/Controllers/Admin/Info/StudentProjectController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationDeleteappointproject"
   },
@@ -608,24 +712,24 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationDeletemajor"
   },
   {
     "type": "post",
-    "url": "admin/information/getAllProject",
-    "title": "获得指定专业的招生项目（注意需要分页）",
+    "url": "admin/information/getActivityPageCount",
+    "title": "获取活动列表页分页数据总数",
     "group": "information",
     "parameter": {
       "fields": {
         "Parameter": [
           {
             "group": "Parameter",
-            "type": "Number",
+            "type": "Array",
             "optional": false,
-            "field": "majorId",
-            "description": "<p>专业id</p>"
+            "field": "conditionArr",
+            "description": "<p>筛选条件</p>"
           }
         ]
       }
@@ -634,7 +738,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"name\":\"xxxxxxxxxxxx\",\n             \"weight\":\"xxxxxxxxxxxx\",\n             \"is_show\":\"xxxx\"\n             \"update_time\":\"xx\"\n         }\n  }\n}",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n        count:240\n  }\n}",
           "type": "json"
         }
       ]
@@ -660,9 +764,89 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/StudentProjectController.php",
+    "filename": "app/Http/Controllers/Admin/Info/ActivityController.php",
     "groupTitle": "information",
-    "name": "PostAdminInformationGetallproject"
+    "name": "PostAdminInformationGetactivitypagecount"
+  },
+  {
+    "type": "post",
+    "url": "admin/information/getActivityPageMessage",
+    "title": "获取活动列表页分页数据",
+    "group": "information",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "majorNameKeyword",
+            "description": "<p>活动名称关键字</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "screenType",
+            "description": "<p>筛选方式()</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageCount",
+            "description": "<p>页面显示行数</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageNumber",
+            "description": "<p>跳转页面下标</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "sortType",
+            "description": "<p>排序类型(0按权重升序；1按权重降序)</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"name\":\"活动名称\",\n             \"weight\":\"活动权重\",\n             \"is_show\":\"是否展示\",\n             \"if_recommended\":\"是否推荐\",\n             \"active_type\":\"活动类型\",\n             \"major_type\":\"专业类型\",\n             \"province\":\"所在省市\",\n             \"address\":\"活动地址\",\n             \"begin_gime\":\"活动开始时间\",\n             \"end_time\":\"活动结束时间\",\n             \"host_school\":\"活动主办院校\",\n             \"sign_up_state\":\"报名状态\",\n             \"update_time\":\"信息更新时间\"\n         }\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Info/ActivityController.php",
+    "groupTitle": "information",
+    "name": "PostAdminInformationGetactivitypagemessage"
   },
   {
     "type": "post",
@@ -699,7 +883,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetallschoolname"
   },
@@ -738,7 +922,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/StudentProjectController.php",
+    "filename": "app/Http/Controllers/Admin/Info/StudentProjectController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetfractionlinetype"
   },
@@ -777,7 +961,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetmajorauthentication"
   },
@@ -816,7 +1000,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/StudentProjectController.php",
+    "filename": "app/Http/Controllers/Admin/Info/StudentProjectController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetmajordirection"
   },
@@ -855,7 +1039,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetmajornature"
   },
@@ -907,7 +1091,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetmajorpagecount"
   },
@@ -987,7 +1171,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetmajorpagemessage"
   },
@@ -1026,7 +1210,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetmajorprovincesandcities"
   },
@@ -1065,7 +1249,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetmajortype"
   },
@@ -1104,9 +1288,75 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/StudentProjectController.php",
+    "filename": "app/Http/Controllers/Admin/Info/StudentProjectController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetunifiedrecruitpattern"
+  },
+  {
+    "type": "post",
+    "url": "admin/information/setMajorState",
+    "title": "设置活动的状态(权重，展示状态，推荐状态)",
+    "group": "information",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "activityId",
+            "description": "<p>指定活动的id</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "type",
+            "description": "<p>要修改的状态类型(0修改权重；１修改展示状态；1修改推荐状态)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "state",
+            "description": "<p>要修改的值</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"更新成功\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '更新失败/参数错误'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Info/ActivityController.php",
+    "groupTitle": "information",
+    "name": "PostAdminInformationSetmajorstate"
   },
   {
     "type": "post",
@@ -1170,7 +1420,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationSetmajorstate"
   },
@@ -1236,14 +1486,14 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/StudentProjectController.php",
+    "filename": "app/Http/Controllers/Admin/Info/StudentProjectController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationSetprojectstate"
   },
   {
     "type": "post",
-    "url": "admin/information/updateAppointProjectMsg",
-    "title": "编辑指定招生项目信息",
+    "url": "admin/information/updateActivityInformationTime",
+    "title": "更新活动信息的更新时间",
     "group": "information",
     "parameter": {
       "fields": {
@@ -1252,8 +1502,8 @@
             "group": "Parameter",
             "type": "Number",
             "optional": false,
-            "field": "projectId",
-            "description": "<p>招生项目id</p>"
+            "field": "activityId",
+            "description": "<p>指定活动的id</p>"
           }
         ]
       }
@@ -1262,7 +1512,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"更新成功\",\n}",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"更新成功\"\n}",
           "type": "json"
         }
       ]
@@ -1282,15 +1532,67 @@
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": 'xxxxxx'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
           "type": "json"
         }
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/StudentProjectController.php",
+    "filename": "app/Http/Controllers/Admin/Info/ActivityController.php",
     "groupTitle": "information",
-    "name": "PostAdminInformationUpdateappointprojectmsg"
+    "name": "PostAdminInformationUpdateactivityinformationtime"
+  },
+  {
+    "type": "post",
+    "url": "admin/information/updateActivityMsg",
+    "title": "修改活动的信息",
+    "group": "information",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "activityId",
+            "description": "<p>指定活动的id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"更新成功\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": 'xxxxxx'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Info/ActivityController.php",
+    "groupTitle": "information",
+    "name": "PostAdminInformationUpdateactivitymsg"
   },
   {
     "type": "post",
@@ -1340,7 +1642,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationUpdatemajorinformationtime"
   },
@@ -1392,9 +1694,113 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
+    "filename": "app/Http/Controllers/Admin/Info/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationUpdatemajormsg"
+  },
+  {
+    "type": "post",
+    "url": "admin/information/getAllProject",
+    "title": "获得指定专业的招生项目（注意需要分页）",
+    "group": "information_testaaa",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "majorId",
+            "description": "<p>专业id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"name\":\"xxxxxxxxxxxx\",\n             \"weight\":\"xxxxxxxxxxxx\",\n             \"is_show\":\"xxxx\"\n             \"update_time\":\"xx\"\n         }\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Info/StudentProjectController.php",
+    "groupTitle": "information_testaaa",
+    "name": "PostAdminInformationGetallproject"
+  },
+  {
+    "type": "post",
+    "url": "admin/information/updateAppointProjectMsg",
+    "title": "编辑指定招生项目信息",
+    "group": "information_testbbb",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "projectId",
+            "description": "<p>招生项目id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"更新成功\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Info/StudentProjectController.php",
+    "groupTitle": "information_testbbb",
+    "name": "PostAdminInformationUpdateappointprojectmsg"
   },
   {
     "type": "post",
@@ -1454,86 +1860,6 @@
     "filename": "app/Http/Controllers/Admin/Operate/OperateIndexController.php",
     "groupTitle": "operate",
     "name": "PostAdminOperateAddappoininformations"
-  },
-  {
-    "type": "post",
-    "url": "admin/operate/createBannerAd",
-    "title": "新增页面上的广告",
-    "group": "operate",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "imgName",
-            "description": "<p>图片名称</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "imgAlt",
-            "description": "<p>图片alt</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "reUrl",
-            "description": "<p>点击跳转的路由</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "file",
-            "optional": false,
-            "field": "img",
-            "description": "<p>图片</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "urlId",
-            "description": "<p>页面的id</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"上传成功\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "type": "Object[]",
-            "optional": false,
-            "field": "error",
-            "description": "<p>这里是失败时返回实例</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": 'xxxxxx'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Operate/BillboardController.php",
-    "groupTitle": "operate",
-    "name": "PostAdminOperateCreatebannerad"
   },
   {
     "type": "post",
@@ -1614,6 +1940,86 @@
     "filename": "app/Http/Controllers/Admin/Operate/BannerController.php",
     "groupTitle": "operate",
     "name": "PostAdminOperateCreatebannerad"
+  },
+  {
+    "type": "post",
+    "url": "admin/operate/createPageBillboard",
+    "title": "新增页面上的广告",
+    "group": "operate",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "imgName",
+            "description": "<p>图片名称</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "imgAlt",
+            "description": "<p>图片alt</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "reUrl",
+            "description": "<p>点击跳转的路由</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "file",
+            "optional": false,
+            "field": "img",
+            "description": "<p>图片</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "urlId",
+            "description": "<p>页面的id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"上传成功\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": 'xxxxxx'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Operate/BillboardController.php",
+    "groupTitle": "operate",
+    "name": "PostAdminOperateCreatepagebillboard"
   },
   {
     "type": "post",
@@ -2758,4 +3164,4 @@
     "groupTitle": "test",
     "name": "GetIndexPhpI"
   }
-]
+] });

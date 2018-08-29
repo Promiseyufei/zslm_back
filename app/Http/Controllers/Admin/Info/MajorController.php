@@ -241,7 +241,7 @@ class MajorController extends Controller
 
 
     /**
-     * @api {post} admin/information/updateMajorInformationTime 更新院校专业信息的更新时间
+     * @api {post} admin/information/updateMajorInformationTime 更新院校专业信息的更新时间  
      * @apiGroup information
      *
      * @apiParam {Number} majorId 指定院校专业的id

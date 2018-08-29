@@ -17,7 +17,7 @@ class StudentProjectController extends Controller
 
     /**
      * @api {post} admin/information/getAllProject 获得指定专业的招生项目（注意需要分页）
-     * @apiGroup information
+     * @apiGroup information testaaa
      * 
      * 
      * @apiParam {Number} majorId 专业id
@@ -64,7 +64,7 @@ class StudentProjectController extends Controller
 
     /**
      * @api {post} admin/information/updateAppointProjectMsg 编辑指定招生项目信息
-     * @apiGroup information
+     * @apiGroup information testbbb
      * 
      * 
      * @apiParam {Number} projectId 招生项目id

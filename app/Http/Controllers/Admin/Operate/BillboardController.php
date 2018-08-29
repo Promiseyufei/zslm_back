@@ -298,7 +298,7 @@ class BillboardController extends Controller
 
 
     /**
-     * @api {post} admin/operate/createBannerAd 新增页面上的广告
+     * @api {post} admin/operate/createPageBillboard 新增页面上的广告
      * @apiGroup operate
      *
      * @apiParam {String} imgName 图片名称
