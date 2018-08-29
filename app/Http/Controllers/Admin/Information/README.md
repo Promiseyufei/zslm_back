@@ -1,9 +1,9 @@
-##　模块名称： 信息管理模块
+##　信息管理模块
 
-##  lishanlei
+#  lishanlei
 
 
-### 模块架构
+###＃ 模块架构
 > 信息管理
 >> MajorController.php 院校专业管理
 >> ActivityController.php 活动管理

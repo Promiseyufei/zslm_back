@@ -12,6 +12,6 @@ use DB;
 
 class ActivityController extends Controller 
 {
-
+    
 
 }
