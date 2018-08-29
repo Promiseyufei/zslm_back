@@ -41,9 +41,9 @@ function responseToJson($code = 0, $msg = '', $paras = null)
  * @param $msg
  * @param $paras
  */
-function getFileName($ext)
+function getFileName($ext, $suffix = 'jpg')
 {
-    $filename = time() . '-' . uniqid() . '.' . $ext;
+    $filename = time() . '-' . uniqid() . '-' . $ext . '.' . $suffix;
     return $filename;
 }
 

@@ -45,6 +45,8 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
      */
     Route::group(['prefix' => 'operate', 'namespace' => 'Operate'],function() {
         
+        //postman post test
+        Route::post('test', 'OperateController@thisIsTest');
 
         /**
          * Banner
