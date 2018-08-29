@@ -7,13 +7,27 @@
 namespace App\Http\Controllers\Admin\Files;
 
 use App\Http\Controllers\Controller;
+
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use App\Models\major_files as MajorFiles;
 use DB;
 
+use Illuminate\Support\Facades\Storage;
+
 class FilesController extends Controller 
 {
 
+    private  $fileUrl = 'public/major_file/';
+    public function test(){
+        Storage::putFileAS($this->fileUrl,new File('D:\media.html'),'test.html');
+    }
+    
+    public function test1(Request $request){
+//        Storage::move($this->fileUrl.'/test.html',$this->fileUrl.'/ttt.html');
+//        dd(judgeRequest(1,['fileId']));
+    }
+    
     public function index(Request $request) {
         var_dump('test');
     }
@@ -58,10 +72,14 @@ class FilesController extends Controller
      *     }
      */
     public function getUploadFile(Request $request){
-        if(!$request->isMethod("get")) return responseToJson(1,'The request type error');
-        if(!isset($request->page) || !isset($request->pageSize)) return responseToJson(1,'The lack of data');
-        if(!is_numeric($request->page) || !is_numeric($request->pageSize)) return responseToJson(1,'The data format error');
-    
+        if(!$request->isMethod("get"))
+            return responseToJson(1,'The request type error');
+        
+        $isset = judgeRequest(1,['page','pageSize']);
+        if($isset == 'yes')
+            return responseToJson(1,'The lack of '.$isset);
+        if(!is_numeric($request->page) || !is_numeric($request->pageSize))
+            return responseToJson(1,'The data format error');
         $serachData = MajorFiles::getUploadFile($request);
         return $serachData != null ? responseToJson(0,'success',$serachData) : responseToJson(1,'no data');
     }
@@ -97,8 +115,36 @@ class FilesController extends Controller
      *       "message":'文件名称未填写（举个例子） or Application error ',
      *     }
      */
-    public function uploadFile(Request $request){
     
+    public function isDataIntegrity(Request $request,$isDataIntegrity){
+        if($isDataIntegrity != 'yes')
+            return responseToJson(1,'The lack of '.$isDataIntegrity);
+        $pregNumbers = preg_match_all('/^[0-9]+.?[0-9]*$/',$request->fileYear);
+        if($pregNumbers == 0 || !$pregNumbers)
+            return responseToJson(1,'file_year must be in number');
+        if(!is_numeric($request->fileType))
+            return responseToJson(1,'file_type must be in number');
+        return null;
+    }
+    
+    public function uploadFile(Request $request){
+        if(!$request->isMethod('post'))
+            return responseToJson(1,'The request type error');
+        $isDataIntegrity = judgeRequest(2,['uploadFile','fileType','fileYear','fileDescribe','isShow']);
+        $judgeResult = $this->isDataIntegrity($request,$isDataIntegrity);
+        if(!empty($judgeResult))
+            return $judgeResult;
+        $request->fileName = getFileName($request->fileName);
+        DB::beginTransaction();
+        try{
+            MajorFiles::uploadFile($request);
+            Storage::putFileAs($this->fileUrl,$request->file('uploadFile'),$request->fileName);
+            DB::commit();
+        }catch (\Exception $e){
+            DB::rollBack();
+            return responseToJson(1,'upload error');
+        }
+        
     }
     /**
      * @api {post} /admin/files/deleteFile 删除文件
@@ -127,8 +173,16 @@ class FilesController extends Controller
      *     }
      */
     public function deleteFile(Request $request){
-    
+        if(!$request->isMethod('post'))
+            return responseToJson('1','The request type error');
+        if(!isset($request->fileId))
+            return responseToJson(1,"No file id");
+        if(!is_numeric($request->fileId))
+            return responseToJson(1,'FileId is not Numbers');
+        $isDelete =  MajorFiles::delteFile($request);
+        return  $isDelete>0 ? responseToJson(0,'success'):responseToJson(1,'No data to be deleted');
     }
+    
     
     /**
      * @api {post} /admin/files/updateFile 更新文件
@@ -162,7 +216,23 @@ class FilesController extends Controller
      *     }
      */
     public function updateFile(Request $request){
-    
+        if(!$request->isMethod('post'))
+            return responseToJson(1,'The request type error');
+        $isDataIntegrity = judgeRequest(2,['fileId','fileName','fileType','fileYear','fileDescribe','isShow']);
+        $judgeResult = $this->isDataIntegrity($request,$isDataIntegrity);
+        if(!empty($judgeResult))
+            return $judgeResult;
+        $lastFileName = MajorFiles::getFileName($request->fileId);
+        $nextFileName = $request->fileName=getFileName($request->fileName);
+        DB::beginTransaction();
+        try{
+            MajorFiles::updateFile($request);
+            Storage::move($this->fileUrl.$lastFileName,$this->fileUrl.$nextFileName);
+            DB::commit();
+        }catch (\Exception $e){
+            DB::rollBack();
+            return responseToJson(1,'upload error');
+        }
     }
     
 }

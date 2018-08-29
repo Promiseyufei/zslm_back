@@ -39,16 +39,47 @@
             return empty($searchData) ? null:$searchData;
         }
         
-        public function uploadFile(){
-        
+        public static function uploadFile(Request $request){
+            
+            $insertResult = DB::table(self::$sTableName)
+                ->insert(['file_name'=>$request->fileName,
+                    'file_type'=>$request->fileType,
+                    'file_alt'=>$request->fileDescribe,
+                    'file_year'=>$request->fileYear,
+                    'is_show'=>$request->isShow,
+                    'create_time'=>time(),
+                    'update_time'=>time()]);
+            return $insertResult;
         }
         
-        public function updateFile(){
-        
+        public static function updateFile(Request $request){
+            $updateResult = DB::table(self::$sTableName)
+                ->where('id',$request->fileId)
+                ->update(['file_name'=>$request->fileName,
+                    'file_type'=>$request->fileType,
+                    'file_alt'=>$request->fileType,
+                    'is_show'=>$request->isShow,
+                    'update_time'=>time()]);
+            return $updateResult;
         }
         
-        public function delteFile(Request $request){
+        public static function delteFile(Request $request){
             $fileId = $request->fileId;
+            $updateResult = DB::table(self::$sTableName)->where('id',$fileId)->update(['is_delete'=>1]);
+            return $updateResult;
+        }
+        
+        public static function getFileName($fileId){
+            $fileName = DB::table(self::$sTableName)->where('id',$fileId)->where('is_delete',0)->first(['file_name']);
+            return empty($fileName) ? null : $fileName->file_name;
+        }
+    
+        /**
+         * crushingFiles
+         * 彻底删除文件
+         */
+        public static function crushingFiles(){
+        
         }
         
     }
