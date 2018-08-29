@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 资讯管理
+ * 优惠券管理
  */
 
 namespace App\Http\Controllers\Admin\Information;
@@ -10,7 +10,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use DB;
 
-class InformationController extends Controller 
+class CouponController extends Controller 
 {
+
 
 }
