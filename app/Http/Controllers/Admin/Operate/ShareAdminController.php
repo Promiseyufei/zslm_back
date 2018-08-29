@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 分享管理
+ * 分享记录管理
  */
 
 namespace App\Http\Controllers\Admin\Operate;
