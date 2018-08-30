@@ -28,7 +28,7 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
      * Information模块
      */
     Route::group(['prefix' => 'information', 'namespace' => 'Information'],function() {
-
+        Route::get('testa','MajorController@getMajorProvincesAndCities');
     });
 
 
