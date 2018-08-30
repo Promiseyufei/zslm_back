@@ -273,5 +273,484 @@ class ActivityController extends Controller
 
 
 
+    /**
+     * @api {post} admin/information/createActivity 新建活动
+     * @apiGroup information
+     *
+     * @apiParam {Array} msgArr 信息
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "上传成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": 'xxxxxx'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */ 
+    public function createActivity(Request $request) {
+
+    }
+
+
+
+
+    /**
+     * @api {post} admin/information/getActivityType 获得活动类型字典
+     * @apiGroup information
+     * 
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "",
+     * "data": {
+     *
+     *          {
+     *              "id":"xxx",
+     *              "name":"xxxxxxxxxxxx"
+     *          }
+     *   }
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '请求失败'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function getActivityType(Request $request) {
+
+    }
+
+
+    /**
+     * @api {post} admin/information/getMajorType 获得专业类型字典
+     * @apiGroup information
+     * 
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "",
+     * "data": {
+     *
+     *          {
+     *              "id":"xxx",
+     *              "name":"xxxxxxxxxxxx"
+     *          }
+     *   }
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '请求失败'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function getMajorType(Request $request) {
+
+    }
+
+
+
+    /**
+     * @api {post} admin/information/getMajorProvincesAndCities 获得活动省市字典
+     * @apiGroup information
+     * 
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "",
+     * "data": {
+     *
+     *          {
+     *              "id":"xxx",
+     *              "name":"xxxxxxxxxxxx"
+     *          }
+     *   }
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '请求失败'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function getMajorProvincesAndCities(Request $request) {
+
+    }
+
+
+
+    /**
+     * @api {post} admin/information/getAllMajor 获得所有专业字典
+     * @apiGroup information
+     * 
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "",
+     * "data": {
+     *
+     *          {
+     *              "id":"xxx",
+     *              "name":"xxxxxxxxxxxx",
+     *              "xxx":"xxx"
+     *          }
+     *   }
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '请求失败'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function getAllMajor(Request $request) {
+
+    }
+
+
+
+    /**
+     * @api {post} admin/information/setHostMajor 设置主办院校专业
+     * @apiGroup information
+     *
+     * @apiParam {Number} activityId 指定院校专业的id
+     * @apiParam {Number} majorId 主办院校id
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "设置成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function setHostMajor(Request $request) {
+
+    }
+
+
+    
+
+    /**
+     * @api {post} admin/information/sendActivityDynamic 活动作为院校动态更新推送给关注了主办院校的用户（插入消息表，并和用户进行关联，推送到个人中心－院校动态中）
+     * @apiGroup information
+     *
+     * @apiParam {Number} activityId 活动的id
+     * @apiParam {Number} majorId 主办院校id
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "设置成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function sendActivityDynamic(Request $request) {
+
+    }
+
+
+
+
+    /**
+     * @api {post} admin/information/sendActivityNews 活动作为新消息内容发送给关注了主办院校的用户（插入消息表，并和用户关联，推送到消息中心中）
+     * @apiGroup information
+     *
+     * @apiParam {Number} activityId 活动的id
+     * @apiParam {Number} majorId 主办院校专业id
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "设置成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function sendActivityNews(Request $request) {
+
+    }
+
+
+
+    /**
+     * @api {post} admin/information/getAllActivitys 获得所有的活动
+     * @apiGroup information
+     * 
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "",
+     * "data": {
+     *
+     *          {
+     *              "id":"xxx",
+     *              "name":"xxxxxxxxxxxx",
+     *              "xxx":"xxx"
+     *          }
+     *   }
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '请求失败'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function getAllActivitys(Request $request) {
+
+    }
+
+    //
+
+
+    /**
+     * @api {post} admin/information/setManualRecActivitys 手动设置推荐活动
+     * @apiGroup information
+     *
+     * @apiParam {Number} activityId 活动的id
+     * @apiParam {Array} activityArr 推荐活动id的数组
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "设置成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function setManualRecActivitys(Request $request) {
+
+    }
+
+
+    /**
+     * @api {post} admin/information/setAutomaticRecActivitys 自动设置推荐活动
+     * 
+     * @apiGroup information
+     *
+     * @apiParam {Number} activityId 活动的id
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "设置成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function setAutomaticRecActivitys(Request $request) {
+
+    }
+
+
+
+    /**
+     * @api {post} admin/information/setManualRecMajors 手动设置推荐院校
+     * @apiGroup information
+     *
+     * @apiParam {Number} activityId 活动的id
+     * @apiParam {Array} majorArr 专业id的数组
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "设置成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function setManualRecMajors(Request $request) {
+
+    }
+
+
+
+
+    /**
+     * @api {post} admin/information/setAutomaticRecMajors 自动设置推荐院校
+     * 
+     * @apiGroup information
+     *
+     * @apiParam {Number} activityId 活动的id
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "设置成功"
+     * }
+     *拉取代码本地查看
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function setAutomaticRecMajors(Request $request) {
+
+    }
+
+
+
 
 }

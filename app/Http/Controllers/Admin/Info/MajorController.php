@@ -470,7 +470,7 @@ class MajorController extends Controller
 
     }
 
-    //
+
 
     /**
      * @api {post} admin/information/getAllSchoolName 获得院校名称字典
