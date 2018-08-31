@@ -52,6 +52,11 @@ class dict
         return DB::table('dict_recruitment_pattern')->get();
     }
 
+    public static function getActivityType() 
+    {
+        return DB::table('dict_activity_type')->get();
+    }
+
 
 
 }

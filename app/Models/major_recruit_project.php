@@ -39,16 +39,16 @@ class major_recruit_project
 
     public static function setAppiProjectState(array $project = []) {
         $handle = DB::table(self::$sTableName)->where('id', $project['pro_id']);
-        switch($major['type'])
+        switch($project['type'])
         {
             case 0:
-                return $handle->update(['weight' => $major['state']]);
+                return $handle->update(['weight' => $project['state']]);
                 break;
             case 1:
-                return $handle->update(['is_show' => $major['state']]);
+                return $handle->update(['is_show' => $project['state']]);
                 break;
             case 2:
-                return $handle->update(['if_recommended' => $major['state']]);
+                return $handle->update(['if_recommended' => $project['state']]);
                 break;
         }
     }

@@ -19,10 +19,14 @@
             return DB::table(self::$sTableName)->where('id',$majorId)->get();
         }
 
+        public static function getAllDictMajor() {
+            return DB::table(self::$sTableName)->where('is_delete', 0)->select('id', 'z_name', 'magor_logo_name');
+        }
+
 
         public static function getMajorAppiCount(array $condition = []) {
 
-            return DB::table(self::$stableName)->where($condition)->count();
+            return DB::table(self::$stableName)->where('is_delete', 0)->where($condition)->count();
         }
 
         public static function setAppiMajorState(array $major) {
@@ -67,7 +71,7 @@
 
         public static function getMajorPageMsg(array $val = []) {
 
-            $handle = DB::table(self::$sTableName);
+            $handle = DB::table(self::$sTableName)->where('is_delete', 0);
             $sort_type = [0=>['weight','desc'], 1=>['weight','asc'], 2=>['update_time','desc']];
             if(isset($val['majorNameKeyword'])) $handle = $handle->where('z_name', 'like', '%' . $val['majorNameKeyword'] . '%');
 

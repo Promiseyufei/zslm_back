@@ -9,6 +9,12 @@ namespace App\Http\Controllers\Admin\Information;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\zslm_activitys as ZslmActivitys;
+use App\Models\dict as Dict;
+use App\Models\zslm_major as ZslmMajor;
+use App\Models\activity_relation as ActivityRelation;
+use App\Models\news as News;
+use App\Models\user_accounts as UserAccounts;
+use App\Models\news_users as NewsUsers;
 use DB;
 
 class ActivityController extends Controller 
@@ -132,15 +138,22 @@ class ActivityController extends Controller
      *     }
      */
     public function getActivityPageCount(Request $request) {
-
+        try {
+            if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+            if(isset($request->conditionArr) &&  is_array($request->conditionArr))
+                return responseToJson(0, '', ZslmActivitys::getActivityAppiCount($request->conditionArr));
+            else throw new \Exception('查询失败');
+        } catch(\Exception $e) {
+            return responseToJson(1, $e->getMessage());
+        }
     }
 
     /**
-     * @api {post} admin/information/setMajorState 设置活动的状态(权重，展示状态，推荐状态)
+     * @api {post} admin/information/setActivityState 设置活动的状态(权重，展示状态，推荐状态)
      * @apiGroup information
      *
      * @apiParam {Number} activityId 指定活动的id
-     * @apiParam {Number} type 要修改的状态类型(0修改权重；１修改展示状态；1修改推荐状态)
+     * @apiParam {Number} type 要修改的状态类型(0修改权重；１修改展示状态；２修改推荐状态;3修改活动状态)
      * @apiParam {Number} state 要修改的值
      *
      * @apiSuccessExample　{json} Success-Response:
@@ -166,7 +179,25 @@ class ActivityController extends Controller
      *     }
      */
     public function setActivityState(Request $request) {
+        if($request->isMethod('post')) {
+            $act_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
+            $type = (isset($request->type) && is_numeric($request->type)) ? $request->type : -1;
+            $state = (isset($request->state) && is_numeric($request->state)) ? $request->state : -1;
 
+            if($act_id > 0 && $type != -1 && $state != -1) {
+                if($type > 0 && $type != 3 && $state > 1) return responseToJson(1, '状态值错误');
+                if($type == 3 && $state > 2) return responseToJson(1, '状态值错误');
+                $is_update = ZslmActivitys::setAppiActivityState([
+                    'act_id'  => $act_id,
+                    'type'    => $type,
+                    'state'   => $state
+                ]);
+
+                return $is_update ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
+            }
+        }
+        else
+            return responseToJson(2, '请求方式错误');
     }
 
 
@@ -195,7 +226,12 @@ class ActivityController extends Controller
      *     }
      */
     public function selectActivityReception(Request $request) {
-
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
+        if($activity_id != 0) {
+            $activity = ZslmActivitys::getAppointActivityMsg($activity_id);
+            return is_object($activity) ? responseToJson(0, '', $activity) : responseToJson(1, '获取信息失败');
+        }
     }
 
 
@@ -228,7 +264,7 @@ class ActivityController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
-    public function updateActivityMsg(Request $request) {
+    public function updateActivityMsg(ActivityUpdateRequest $request) {
 
     }
 
@@ -262,6 +298,16 @@ class ActivityController extends Controller
      *     }
      */
     public function deleteActivity(Request $request) {
+        if(!$request->isMethod('get')) return responseToJson(2, '请求方式错误');
+        $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
+
+        if($activity_id > 0) {
+            $is_del = ZslmActivitys::delAppointActivity($activity_id);
+            return $is_del ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
+        }
+        else 
+            return responseToJson(1, '参数错误');
+
 
     }
 
@@ -295,7 +341,14 @@ class ActivityController extends Controller
      *     }
      */
     public function updateActivityInformationTime(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
 
+        if($activity_id != 0) {
+            $is_del = ZslmActivitys::updateActivityTime($activity_id);
+            return $is_del ? responseToJson(0, '更新成功') : responseToJson(1, '更新失败');
+        }
+        else return responseToJson(1, '参数错误');
     }
 
 
@@ -304,7 +357,19 @@ class ActivityController extends Controller
      * @api {post} admin/information/createActivity 新建活动
      * @apiGroup information
      *
-     * @apiParam {Array} msgArr 信息
+     * @apiParam {String} activityName 活动名称
+     * @apiParam {Number} activityType 活动类型
+     * @apiParam {Number} majorType 专业类型
+     * @apiParam {String} province 活动省市
+     * @apiParam {String} address 活动地址
+     * @apiParam {timeInt} beginTime 开始时间
+     * @apiParam {timeInt} endTime 结束时间
+     * @apiParam {NUmber} signUpState 报名状态
+     * @apiParam {FormData} activeImg 活动封面图
+     * @apiParam {String} title 主页优化
+     * @apiParam {String} keywords 主页优化
+     * @apiParam {String} description 主页优化
+     * @apiParam {String} introduce 活动介绍
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -328,8 +393,67 @@ class ActivityController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */ 
-    public function createActivity(Request $request) {
+    public function createActivity(ActivityCreateRequest $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        try {
+            DB::beginTransaction();
+            $file_handle = $request->file('activeImg');
+            $img_name = getFileName('activity', $file_handle->getClientOriginalExtension());
+            $create_msg = [
+                'active_name'    => trim($request->activityName),
+                'active_type'    => $request->activityType,
+                'major_type'     => $request->majorType,
+                'province'       => $request->province,
+                'address'        => trim($request->address),
+                'begin_time'     => strtotime($request->beginTime),
+                'end_time'       => strtotime($request->endTime),
+                'sign_up_state'  => $request->signUpState,
+                'active_img'     => $img_name,
+                'title'          => !empty($request->title) ? trim($request->title) : '',
+                'keywords'       => !empty($request->keywords) ? trim($request->keywords) : '',
+                'description'    => !empty($request->description) ? trim($request->description) : '',
+                'introduce'      => trim($request->enrollmentMode),
+                'create_time'    => time()
+            ];
+    
+            $is_create = ZslmActivitys::createAppointActivityMsg($create_msg);
 
+            $is_create_img = $this->createDirImg($img_name, $file_handle);
+
+            if($is_create && ($is_create_img === true)) {
+                DB::commit();
+                return responseToJson(0, '上传成功'); 
+            }
+            else if(is_array($is_create_img) && $is_create_img[0] == 1) {
+                throw new \Exception($is_create_img[1]);
+            }
+            else throw new \Exception('上传失败');
+
+        } catch(\Exception $e)  {
+            DB::rollback();//事务回滚
+            return responseToJson(1, $e->getMessage());
+        }
+    }
+
+
+    private function createDirImg($imgName, &$imgHandle) {
+        if($imgHandle->isValid()) {
+            $originalName = $imgHandle->getClientOriginalName(); //源文件名
+            $ext = $imgHandle->getClientOriginalExtension();    //文件拓展名
+
+            $file_type_arr = ['png','jpg','jpeg','tif','image/jpeg'];
+            $type = $imgHandle->getClientMimeType(); //文件类型
+            $realPath = $imgHandle->getRealPath();   //临时文件的绝对路径
+            $size = $imgHandle->getSize();
+
+            if(!in_array(strtolower($ext), $file_type_arr)) return [1,'请上传格式为图片的文件'];
+            else if(Storage::disk('info')->exists($imgName)) return [1, '图片已存在'];
+            else if(getByteToMb($size) > 3) return [1, '文件超出最大限制'];
+
+            $bool = Storage::disk('info')->put($imgName, file_get_contents($realPath));
+            return $bool ? $bool : [1, '图片上传失败'];
+        }
+        else return [1, '图片未上传'];
     }
 
 
@@ -369,7 +493,7 @@ class ActivityController extends Controller
      *     }
      */
     public function getActivityType(Request $request) {
-
+        return responseToJson(0, '', Dict::getActivityType());
     }
 
 
@@ -407,7 +531,7 @@ class ActivityController extends Controller
      *     }
      */
     public function getMajorType(Request $request) {
-
+        return responseToJson(0, '', Dict::dictMajorType());
     }
 
 
@@ -446,7 +570,14 @@ class ActivityController extends Controller
      *     }
      */
     public function getMajorProvincesAndCities(Request $request) {
+        $region = Dict::dictRegion();
 
+        foreach($region[0] as $key=>$item) {
+            $item->citys = $region[$item->id];
+            unset($region[$item->id]);
+        }
+
+        return responseToJson(0, '', $region);
     }
 
 
@@ -486,7 +617,7 @@ class ActivityController extends Controller
      *     }
      */
     public function getAllMajor(Request $request) {
-
+        return responseToJson(0, '', ZslmMajor::getAllDictMajor());
     }
 
 
@@ -521,18 +652,24 @@ class ActivityController extends Controller
      *     }
      */
     public function setHostMajor(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(0, '请求方式错误');
+        $activity_id = (isset($request->activityId) && is_numberic($request->activityId)) ? $request->activityId : 0;
+        $major_id = (isset($request->majorId) && is_numberic($request->majorId)) ? $request->majorId : 0;
 
+        $is_set = ActivityRelation::setAppointHostMajor($activity_id, $major_id);
+        return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
 
 
     
 
     /**
-     * @api {post} admin/information/sendActivityDynamic 活动作为院校动态更新推送给关注了主办院校的用户（插入消息表，并和用户进行关联，推送到个人中心－院校动态中）
+     * @api {post} admin/information/sendActivityDynamic 活动作为院校动态更新推送给关注了主办院校的用户（插入消息表，并和用户进行关联，推送到个人中心－院校动态中）/活动作为新消息内容发送给关注了主办院校的用户（插入消息表，并和用户关联，推送到消息中心中）
      * @apiGroup information
      *
      * @apiParam {Number} activityId 活动的id
      * @apiParam {Number} majorId 主办院校id
+     * @apiParam {Number} newOrDyna 设置类别(0,作为院校动态；1作为新消息)
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -557,45 +694,56 @@ class ActivityController extends Controller
      *     }
      */
     public function sendActivityDynamic(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $activity_id = (isset($request->activityId) && is_numberic($request->activityId)) ? $request->activityId : 0;
+        $major_id = (isset($request->majorId) && is_numberic($request->majorId)) ? $request->majorId : 0;
+
+        $new_or_dyna = $request->newOrDyna;
+
+        if($activity_id || $major_id || ($new_or_dyna < 0)) return responseToJson(1, '参数错误');
+
+        try {
+            DB::beginTransaction();
+
+            $activity_msg = ZslmActivitys::getAppointActivityMsg($activity_id, 'active_name, introduce');
+
+            $type = $new_or_dyna ? 2 : 3;
+
+            $create_news_id = News::createNews([
+                'carrier' => 1,
+                'news_title' => $activity_msg->active_name,
+                'context' => (mb_strlen($activity_msg->introduce, 'utf-8') > 20) ? (mb_substr($activity_msg->introduce, 0, 20, 'gb2312') . '...') : $activity_msg->introduce,
+                'type' => $type,
+                'create_time' => time()
+            ]);
+
+            $all_users_id = UserAccounts::getAllUsersId();
+            
+            $time = time();
+            $data_arr = [];
+            if(is_array($all_users_id) && !empty($all_users_id) && $create_news_id > 0) {
+                foreach($all_users_id as $key => $user_id) {
+                    array_push($data_arr,[
+                        'news_id' => $create_news_id, 
+                        'user_id' => $user_id, 
+                        'status' => 0, 
+                        'create_time' => $time
+                    ]);
+                }
+                $is_create = NewsUsers::createNewsRelationUser($data_arr);
+                if($is_create) 
+                    return responseToJson(0, '发送成功');
+                else 
+                    throw new \Exception('发送失败');
+            }
+            else
+                throw new \Exception('获得参数失败');
+        } catch(\Exception $e) {
+            DB::rollback();//事务回滚
+            return responseToJson(1, $e->getMessage());
+        }
 
     }
-
-
-
-
-    /**
-     * @api {post} admin/information/sendActivityNews 活动作为新消息内容发送给关注了主办院校的用户（插入消息表，并和用户关联，推送到消息中心中）
-     * @apiGroup information
-     *
-     * @apiParam {Number} activityId 活动的id
-     * @apiParam {Number} majorId 主办院校专业id
-     *
-     * @apiSuccessExample　{json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     * "code": 0,
-     * "msg": "设置成功"
-     * }
-     *
-     * @apiError　{Object[]} error　 这里是失败时返回实例
-     *
-     * @apiErrorExample Error-Response:
-     *     HTTP/1.1 40x
-     *     {
-     *       "code": "1",
-     *        "msg": '更新失败/参数错误'
-     *     }
-     *
-     *      HTTP/1.1 5xx
-     *     {
-     *       "code": "2",
-     *        "msg": '请求方式错误'
-     *     }
-     */
-    public function sendActivityNews(Request $request) {
-
-    }
-
 
 
     /**
@@ -633,7 +781,7 @@ class ActivityController extends Controller
      *     }
      */
     public function getAllActivitys(Request $request) {
-
+        ZslmActivitys::getAllActivity();
     }
 
     //

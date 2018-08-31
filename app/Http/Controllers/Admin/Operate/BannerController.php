@@ -350,7 +350,7 @@ class BannerController extends Controller
             else if(isset($img)) return responseToJson(1,'请选择要上传的图片');
             else if($url_id == 0) return responseToJson(1, '请指定Banner页面');
     
-            if(isset($img_name)) $img_name = getFileName('operate', $img_handle->getClientOriginalExtension());
+            if(!isset($img_name)) $img_name = getFileName('operate', $img_handle->getClientOriginalExtension());
             else $img_name = $img_name . '.' . $img_handle->getClientOriginalExtension();
             $img_msg = [
                 'img' => $img_name,
@@ -412,7 +412,7 @@ class BannerController extends Controller
             $bool = Storage::disk('operate')->put($imgName, file_get_contents($realPath));
             return $bool ? $bool : [1, '图片上传失败'];
         }
-        else [1, '图片未上传'];
+        else return [1, '图片未上传'];
     }
 
     /**

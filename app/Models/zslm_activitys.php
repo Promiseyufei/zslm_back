@@ -68,5 +68,52 @@ class zslm_activitys
     }
 
 
+    public static function getActivityAppiCount(array $condition = []) {
+        return DB::table(self::$stableName)->where($condition)->count();
+    }
+
+
+    public static function setAppiActivityState(array $activity = []) {
+        $handle = DB::table(self::$sTableName)->where('id', $activity['act_id']);
+        switch($activity['type'])
+        {
+            case 0:
+                return $handle->update(['show_weight' => $activity['state'], 'update_time' => time()]);
+                break;
+            case 1:
+                return $handle->update(['show_state' => $activity['state'], 'update_time' => time()]);
+                break;
+            case 2:
+                return $handle->update(['recommended_state' => $activity['state'], 'update_time' => time()]);
+                break;
+            case 3:
+                return $handle->update(['active_status' => $activity['state'], 'update_time' => time()]);
+                break;
+        }
+    }
+
+    public static function getAppointActivityMsg($activityId = 0, $msgName = '') {
+        if(empty($msgName))
+            return DB::table(self::$sTableName)->where('id', $activityId)->first();
+        else
+            return DB::table(self::$sTableName)->where('id', $activityId)->select($msgName)->first();
+    }
+
+    public static function delAppointActivity($activityId = 0) {
+        return DB::table(self::$sTableName)->where('id', $activityId)->update(['is_delete' => 1, 'update_time' => time()]);
+    }
+
+    public static function updateActivityTime($activityId = 0) {
+        return DB::table(self::$sTableName)->where('id', $activityId)->update(['update_time' => time()]);
+    }
+
+
+    public static function getAllActivity() {
+        
+    }
+
+
+
+
 
 }
