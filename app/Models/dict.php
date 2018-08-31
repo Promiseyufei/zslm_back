@@ -8,19 +8,23 @@ class dict
 {
 
 
-    public static function dictMajorConfirm() {
+    public static function dictMajorConfirm() 
+    {
         return DB::table('dict_major_confirm')->get();
     }
 
-    public static function dictMajorFollow() {
+    public static function dictMajorFollow() 
+    {
         return DB::table('dict_major_follow')->get();
     }
 
-    public static function dictMajorType() {
+    public static function dictMajorType() 
+    {
         return DB::table('dict_major_type')->get();
     }
 
-    public static function dictRegion() {
+    public static function dictRegion() 
+    {
         return DB::table('dict_region')
         ->select('id','father_id','name')
         ->get()
@@ -28,8 +32,24 @@ class dict
         ->toArray();
     }
 
-    public static function getSchoolName() {
+    public static function getSchoolName() 
+    {
         return DB::table('college')->select('id', 'name', 'logo_name')->get();
+    }
+
+    public static function dictMajorDirection() 
+    {
+        return DB::table('dict_major_direction')->get();
+    }
+
+    public static function dictFractionType() 
+    {
+        return DB::table('dict_fraction_type')->get();
+    }
+
+    public static function dictRecruitmentPattern() 
+    {
+        return DB::table('dict_recruitment_pattern')->get();
     }
 
 

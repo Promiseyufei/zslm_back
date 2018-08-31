@@ -8,6 +8,7 @@ namespace App\Http\Controllers\Admin\Information;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\zslm_activitys as ZslmActivitys;
 use DB;
 
 class ActivityController extends Controller 
@@ -18,11 +19,13 @@ class ActivityController extends Controller
      * @apiGroup information
      * 
      * 
-     * @apiParam {String} majorNameKeyword 活动名称关键字
-     * @apiParam {Number} screenType 筛选方式()
+     * @apiParam {String} activityNameKeyword 活动名称关键字
+     * @apiParam {Number} screenType 筛选方式(0按展示状态；1按推荐状态;2活动状态；3全部)
+     * @apiParam {Number} screenState 筛选状态(0展示/推荐；1不展示/不推荐;2全部)
+     * @apiParam {Number} activityState 活动状态(0未开始；1进行中;2已结束；3全部)
+     * @apiParam {Number} sortType 排序类型(0按权重升序；1按权重降序;2按信息更新时间)
      * @apiParam {Number} pageCount 页面显示行数
      * @apiParam {Number} pageNumber 跳转页面下标
-     * @apiParam {Number} sortType 排序类型(0按权重升序；1按权重降序)
      * 
      *
      * @apiSuccessExample　{json} Success-Response:
@@ -67,7 +70,31 @@ class ActivityController extends Controller
      *     }
      */
     public function getActivityPageMessage(Request $request) {
+        if($request->isMethod('post')) return responseToJson(2, '请求方式失败');
 
+        $rules = [
+            'activityNameKeyword'   => 'nullable|string|max:255',
+            'screenType'            => 'numeric',
+            'screenState'           => 'numeric',
+            'sortType'              => 'nullable|numeric',
+            'pageCount'             => 'numeric',
+            'pageNumber'            => 'numeric'
+        ];
+        $message = [
+            'activityNameKeyword.max' =>'搜索关键字超过最大长度',
+            'screenType.*'            =>'参数错误',
+            'screenState.*'           =>'参数错误',
+            'sortType.*'              => '参数错误',
+            'pageCount.*'             => '参数错误',
+            'pageNumber.*'            => '参数错误'
+        ];
+        $validator = Validator::make($request->all(), $rules, $message);
+
+        if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
+
+        $get_msg = ZslmActivitys::getActivityPageMsg($request->all());
+
+        return $get_msg ? responseToJson(0, '', $get_msg) : responseToJson(1, '查询失败');
     }
 
 
