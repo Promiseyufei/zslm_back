@@ -55,7 +55,7 @@ class ActivityController extends Controller
      *              "major_type":"专业类型",
      *              "province":"所在省市",
      *              "address":"活动地址",
-     *              "begin_gime":"活动开始时间",
+     *              "begin_time":"活动开始时间",
      *              "end_time":"活动结束时间",
      *              "host_school":"活动主办院校",
      *              "sign_up_state":"报名状态",
@@ -102,7 +102,20 @@ class ActivityController extends Controller
 
         if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
 
-        $get_msg = ZslmActivitys::getActivityPageMsg($request->all());
+        $get_msg = ZslmActivitys::getActivityPageMsg($request->all())->toArray();
+
+        $province = $this->getMajorProvincesAndCities($request);
+
+        foreach($get_msg as $key => $item) {
+            $get_msg[$key]->province = strChangeArr($item->province, ',');
+            foreach($province[$item->province[0]]->citys as $value) 
+                if($item->province[1] == $value->id) $get_msg[$key]->province[1] = $value->name;
+
+            $get_msg[$key]->province[0] = $province[$item->province[0]]->name;
+            $get_msg[$key]->begin_time = date("Y-m-d",$item->begin_time);
+            $get_msg[$key]->end_time = date("Y-m-d",$item->end_time);
+            $get_msg[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
+        }
 
         return $get_msg ? responseToJson(0, '', $get_msg) : responseToJson(1, '查询失败');
     }
