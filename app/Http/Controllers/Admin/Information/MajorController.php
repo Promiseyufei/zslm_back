@@ -643,6 +643,4 @@ class MajorController extends Controller
     }
 
 
-
-
 }

@@ -285,18 +285,29 @@ function getByteToMb($bytes) {
          $requestArray = $_POST;
      else
          throw new Exception("Type must be in 1 or 2");
-//     foreach ($requestArray as $key => $value){
-//         $issetParam =  !in_array($key,$requestParams);
-//         $isNullParam = $value == null;
-//         if($issetParam || $isNullParam){
-//             return $key;
-//         }
-//     }
      for($subscript = 0;$subscript<sizeof($requestParams);$subscript++){
 
             if(!isset($requestArray[$requestParams[$subscript]]) || $requestArray[$requestParams[$subscript]]==null)
                 return $requestParams[$subscript];
      }
      return 'yes';
+ }
+
+
+ /**
+  * 合并数组并去重
+  *@params $arrays 一个或过个数组参数
+  *@return 合并并去重的数组
+  */
+ function mergeRepeatArray(...$arrays) {
+    if(count($arrays) == 1) 
+        return array_unique($arrays);
+    else {
+        $array_b = [];
+        foreach($arrays as $key=> $array) 
+            $array_b += array_flip($array);
+        return array_keys($array_b);
+        
+    }
  }
 

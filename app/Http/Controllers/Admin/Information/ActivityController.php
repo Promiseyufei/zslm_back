@@ -6,15 +6,19 @@
 
 namespace App\Http\Controllers\Admin\Information;
 
+
+use App\Models\activity_relation as ActivityRelation;
+use App\Models\zslm_activitys as ZslmActivitys;
+use App\Models\user_accounts as UserAccounts;
+use App\Http\Requests\ActivityCreateRequest;
+use App\Http\Requests\ActivityUpdateRequest;
+use App\Models\system_setup as SystemSetup;
+use App\Models\zslm_major as ZslmMajor;
+use App\Models\news_users as NewsUsers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\zslm_activitys as ZslmActivitys;
 use App\Models\dict as Dict;
-use App\Models\zslm_major as ZslmMajor;
-use App\Models\activity_relation as ActivityRelation;
 use App\Models\news as News;
-use App\Models\user_accounts as UserAccounts;
-use App\Models\news_users as NewsUsers;
 use DB;
 
 class ActivityController extends Controller 
@@ -759,7 +763,7 @@ class ActivityController extends Controller
      *
      *          {
      *              "id":"xxx",
-     *              "name":"xxxxxxxxxxxx",
+     *              "active_name":"xxxxxxxxxxxx",
      *              "xxx":"xxx"
      *          }
      *   }
@@ -781,7 +785,9 @@ class ActivityController extends Controller
      *     }
      */
     public function getAllActivitys(Request $request) {
-        ZslmActivitys::getAllActivity();
+
+        return responseToJson(0, ZslmActivitys::getAllActivity('id,active_name'));
+        
     }
 
     //
@@ -818,6 +824,25 @@ class ActivityController extends Controller
      */
     public function setManualRecActivitys(Request $request) {
 
+        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
+        $activity_arr = (isset($request->activityArr) && is_array($request->activityArr)) ? $request->activityArr : [];
+
+        if($activity_id == 0 || count($activity_arr) < 1) return responseToJson(0, '参数错误');
+
+        $recom_activity_count = SystemSetup::getContent('recommend_activity');
+
+        $relation_activity_arr = strChangeArr(ActivityRelation::getAppointContent($activity_id, 'relation_activity'), ',');
+        $merge_arr = mergeRepeatArray($activity_arr, $relation_activity_arr);
+        if(count($merge_arr) > $recom_activity_count) return responseToJson(1, '关联活动条数超过最大限制');
+
+        $rela_activity_str = strChangeArr($merge_arr, ',');
+
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'relation_activity', $rela_activity_str);
+
+        return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
+
+
     }
 
 
@@ -851,6 +876,19 @@ class ActivityController extends Controller
      *     }
      */
     public function setAutomaticRecActivitys(Request $request) {
+        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
+        if($activity_id == 0) return responseToJson(0, '参数错误');
+        $recom_activity_count = SystemSetup::getContent('recommend_activity');
+
+        $get_activits_id_arr = ZslmActivitys::getAutoRecommendActivitys($recom_activity_count);
+
+        if(count($get_activits_id_arr) < 1) return responseToJson(1, '暂无能够设置的活动');
+
+
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'relation_activity', strChangeArr($get_activits_id_arr, ','));
+
+        return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
 
     }
 
@@ -886,9 +924,24 @@ class ActivityController extends Controller
      *     }
      */
     public function setManualRecMajors(Request $request) {
+        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
+        $major_arr = (isset($request->majorArr) && is_array($request->majorArr)) ? $request->majorArr : [];
 
+        if($activity_id == 0 || count($major_arr) < 1) return responseToJson(0, '参数错误');
+
+        $recom_major_count = SystemSetup::getContent('recommend_major');
+
+        $relation_major_arr = strChangeArr(ActivityRelation::getAppointContent($activity_id, 'recommend_id'), ',');
+        $merge_arr = mergeRepeatArray($major_arr, $relation_major_arr);
+        if(count($merge_arr) > $recom_major_count) return responseToJson(1, '关联活动条数超过最大限制');
+
+        $rela_major_str = strChangeArr($merge_arr, ',');
+
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'recommend_id', $rela_major_str);
+
+        return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
-
 
 
 
@@ -922,7 +975,18 @@ class ActivityController extends Controller
      *     }
      */
     public function setAutomaticRecMajors(Request $request) {
+        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
+        if($activity_id == 0) return responseToJson(0, '参数错误');
+        $recom_major_count = SystemSetup::getContent('recommend_major');
 
+        $get_major_id_arr = ZslmMajor::getAutoRecommendMajors($recom_major_count);
+
+        if(count($get_major_id_arr) < 1) return responseToJson(1, '暂无能够设置的院校');
+
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'recommend_id', strChangeArr($get_major_id_arr, ','));
+
+        return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
 
 

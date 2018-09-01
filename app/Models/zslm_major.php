@@ -96,6 +96,16 @@
 
 
 
+        public static function getAutoRecommendMajors($recomMajorCount = 8) {
+            return DB::table(self::$sTableName)->where([
+                ['is_delete', '=', 0],
+                ['is_show', '=', 0],
+                ['if_recommended', '=', 0]
+            ])->orderBy('weight','desc')->skip($recomMajorCount)->pluck('id');
+        }
+
+
+
 
 
 
