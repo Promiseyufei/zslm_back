@@ -7,6 +7,7 @@
 namespace App\Http\Controllers\Admin\Information;
 
 use App\Http\Controllers\Controller;
+use App\Models\zslm_coupon as ZslmCoupon;
 use Illuminate\Http\Request;
 use DB;
 
@@ -20,7 +21,7 @@ class CouponController extends Controller
      * 
      * 
      * @apiParam {String} soachNameKeyword 辅导机构名称关键字
-     * @apiParam {Number} screenType 筛选方式(0按是否支持优惠券；1按机构类型(0是总部，非零是分校);2是全部)
+     * @apiParam {Number} screenType 筛选方式(0按是否支持优惠券；1按机构类型;2是全部)
      * @apiParam {Number} screenState 筛选状态(0支持优惠券/总部；1不支持/分校;2全部)
      * @apiParam {Number} pageCount 页面显示行数
      * @apiParam {Number} pageNumber 跳转页面下标
@@ -59,7 +60,29 @@ class CouponController extends Controller
      *     }
      */
     public function getPageCoupon() {
+        $rules = [
+            'soachNameKeyword' =>'nullable|string|max:255',
+            'screenType' => 'numeric',
+            'screenState' => 'numeric',
+            'pageCount' => 'numeric',
+            'pageNumber' => 'numeric'
+        ];
 
+        $message = [
+            'soachNameKeyword.max' =>'搜索关键字超过最大长度',
+            'screenType.*'            =>'参数错误',
+            'screenState.*'           =>'参数错误',
+            'pageCount.*'             => '参数错误',
+            'pageNumber.*'            => '参数错误'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $message);
+
+        if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
+
+        $coupons_msg = ZslmCoupon::getCouponPageMsg($request->all()->toArray());
+
+        
     }
 
 
