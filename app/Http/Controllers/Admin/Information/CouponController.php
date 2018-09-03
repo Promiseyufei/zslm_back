@@ -6,9 +6,11 @@
 
 namespace App\Http\Controllers\Admin\Information;
 
-use App\Http\Controllers\Controller;
+use App\Models\coach_organize as CoachOrganize;
 use App\Models\zslm_coupon as ZslmCoupon;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Validator;
 use DB;
 
 class CouponController extends Controller 
@@ -59,7 +61,10 @@ class CouponController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
-    public function getPageCoupon() {
+    public function getPageCoupon(Request $request) {
+
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+
         $rules = [
             'soachNameKeyword' =>'nullable|string|max:255',
             'screenType' => 'numeric',
@@ -82,6 +87,7 @@ class CouponController extends Controller
 
         $coupons_msg = ZslmCoupon::getCouponPageMsg($request->all()->toArray());
 
+        return ($coupons_msg != false) ? responseToJson(0,'', $coupons_msg) : responseToJson(1, '查询失败'); 
         
     }
 
@@ -90,7 +96,7 @@ class CouponController extends Controller
     /**
      * @api {post} admin/information/getPageCouponCount 优惠券列表页(对于辅导机构)分页总数
      * @apiGroup information
-     * 
+     * ZslmCoupon
      * @apiParam {Array} conditionArr 筛选条件
      * 
      *
@@ -119,12 +125,14 @@ class CouponController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
-    public function getPageCouponCount() {
+    public function getPageCouponCount(Request $request) {
+            if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+
+            if(isset($request->conditionArr) &&  is_array($request->conditionArr))
+                return responseToJson(0, '', ZslmCoupon::getcoachAppiCount($request->conditionArr));
+            else responseToJson(1, '查询失败');
 
     }
-
-
-    //
 
 
     /**
@@ -156,7 +164,15 @@ class CouponController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
-    public function setAppointCoachCouponsEnable() {
+    public function setAppointCoachCouponsEnable(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '参数错误');
+
+        $coach_id = (isset($request->coachId) && is_numeric($request->coachId)) ? $request->coachId : 0;
+        $state = ($request->state != null && is_numeric($request->state)) ? $request->state : -1;
+
+        $is_update = CoachOrganize::setCouponsState($coach_id, $state);
+
+        return $is_update ? responseToJson(0, '修改成功') : responseToJson(1, '修改失败');
 
     }
 
@@ -206,7 +222,7 @@ class CouponController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
-    public function getAppointCoupon() {
+    public function getAppointCoupon(Request $request) {
 
     }
 
@@ -244,21 +260,21 @@ class CouponController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
-    public function setAppointCouponEnable() {
+    public function setAppointCouponEnable(Request $request) {
 
     }
 
 
 
     //更新指定优惠券的字段信息
-    public function updateAppointCoupon() {
+    public function updateAppointCoupon(Request $request) {
 
     }
 
 
 
     //新增优惠券
-    public function createCoupon() {
+    public function createCoupon(Request $request) {
 
     }
 

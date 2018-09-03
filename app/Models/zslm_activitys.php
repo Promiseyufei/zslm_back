@@ -129,6 +129,13 @@ class zslm_activitys
     }
 
 
+    public static function createAppointActivityMsg(array $createActivityMsg = []) {
+        
+        return DB::table(self::$sTableName)->insertGetId($createActivityMsg);
+
+    }
+
+
 
 
 

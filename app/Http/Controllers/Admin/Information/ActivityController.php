@@ -19,6 +19,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\dict as Dict;
 use App\Models\news as News;
+use Validator;
 use DB;
 
 class ActivityController extends Controller 

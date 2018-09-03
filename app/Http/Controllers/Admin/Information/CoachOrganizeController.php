@@ -6,11 +6,14 @@
 
 namespace App\Http\Controllers\Admin\Information;
 
+
+use App\Models\coach_organize as CoachOrganize;
 use App\Http\Requests\CoachCreateRequest;
 use App\Http\Requests\CoachUpdateRequest;
-
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\dict as Dict;
+use Validator;
 use DB;
 
 class CoachOrganizeController extends Controller 
@@ -48,7 +51,7 @@ class CoachOrganizeController extends Controller
      *              "phone":"联系电话",
      *              "address":"具体地址",
      *              "web_url":"网址",
-     *              "coach_type":"辅导形式",
+     *              "coach_type":"辅导形式(0线上，1线下，2线上＋线下)",
      *              "if_coupons":"是否支持优惠券",
      *              "if_back_money":"是否支持退款",
      *              "update_time":"信息更新时间"
@@ -73,6 +76,59 @@ class CoachOrganizeController extends Controller
      */
     public function getPageCoachOrganize(Request $request) {
 
+        if($request->isMethod('post')) return responseToJson(2, '请求方式失败');
+
+        $rules = [
+            'soachNameKeyword' =>'nullable|string|max:255',
+            'screenType' => 'numeric',
+            'screenState' => 'numeric',
+            'sortType' => 'numeric',
+            'pageCount' => 'numeric',
+            'pageNumber' => 'numeric'
+        ];
+
+        $message = [
+            'soachNameKeyword.max' =>'搜索关键字超过最大长度',
+            'screenType.*'            =>'参数错误',
+            'screenState.*'           =>'参数错误',
+            'pageCount.*'             => '参数错误',
+            'pageNumber.*'            => '参数错误'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $message);
+
+        if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
+
+        $coachs_msg = CoachOrganize::getCoachPageMsg($request->all()->toArray());
+
+        $this->setProvice($coachs_msg);
+
+        // $province = $this->getMajorProvincesAndCities($request);
+
+        // foreach($coachs_msg as $key => $item) {
+        //     $coachs_msg[$key]->province = strChangeArr($item->province, ',');
+        //     foreach($province[$item->province[0]]->citys as $value) 
+        //         if($item->province[1] == $value->id) $coachs_msg[$key]->province[1] = $value->name;
+
+        //     $coachs_msg[$key]->province[0] = $province[$item->province[0]]->name;
+
+        //     $coachs_msg[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
+        // }
+
+        return $coachs_msg ? responseToJson(0, '', $coachs_msg) : responseToJson(1, '查询失败');
+
+
+
+    }
+
+    public function getMajorProvincesAndCities() {
+        $region = Dict::dictRegion();
+        foreach($region[0] as $key=>$item) {
+            $item->citys = $region[$item->id];
+            unset($region[$item->id]);
+        }
+
+        return responseToJson(0, '', $region);
     }
 
 
@@ -111,7 +167,14 @@ class CoachOrganizeController extends Controller
      *     }
      */
     public function getPageCoachCount(Request $request) {
-
+        try {
+            if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+            if(isset($request->conditionArr) &&  is_array($request->conditionArr))
+                return responseToJson(0, '', CoachOrganize::getCoachAppiCount($request->conditionArr));
+            else throw new \Exception('查询失败');
+        } catch(\Exception $e) {
+            return responseToJson(1, $e->getMessage());
+        }
     }
 
 
@@ -148,7 +211,24 @@ class CoachOrganizeController extends Controller
      *     }
      */
     public function setAppointCoachState(Request $request) {
+        if($request->isMethod('post')) {
+            $coach_id = (isset($request->coachId) && is_numeric($request->coachId)) ? $request->coachId : 0;
+            $type = (isset($request->type) && is_numeric($request->type)) ? $request->type : -1;
+            $state = (isset($request->state) && is_numeric($request->state)) ? $request->state : -1;
 
+            if($coach_id > 0 && $type != -1 && $state != -1) {
+                if($type > 0 && $state > 1) return responseToJson(1, '状态值错误');
+                $is_update = CoachOrganize::setAppiCoachState([
+                    'coach_id'  => $coach_id,
+                    'type'    => $type,
+                    'state'   => $state
+                ]);
+
+                return $is_update ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
+            }
+        }
+        else
+            return responseToJson(2, '请求方式错误');
     }
 
 
@@ -178,14 +258,19 @@ class CoachOrganizeController extends Controller
      *     }
      */
     public function selectCoachReception(Request $request) {
-
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $coach_id = (isset($request->coachId) && is_numeric($request->coachId)) ? $request->coachId : 0;
+        if($coach_id != 0) {
+            $coach = CoachOrganize::getAppointCoachMsg($coach_id);
+            return is_object($coach) ? responseToJson(0, '', $coach) : responseToJson(1, '获取信息失败');
+        }
     }
 
 
 
 
     /**
-     * @api {post} admin/information/updateCoachMessage 编辑辅导机构的信息
+     * @api {post} admin/information/updateCoachMessage 编辑辅导机构的信息(注意是编辑分校还是总部)
      * @apiGroup information
      *
      * @apiParam {Number} coachId 指定辅导机构的id
@@ -248,7 +333,15 @@ class CoachOrganizeController extends Controller
      *     }
      */
     public function deleteAppointCoach(Request $request) {
+        if(!$request->isMethod('get')) return responseToJson(2, '请求方式错误');
+        $coach_id = (isset($request->coachId) && is_numeric($request->coachId)) ? $request->coachId : 0;
 
+        if($coach_id > 0) {
+            $is_del = CoachOrganize::delAppointCoach($coach_id);
+            return $is_del ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
+        }
+        else 
+            return responseToJson(1, '参数错误');
     }
 
 
@@ -297,6 +390,35 @@ class CoachOrganizeController extends Controller
      */
     public function getAllBranchCoach(Request $request) {
 
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+
+        $total_id = (isset($request->totalCoachId) && is_numeric($request->totalCoachId)) ? $request->totalCoachId : 0;
+
+        $page_num = (isset($request->pageNum) && is_numeric($request->pageNum)) ? $request->pageNum : -1; 
+
+        if($total_id == 0 || $page_num < 0) return responseToJson(1, '参数错误');
+
+        $coachs_msg = CoachOrganize::getBranchCoachMsg($total_id, $page_num)->toArray();
+
+        $this->setProvice($coachs_msg);
+
+        return is_array($coachs_msg) ? responseToJson(0, '', $coachs_msg) : responseToJson(1, '查询失败');
+
+    }
+
+    private function setProvice(array &$msg = []) {
+        $province = $this->getMajorProvincesAndCities();
+
+        foreach($msg as $key => $item) {
+            $msg[$key]->province = strChangeArr($item->province, ',');
+
+            foreach($province[$item->province[0]]->citys as $value) 
+                if($item->province[1] == $value->id) $msg[$key]->province[1] = $value->name;
+
+            $msg[$key]->province[0] = $province[$item->province[0]]->name;
+
+            $msg[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
+        }
     }
 
 
@@ -306,20 +428,20 @@ class CoachOrganizeController extends Controller
      * @api {post} admin/information/createCoach 创建辅导机构(注意分校/总校的判定)
      * @apiGroup information
      *
-     * @apiParam {String} projectName 招生项目名称
-     * @apiParam {Float} minCost 招生项目最小费用
-     * @apiParam {Float} maxCost 招生项目最大费用
-     * @apiParam {String} cost 招生项目费用
-     * @apiParam {String} studentCount 招生名额
-     * @apiParam {String} language 授课语言
-     * @apiParam {String} classSituation 班级情况
-     * @apiParam {Number} eductionalSystme 学制
-     * @apiParam {String} canConditions 报考条件
-     * @apiParam {String} scoreDescribe 分数线描述
-     * @apiParam {String} graduationCertificate 毕业证书
-     * @apiParam {Number} recruitmentPattern 统招模式
-     * @apiParam {Number} enrollmentMode 招生模式
-     * @apiParam {Number} professionalDirection 专业方向
+     * @apiParam {String} coachName 辅导机构名称
+     * @apiParam {Number} provice 所在省市
+     * @apiParam {String} phone 联系方式
+     * @apiParam {String} address 地址
+     * @apiParam {String} webUrl 网址
+     * @apiParam {Number} CoachForm 辅导形式(0是总部，１是分校)
+     * @apiParam {Number} totalCoachId 辅导总部id(CoachForm为1的情况下，传过来分校的父级id)
+     * @apiParam {Number} couponsType 是否支持优惠券(０支持，１不支持)
+     * @apiParam {String} backMoneyType 是否支持退款(0支持，１不支持)
+     * @apiParam {File} coverName 辅导机构的封面图
+     * @apiParam {File} logoName 辅导机构logo
+     * @apiParam {String} title 页面优化
+     * @apiParam {String} keywords 页面优化
+     * @apiParam {String} description 页面优化
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -344,18 +466,72 @@ class CoachOrganizeController extends Controller
      *     }
      */ 
     public function createCoach(CoachCreateRequest $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
 
+        $cover_handle = $request->file('coachCover');
+        $logo_handle  = $request->file('coachLogo');
+        $cover_name = getFileName('coach', $cover_handle->getClientOriginalExtension());
+        $logo_name = getFileName('coach', $logo_handle->getClientOriginalExtension());
+        $msg = [
+            'coach_name' => trim($request->coachName),
+            'province' => $request->provice,
+            'phone' => trim($request->phone),
+            'address' => trim($request->address),
+            'web_url' => trim($request->webUrl),
+            'father_id' => empty($request->CoachForm) ? $request->CoachForm : $request->totalCoachId,
+            'if_coupons' => $request->couponsType,
+            'if_back_money' => $request->backMoneyType,
+            'title' => empty(trim($request->title)) ? '' : trim($request->title),
+            'keywords' => empty(trim($request->keywords)) ? '' : trim($request->keywords),
+            'description' => empty(trim($request->description)) ? '' : trim($request->description),
+            'cover_name' => $cover_name,
+            'logo_name' => $logo_name
+        ];
+
+        try {
+            DB::beginTransaction();
+
+            $is_create = CoachOrganize::createCoach($msg);
+            $is_create_cover = $this->createDirImg($cover_name, $cover_handle);
+            $is_create_logo = $this->createDirImg($logo_name, $logo_handle);
+    
+            if($is_create && $is_create_cover == true && $is_create_logo == true) {
+                DB::commit();
+                return responseToJson(0, '新建成功');
+            }
+            else if(is_array($is_create_cover) && $is_create_cover[0] == 1) 
+                throw new \Exception($is_create_cover[1]);
+            else if(is_array($is_create_logo) && $is_create_logo[0] == 1) 
+                throw new \Exception('上传失败');
+        }catch(\Exception $e) {
+            DB::rollback();//事务回滚
+            return responseToJson(1, $e->getMessage());
+        }
     }
 
+    private function createDirImg($imgName, &$imgHandle) {
+        if($imgHandle->isValid()) {
+            $originalName = $imgHandle->getClientOriginalName(); //源文件名
+            $ext = $imgHandle->getClientOriginalExtension();    //文件拓展名
 
-    private function createDirImg() {
+            $file_type_arr = ['png','jpg','jpeg','tif','image/jpeg'];
+            $type = $imgHandle->getClientMimeType(); //文件类型
+            $realPath = $imgHandle->getRealPath();   //临时文件的绝对路径
+            $size = $imgHandle->getSize();
 
+            if(!in_array(strtolower($ext), $file_type_arr)) return [1,'请上传格式为图片的文件'];
+            else if(Storage::disk('info')->exists($imgName)) return [1, '图片已存在'];
+            else if(getByteToMb($size) > 3) return [1, '文件超出最大限制'];
+
+            $bool = Storage::disk('info')->put($imgName, file_get_contents($realPath));
+            return $bool ? $bool : [1, '图片上传失败'];
+        }
+        else return [1, '图片未上传'];
     }
 
 
     private function updateDirImgName() {
 
     }
-
 
 }

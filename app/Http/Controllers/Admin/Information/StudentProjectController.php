@@ -12,6 +12,7 @@ use App\Models\major_recruit_project as MajorRecruitProject;
 
 use App\Http\Requests\StudentProjectUpdateRequest;
 use App\Http\Requests\StudentProjectCreateRequest;
+use Validator;
 use DB;
 
 class StudentProjectController extends Controller 
