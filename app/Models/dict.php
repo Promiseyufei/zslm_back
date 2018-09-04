@@ -58,5 +58,11 @@ class dict
     }
 
 
+    public static function dictInformationType() 
+    {
+        return DB::table('dict_information_type')->get();
+    }
+
+
 
 }

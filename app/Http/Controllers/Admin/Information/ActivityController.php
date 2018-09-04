@@ -113,6 +113,7 @@ class ActivityController extends Controller
                 if($item->province[1] == $value->id) $get_msg[$key]->province[1] = $value->name;
 
             $get_msg[$key]->province[0] = $province[$item->province[0]]->name;
+            
             $get_msg[$key]->begin_time = date("Y-m-d",$item->begin_time);
             $get_msg[$key]->end_time = date("Y-m-d",$item->end_time);
             $get_msg[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
