@@ -123,6 +123,7 @@ class CoachOrganizeController extends Controller
 
     public function getMajorProvincesAndCities() {
         $region = Dict::dictRegion();
+
         foreach($region[0] as $key=>$item) {
             $item->citys = $region[$item->id];
             unset($region[$item->id]);
@@ -274,6 +275,20 @@ class CoachOrganizeController extends Controller
      * @apiGroup information
      *
      * @apiParam {Number} coachId 指定辅导机构的id
+     * @apiParam {Number} coachName 指定辅导机构的id
+     * @apiParam {Number} coachType 指定辅导机构的id
+     * @apiParam {Number} provice 指定辅导机构的id
+     * @apiParam {Number} phone 指定辅导机构的id
+     * @apiParam {Number} address 指定辅导机构的id
+     * @apiParam {Number} webUrl 指定辅导机构的id
+     * @apiParam {Number} CoachForm 指定辅导机构的id
+     * @apiParam {Number} totalCoachId 指定辅导机构的id
+     * @apiParam {Number} backMoneyType 指定辅导机构的id
+     * @apiParam {Number} coverName 指定辅导机构的id
+     * @apiParam {Number} logoName 指定辅导机构的id
+     * @apiParam {Number} title 指定辅导机构的id
+     * @apiParam {Number} keywords 指定辅导机构的id
+     * @apiParam {Number} description 指定辅导机构的id
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK

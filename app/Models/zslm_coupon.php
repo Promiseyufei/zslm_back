@@ -50,6 +50,40 @@ class zslm_coupon
         return DB::table('coach_organize')->where($condition)->count();
     }
 
+    public static function getCoachAppointCoupon($coachId = 0, $pageCount, $pageNumber) {
+        return DB::table(self::$sTableName)
+        ->where('coach_id', $coachId)
+        ->select('id', 'name', 'type', 'context', 'zslm_couponcol', 'is_enable')
+        ->offset($pageCount * $pageNumber)->limit($pageCount)->get();
+    }
+
+
+    public static function setAppointCoipon($couponId = 0, $state) {
+        return DB::table(self::$sTableName)->where('id', $couponId)->update(['is_enable' => $state, 'update_time' => time()]);
+    }
+
+    public static function createCoupon(array $createMsg = []) {
+        return DB::table(self::$sTableName)->insertGetId([
+            'coach_id'       => $createMsg['coachId'],
+            'name'           => $createMsg['couponName'],
+            'type'           => $createMsg['couponType'],
+            'context'        => $createMsg['context'],
+            'zslm_couponcol' => $createMsg['couponcol'],
+            'create_time'    => time()
+        ]);
+    }
+
+
+    public static function updateCoupon(array $updateMsg = []) {
+        return DB::table(self::$sTableName)->where('id', $updateMsg['couponId'])->update([
+            'name'           => $updateMsg['couponName'],
+            'type'           => $updateMsg['couponType'],
+            'context'        => $updateMsg['context'],
+            'zslm_couponcol' => $updateMsg['couponcol'],
+            'update_time'    => time()
+            ]);
+    }
+
 
     
 }

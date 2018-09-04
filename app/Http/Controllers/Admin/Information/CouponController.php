@@ -199,10 +199,10 @@ class CouponController extends Controller
      *          {
      *              "id":"xxx",
      *              "name":"优惠券名称",
-     *              "type":"优惠券类型",
+     *              "type":"优惠券类型(0:满减型; 1:优惠型)",
      *              "context":"优惠券内容",
      *              "zslm_couponcol":"优惠券的使用说明",
-     *              "is_enable":"优惠券的启用状态"
+     *              "is_enable":"优惠券的启用状态(０：已启用　１：已禁用)"
      *          }
      *   }
      * }
@@ -224,6 +224,17 @@ class CouponController extends Controller
      */
     public function getAppointCoupon(Request $request) {
 
+        if(!$request->isMethod('post')) return responseToJson(2, '参数错误');
+
+        $coach_id = (isset($request->CoachId) && is_numeric($request->CoachId)) ? $request->CoachId : 0;
+        $page_count = (isset($request->pageCount) && is_numeric($request->pageCount)) ? $request->pageCount : 10;
+        $page_number = (isset($request->pageCount) && is_numeric($request->pageCount)) ? $request->request : 0;
+
+        if($coach_id == 0) return responseToJson(1, '参数错误');
+
+        $get_coupon = ZslmCoupon::getCoachAppointCoupon($coach_id, $page_count, $page_number);
+
+        return (is_object($get_coupon) && count($get_coupon) >=0) ? responseToJson(0, '', $get_coupon) : responseToJson(1, '查询失败');
     }
 
 
@@ -262,20 +273,145 @@ class CouponController extends Controller
      */
     public function setAppointCouponEnable(Request $request) {
 
+        if(!$request->isMethod('post')) return responseToJson(2, '参数错误');
+
+        $coupon_id = (isset($request->couponId) && is_numeric($request->couponId)) ? $request->couponId : 0;
+
+        $state = ($request->state != null && is_numeric($request->state)) ? $request->state : -1;
+
+        if($coupon_id == 0 || $state < 0 || intval($state) > 1) return responseToJson(1, '参数错误');
+
+        $is_update = ZslmCoupon::setAppointCoipon($coupon_id, $state);
+
+        return $is_update ? responseToJson(0, '设置成功') : responseToJson(1, '参数错误');
     }
 
 
 
-    //更新指定优惠券的字段信息
-    public function updateAppointCoupon(Request $request) {
-
-    }
 
 
-
-    //新增优惠券
+    /**
+     * @api {post} admin/information/createCoupon 新增优惠券
+     * @apiGroup information
+     *
+     * @apiParam {Number} coachId 所属辅导机构id
+     * @apiParam {String} couponName 优惠券名称
+     * @apiParam {Number} couponType 优惠券类型(0:满减型; 1:优惠型)
+     * @apiParam {String} context 优惠券内容
+     * @apiParam {String} couponcol 优惠券说明
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "更新成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
     public function createCoupon(Request $request) {
 
+        if(!$request->isMethod('post')) return responseToJson(2, '参数错误');
+
+        $rules = [
+            'coachId'       => 'required|numeric',
+            'couponName'    => 'required|string|max:255',
+            'couponType'    => 'required|numeric',
+            'context'       => 'required|string',
+            'couponcol'     => 'required|string'
+        ];
+
+        $message = [
+            'coachId.*'       => '参数错误',
+            'couponName.max'  => '名称超过最大长度',
+            'couponType.*'    => '参数错误',
+            'context.*'       => '参数错误',
+            'couponcol.*'     => '参数错误'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $message);
+
+        if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
+
+        $create_id = ZslmCoupon::createCoupon($request->all());
+
+        return $create_id ? responseToJson(0, '新增成功') : responseToJson(1, '新增失败');
+
+    }
+
+
+
+    /**
+     * @api {post} admin/information/createCoupon 更新指定优惠券的字段信息
+     * @apiGroup information
+     *
+     * @apiParam {Number} couponId 优惠券id
+     * @apiParam {String} couponName 优惠券名称
+     * @apiParam {Number} couponType 优惠券类型(0:满减型; 1:优惠型)
+     * @apiParam {String} context 优惠券内容
+     * @apiParam {String} couponcol 优惠券说明
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "更新成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function updateAppointCoupon(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '参数错误');
+
+        $rules = [
+            'couponId'       => 'required|numeric',
+            'couponName'    => 'required|string|max:255',
+            'couponType'    => 'required|numeric',
+            'context'       => 'required|string',
+            'couponcol'     => 'required|string'
+        ];
+
+        $message = [
+            'couponId.*'       => '参数错误',
+            'couponName.max'  => '名称超过最大长度',
+            'couponType.*'    => '参数错误',
+            'context.*'       => '参数错误',
+            'couponcol.*'     => '参数错误'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $message);
+
+        if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
+
+        $is_update = ZslmCoupon::updateCoupon($request->all());
+
+        return $is_update ? responseToJson(0, '修改成功') : responseToJson(1, '修改失败');
     }
 
 
