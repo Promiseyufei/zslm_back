@@ -139,7 +139,7 @@ class zslm_information
         if(empty($msgName))
             return DB::table(self::$sTableName)->where('id', $infoId)->first();
         else
-            return DB::table(self::$sTableName)->where('id', $infoId)->select($msgName)->first();
+            return DB::table(self::$sTableName)->where('id', $infoId)->select(...$msgName)->first();
     }
 
     public static function delAppointInfo($infoId = 0) {
@@ -153,9 +153,28 @@ class zslm_information
     }
 
 
-    //用于将资讯作为院校动态或新消息发送给关注了相关院校的用户时使用
-    // public static function getSomeSendInfoMsg()
 
+
+    public static function getAutoRecommendInfos($recomInfoCount = 8) {
+        return DB::table(self::$sTable)->where([
+            ['is_delete', '=', 0],
+            ['is_show', '=', 0],
+            ['is_recommend', '=', 0]
+        ])->orderBy('weight', 'desc')->skip($recomInfoCount)->pluck('id');
+    }
+    
+
+
+
+    //手动设置资讯的推荐阅读时使用
+    public static function getAllInfo($pageNum = 0, $pageCount = 10) {
+
+
+        return DB::table(self::$sTableName)->where('is_delete', 0)
+        ->select('id', 'zx_name')->orderBy('update_time', 'desc')
+        ->offset($pageNum * $pageCount)->limit($pageCount)->get();
+
+    }
 
 
 

@@ -7,14 +7,19 @@
 namespace App\Http\Controllers\Admin\Information;
 
 
+use App\Models\information_relation as InfomationRelation;
 use App\Models\information_major as InformationMajor;
+use App\Models\user_follow_major as UserFollowMajor;
 use App\Models\zslm_information as ZslmInformation;
+use App\Models\system_setup as SystemSetup;
 use App\Http\Requests\InfoCreateRequest;
 use App\Http\Requests\InfoUpdateRequest;
+use App\Models\zslm_major as ZslmMajor;
+use App\Models\news_users as NewsUsers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\dict as Dict;
-use App\Models\zslm_major as ZslmMajor;
+use App\Models\news as News;
 use Validator;
 use DB;
 
@@ -535,7 +540,7 @@ class InformationController extends Controller
      *
      * @apiParam {Number} infoId 活动的id
      * @apiParam {Number} majorIdArr 相关院校院校id数组
-     * @apiParam {Number} newOrDyna 设置类别(0,作为院校动态；1作为新消息)
+     * @apiParam {Number} newOrDyna 设置类别(0作为院校动态；1作为新消息)
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -570,7 +575,48 @@ class InformationController extends Controller
 
         $appoint_major_arr = InformationMajor::selectAppointRelation($info_id);
 
-        $infos_msg = ZslmInformation::getAppointInfoMsg($info_id, '')
+        //插入news表->指定资讯的关联院校->查询用户-专业表->获得关注学生->去重->插入消息-用户关联表
+        $info_msg = ZslmInformation::getAppointInfoMsg($info_id, ['id', 'zx_name', 'z_text', 'z_from']);
+
+        //通过院校专业id获得所有的用户id，然后进行去重
+        $users_id_arr = array_unique(UserFollowMajor::getAppointMajorRelevantUser($appoint_major_arr));
+
+        try {
+            DB::beginTransaction();
+
+            $type = $new_or_dyna ? 2 : 3;
+
+            $create_news_id = News::createNews([
+                'carrier'     => 1,
+                'news_title'  => $info_msg->zx_name,
+                'context'     => (mb_strlen($info_msg->z_text, 'utf-8') > 20) ? (mb_substr($info_msg->z_text, 0, 20, 'gb2312') . '...') : $info_msg->z_text,
+                'type'        => $type,
+                'create_time' => time()
+            ]);
+
+            if(is_array($users_id_arr) && !empty($users_id_arr) && $create_info_id > 0) {
+                $now_time = time();
+                $data_arr = [];
+                foreach($users_id_arr as $key => $user_id)
+                    array_push($data_arr, [
+                        'news_id' => $create_news_id, 
+                        'user_id' => $user_id, 
+                        'status' => 0, 
+                        'create_time' => $time
+                    ]);
+
+                $is_create = NewsUsers::createNewsRelationUser($data_arr);
+
+                if($is_create) return responseToJson(0, '发送成功');
+                else throw new \Exception('发送失败');
+            }
+            else throw new \Exception('获得参数失败');
+
+        }catch(\Exception $e) {
+            DB::rollback();//事务回滚
+            return responseToJson(1, $e->getMessage());
+        }
+
     }
 
 
@@ -607,7 +653,23 @@ class InformationController extends Controller
      *     }
      */
     public function setManualRecInfos(Request $request) {
+        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
+        $info_arr = (isset($request->infoArr) && is_array($request->infoArr)) ? $request->infoArr : [];
 
+        if($info_id == 0 || count($info_arr) < 1) return responseToJson(0, '参数错误');
+
+        $recom_info_count = SystemSetup::getContent('recommend_read');
+
+        $relation_info_arr = strChangeArr(InfomationRelation::getAppointInfoContent($info_id, 'tj_yd_id'), ',');
+        $merge_arr = mergeRepeatArray($info_arr, $relation_info_arr);
+        if(count($merge_arr) > $recom_info_count) return responseToJson(1, '关联活动条数超过最大限制');
+
+        $rela_info_str = strChangeArr($merge_arr, ',');
+
+        $is_set = InfomationRelation::setRecommendInfos($info_id, 'tj_yd_id', $rela_info_str);
+
+        return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
 
 
@@ -643,7 +705,19 @@ class InformationController extends Controller
      *     }
      */
     public function setAutomaticRecInfos(Request $request) {
+        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
+        if($info_id == 0) return responseToJson(0, '参数错误');
+        $recom_info_count = SystemSetup::getContent('recommend_read');
 
+        $get_infos_id_arr = ZslmInformation::getAutoRecommendInfos($recom_info_count);
+
+        if(count($get_infos_id_arr) < 1) return responseToJson(1, '暂无能够设置的活动');
+
+
+        $is_set = InfomationRelation::setRecommendInfos($info_id, 'tj_yd_id', strChangeArr($get_infos_id_arr, ','));
+
+        return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
 
 
@@ -654,6 +728,9 @@ class InformationController extends Controller
     /**
      * @api {post} admin/information/getAllInfo 获得所有的资讯(在设置推荐阅读的手动设置时使用)
      * @apiGroup information
+     * 
+     * @apiParam {Number} pageNumber 分页下标
+     * @apiParam {Number} pageCount 每页显示数量
      * 
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -687,6 +764,9 @@ class InformationController extends Controller
      */
     public function getAllInfo(Request $request) {
 
+        $page_num = ($request->pageNumber ?? false ) ? $request->pageNumber : 0;
+        $page_count = ($request->pageCount ?? false) ? $request->pageCount : 10; 
+        return responseToJson(0, '', ZslmInformation::getAllInfo($page_num, $page_count));
     }
 
 
@@ -697,7 +777,7 @@ class InformationController extends Controller
      * @apiGroup information
      *
      * @apiParam {Number} infoId 活动的id
-     * @apiParam {Array} infoArr 推荐阅读资讯id的数组
+     * @apiParam {Array} majorArr 推荐院校专业id的数组
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -722,7 +802,23 @@ class InformationController extends Controller
      *     }
      */
     public function setManualInfoRelationCollege(Request $request) {
+        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
+        $major_arr = (isset($request->majorArr) && is_array($request->majorArr)) ? $request->majorArr : [];
 
+        if($info_id == 0 || count($major_arr) < 1) return responseToJson(0, '参数错误');
+
+        $recom_info_count = SystemSetup::getContent('recommend_info_major');
+
+        $relation_info_arr = strChangeArr(InfomationRelation::getAppointInfoContent($info_id, 'tj_sc_id'), ',');
+        $merge_arr = mergeRepeatArray($info_arr, $relation_info_arr);
+        if(count($merge_arr) > $recom_info_count) return responseToJson(1, '关联院校专业条数超过最大限制');
+
+        $rela_info_str = strChangeArr($merge_arr, ',');
+
+        $is_set = InfomationRelation::setRecommendInfos($info_id, 'tj_sc_id', $rela_info_str);
+
+        return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
 
 
@@ -760,7 +856,19 @@ class InformationController extends Controller
      *     }
      */ 
     public function setAutoInfoRelationCollege(Request $request) {
+        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
+        if($info_id == 0) return responseToJson(0, '参数错误');
+        $recom_info_major_count = SystemSetup::getContent('recommend_info_major');
 
+        $get_major_id_arr = ZslmMajor::getAutoRecommendMajors($recom_info_major_count);
+
+        if(count($get_major_id_arr) < 1) return responseToJson(1, '暂无能够设置的活动');
+
+
+        $is_set = InfomationRelation::setRecommendInfos($info_id, 'tj_sc_id', strChangeArr($get_major_id_arr, ','));
+
+        return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
 
 
@@ -783,11 +891,6 @@ class InformationController extends Controller
         }
         else return [1, '图片未上传'];
     }
-
-
-
-
-    
 
 
 

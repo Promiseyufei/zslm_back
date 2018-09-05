@@ -50,7 +50,7 @@ class activity_relation
      */
     public static function setRecommendActivitys($activityId = 0, $name = '', $activityStr = '') {
 
-        return DB::table(self::$sTableName)->where('activity_id', $activityId)->update([$name => $activityStr]);
+        return DB::table(self::$sTableName)->where('activity_id', $activityId)->update([$name => $activityStr, 'update_time' => time()]);
     }
 
     

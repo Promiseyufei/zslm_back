@@ -96,7 +96,7 @@ class zslm_activitys
         if(empty($msgName))
             return DB::table(self::$sTableName)->where('id', $activityId)->first();
         else
-            return DB::table(self::$sTableName)->where('id', $activityId)->select($msgName)->first();
+            return DB::table(self::$sTableName)->where('id', $activityId)->select(...$msgName)->first();
     }
 
     public static function delAppointActivity($activityId = 0) {

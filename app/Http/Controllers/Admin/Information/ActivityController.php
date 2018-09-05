@@ -724,15 +724,15 @@ class ActivityController extends Controller
         try {
             DB::beginTransaction();
 
-            $activity_msg = ZslmActivitys::getAppointActivityMsg($activity_id, 'active_name, introduce');
+            $activity_msg = ZslmActivitys::getAppointActivityMsg($activity_id, ['active_name', 'introduce']);
 
             $type = $new_or_dyna ? 2 : 3;
 
             $create_news_id = News::createNews([
-                'carrier' => 1,
-                'news_title' => $activity_msg->active_name,
-                'context' => (mb_strlen($activity_msg->introduce, 'utf-8') > 20) ? (mb_substr($activity_msg->introduce, 0, 20, 'gb2312') . '...') : $activity_msg->introduce,
-                'type' => $type,
+                'carrier'     => 1,
+                'news_title'  => $activity_msg->active_name,
+                'context'     => (mb_strlen($activity_msg->introduce, 'utf-8') > 20) ? (mb_substr($activity_msg->introduce, 0, 20, 'gb2312') . '...') : $activity_msg->introduce,
+                'type'        => $type,
                 'create_time' => time()
             ]);
 
@@ -742,7 +742,7 @@ class ActivityController extends Controller
             $data_arr = [];
             if(is_array($all_users_id) && !empty($all_users_id) && $create_news_id > 0) {
                 foreach($all_users_id as $key => $user_id) {
-                    array_push($data_arr,[
+                    array_push($data_arr, [
                         'news_id' => $create_news_id, 
                         'user_id' => $user_id, 
                         'status' => 0, 
