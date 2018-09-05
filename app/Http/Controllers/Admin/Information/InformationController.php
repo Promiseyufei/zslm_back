@@ -7,12 +7,14 @@
 namespace App\Http\Controllers\Admin\Information;
 
 
+use App\Models\information_major as InformationMajor;
 use App\Models\zslm_information as ZslmInformation;
 use App\Http\Requests\InfoCreateRequest;
 use App\Http\Requests\InfoUpdateRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\dict as Dict;
+use App\Models\zslm_major as ZslmMajor;
 use Validator;
 use DB;
 
@@ -372,6 +374,42 @@ class InformationController extends Controller
      */ 
     public function createInfo(InfoCreateRequest $request) {
 
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+
+        $img_handle = $request->file('infoImage');
+
+        $img_name = getFileName('info', $img_handle->getClientOriginalExtension());
+
+        $create_msg = [
+            'zx_name'       => trim($request->infoName),
+            'z_type'        => $request->infoType,
+            'z_from'        => trim($request->infoFrom),
+            'z_image'       => $img_name,
+            'z_text'        => trim($request->infoText),
+            'title'         => (trim($request->title) ?? false) ? trim($request->title) : '',
+            'keywords'      => (trim($request->keywords) ?? false) ? trim($request->keywords) : '',
+            'description'   => (trim($request->description) ?? false) ? trim($request->description) : ''
+        ];
+
+        try {
+            DB::beginTransaction();
+
+            $create_info_id = ZslmInformation::createInfo($create_msg);
+    
+            $is_create_img = $this->createDirImg($img_name, $img_handle);
+    
+            if($create_info_id && ($is_create_img === true)) {
+                DB::commit();
+                return responseToJson(0, '上传成功'); 
+            }
+            else if(is_array($is_create_img) && $is_create_img[0] == 1)
+                throw new \Exception($is_create_img[1]);
+            else throw new \Exception('上传失败');
+        }catch(\Exception $e) {
+            DB::rollback();//事务回滚
+            return responseToJson(1, $e->getMessage());
+        }
+
     }
 
 
@@ -408,6 +446,23 @@ class InformationController extends Controller
      */
     public function setAppointRelationCollege(Request $request) {
 
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+
+        $info_id = $request->infoId ?? 0;
+        $major_id_arr = (($request->majorIdArr ?? false) && is_array($request->majorIdArr)) ? $request->majorIdArr : [];
+
+        if(empty($info_id) || empty($major_id_arr)) return responseToJson(1, '请求参数错误');
+
+        $re_info_arr = InformationMajor::selectAppointRelation($info_id);
+
+        $major_id_arr = array_diff($major_id_arr, $re_info_arr);  //返回差集
+        
+
+        $relevan_id = InformationMajor::setAppointRelevantMajor($info_id, $major_id_arr);
+
+        return $relevan_id ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');  
+        
+
     }
 
 
@@ -417,6 +472,9 @@ class InformationController extends Controller
     /**
      * @api {post} admin/information/getAllCollege 获得所有的院校专业(在设置相关院校和推荐院校的手动设置时使用)
      * @apiGroup information
+     * 
+     * @apiParam {Number} type 在设置相关院校时获取还是在设置推荐院校时获取(0设置相关院校时;1设置推荐院校时)
+     * @apiParam {Number} infoId 咨询id(在设置资讯相关院校时需要将指定资讯id发送给后台，默认情况为0)
      * 
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -448,8 +506,22 @@ class InformationController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
-    public function getAllCollege(Request $request) {
+    public function getAllCollege(Request $request, $infoId = 0) {
 
+        $type = $request->type ?? -1;
+        if($type < 0) return responseToJson(1, '参数错误');
+
+        $info_id = empty($type) ? $request->infoId : 0;
+        
+        if($type == 1) return responseToJson(0, '', ZslmMajor::getAllDictMajor());
+        else {
+            $re_info_arr = InformationMajor::selectAppointRelation($info_id);
+            $all_major_arr = ZslmMajor::getAllDictMajor()->toArray();
+            foreach($all_major_arr as $key => $major) 
+                if(in_array($major->id, $re_info_arr)) array_splice($all_major_arr, $key, 1);
+
+            return responseToJson(0, '', $all_major_arr);
+        }
     }
 
 
@@ -489,6 +561,16 @@ class InformationController extends Controller
      */
     public function sendInfoDynamic(Request $request) {
 
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+
+        $info_id = (($request->infoId ?? false) && is_numeric($request->infoId)) ? $request->infoId : 0;
+        $new_or_dyna = (($request->newOrDyna ?? false) && is_numeric($request->newOrDyna)) ? $request->newOrDyna : -1;
+
+        if(empty($info_id) || $new_or_dyna < 0) return responseToJson(1, '参数错误');
+
+        $appoint_major_arr = InformationMajor::selectAppointRelation($info_id);
+
+        $infos_msg = ZslmInformation::getAppointInfoMsg($info_id, '')
     }
 
 
@@ -511,7 +593,7 @@ class InformationController extends Controller
      *
      * @apiError　{Object[]} error　 这里是失败时返回实例
      *
-     * @apiErrorExample Error-Response:
+     * @apiErrorExample Error-Response:    private function createDirImg($imgName, &$imgHandle) {
      *     HTTP/1.1 40x
      *     {
      *       "code": "1",
@@ -679,6 +761,27 @@ class InformationController extends Controller
      */ 
     public function setAutoInfoRelationCollege(Request $request) {
 
+    }
+
+
+    private function createDirImg($imgName, &$imgHandle) {
+        if($imgHandle->isValid()) {
+            $originalName = $imgHandle->getClientOriginalName(); //源文件名
+            $ext = $imgHandle->getClientOriginalExtension();    //文件拓展名
+
+            $file_type_arr = ['png','jpg','jpeg','tif','image/jpeg'];
+            $type = $imgHandle->getClientMimeType(); //文件类型
+            $realPath = $imgHandle->getRealPath();   //临时文件的绝对路径
+            $size = $imgHandle->getSize();
+
+            if(!in_array(strtolower($ext), $file_type_arr)) return [1,'请上传格式为图片的文件'];
+            else if(Storage::disk('info')->exists($imgName)) return [1, '图片已存在'];
+            else if(getByteToMb($size) > 3) return [1, '文件超出最大限制'];
+
+            $bool = Storage::disk('info')->put($imgName, file_get_contents($realPath));
+            return $bool ? $bool : [1, '图片上传失败'];
+        }
+        else return [1, '图片未上传'];
     }
 
 

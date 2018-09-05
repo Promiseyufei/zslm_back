@@ -146,4 +146,17 @@ class zslm_information
         return DB::table(self::$sTableName)->where('id', $infoId)->update(['is_delete' => 1, 'update_time' => time()]);
     }
 
+
+    public static function createInfo(array $createMsg = []) {
+
+        return DB::table(self::$sTableName)->insertGetId($createMsg);
+    }
+
+
+    //用于将资讯作为院校动态或新消息发送给关注了相关院校的用户时使用
+    // public static function getSomeSendInfoMsg()
+
+
+
+
 }
