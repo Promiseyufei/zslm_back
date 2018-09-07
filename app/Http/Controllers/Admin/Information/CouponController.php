@@ -355,7 +355,7 @@ class CouponController extends Controller
 
 
     /**
-     * @api {post} admin/information/createCoupon 更新指定优惠券的字段信息
+     * @api {post} admin/information/updateAppointCoupon 更新指定优惠券的字段信息
      * @apiGroup information
      *
      * @apiParam {Number} couponId 优惠券id

@@ -12,5 +12,5 @@ use DB;
 
 class InfoController extends Controller 
 {
-
+    
 }

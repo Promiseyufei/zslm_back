@@ -827,7 +827,7 @@ class InformationController extends Controller
 
 
     /**
-     * @api {post} admin/information/setAutomaticRecInfos 设置指定资讯的推荐院校专业设置(自动设置)
+     * @api {post} admin/information/setAutoInfoRelationCollege 设置指定资讯的推荐院校专业设置(自动设置)
      * 
      * @apiGroup information
      *
