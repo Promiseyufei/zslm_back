@@ -15,6 +15,17 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
     });
 
 
+
+
+    /**
+     * 退款订单管理模块
+     */
+    Route::group(['prefix' => 'refund', 'namespace' => 'Refund'],function() {
+
+        Route::get('test', 'AccountsController@index');
+    });
+
+
     /**
      * Files模块
      */
@@ -241,7 +252,6 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
 
 
-
         /**
          * Banner
          */
@@ -276,15 +286,12 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
         Route::post('createPageBillboard', 'BannerController@createPageBillboard');
 
 
-
-
         /**
          * 分享记录
          */
         Route::post('getPagingData', 'BannerController@getPagingData');
 
         Route::post('getPagingCount', 'BannerController@getPagingCount');
-
 
 
         /**

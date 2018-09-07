@@ -6,10 +6,10 @@
 
 namespace App\Http\Controllers\Admin\Information;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\MajorPostRequest;
-use Illuminate\Http\Request;
 use App\Models\zslm_major as ZslmMajor;
+use App\Http\Requests\MajorPostRequest;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\dict as Dict;
 use Validator;
 use DB;
