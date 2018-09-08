@@ -16,5 +16,10 @@ Route::get('/', function () {
 });
 
 
+//excel　test router 
+Route::get('excel/export','ExcelController@export');
+Route::get('excel/import','ExcelController@import');
+
+
 include('admin.php');
 include('front.php');

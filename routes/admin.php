@@ -22,7 +22,7 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
      */
     Route::group(['prefix' => 'refund', 'namespace' => 'Refund'],function() {
 
-        Route::get('test', 'AccountsController@index');
+        Route::get('export', 'TestExcelController@export');
     });
 
 
