@@ -9,6 +9,7 @@ namespace App\Http\Controllers\Admin\Refund;
 use App\Models\refund_apply as RefundApply;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests;
 use DB;
 
 class RefundController extends Controller 
@@ -249,10 +250,5 @@ class RefundController extends Controller
 
     }
 
-
-    //导出excel
-    public function exportAppointRefundMsgExcel(Request $request) {
-
-    }
 
 }
