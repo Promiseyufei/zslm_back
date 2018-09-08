@@ -70,14 +70,14 @@ class RefundController extends Controller
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
 
         $rules = [
-            'keyWord' =>'nullable|string|max:255',
-            'screenState' => 'required｜numeric',
-            'pageCount' => 'required｜numeric',
-            'pageNumber' => 'required｜numeric'
+            'keyWord'       =>'nullable|string|max:255',
+            'screenState'   => 'required｜numeric',
+            'pageCount'     => 'required｜numeric',
+            'pageNumber'    => 'required｜numeric'
         ];
 
         $message = [
-            'soachNameKeyword.max' =>'搜索关键字超过最大长度',
+            'soachNameKeyword.max'    =>'搜索关键字超过最大长度',
             'screenType.*'            =>'参数错误',
             'screenState.*'           =>'参数错误',
             'pageCount.*'             => '参数错误',
@@ -115,7 +115,6 @@ class RefundController extends Controller
      *              "id":"xxx",
      *              "coach_name":"辅导机构名称",
      *              "apply_refund_money":"申请退款金额",
-     *              "coupon_key":"优惠券标识",
      *              "registration_deadline":"报名日期",
      *              "to_apply_for_reimbursement":"申诉理由",
      *              "imgs":"相关图片"
@@ -141,20 +140,112 @@ class RefundController extends Controller
     public function selectAppointAppealMessage(Request $request) {
 
         $refund_id = (isset($request->refundId) && is_numeric($request->refundId)) ? $request->refundId : 0;
-        RefundApply::selectAppealMsg($refund_id);
+        if($refund_id == 0) return responseToJson(1, '参数错误');
+        $appoint_refund_msg = RefundApply::selectAppealMsg($refund_id);
 
+        return (($appoint_refund_msg ?? false) && is_object($appoint_refund_msg)) ? responseToJson(0, '', $appoint_refund_msg) : responseToJson(1, '查询新信息失败');
     }
 
 
 
-    //修改审批状态
+    /**
+     * @api {post} admin/refund/setApproveStatus 修改审批状态
+     * @apiGroup refund
+     * 
+     * 
+     * @apiParam {NUmber} refundId 退款单id
+     * @apiParam {NUmber} approveStatus 审批状态(0未审批，１通过，２驳回)
+     * @apiParam {String}} approveContext 驳回内容(审批状态设置成驳回时需要提交驳回理由，该参数在未审批或通过时不提交)
+     * 
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "设置成功",
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '请求失败'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
     public function setApproveStatus(Request $request) {
 
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+
+        $refund_id = (isset($request->refundId) && is_numeric($request->refundId)) ? $request->refundId : 0;
+        $approve_status = ($request->approveStatus ?? false && is_numeric($request->approveStatus)) ? $request->approveStatus : -1;
+
+        $approve_context = '';
+        if(intval($approve_status) == 2) 
+            if(trim($request->approveContext) ?? false) 
+                $approve_context = trim($request->approveContext);
+            else 
+                return responseToJson(1, '请填写驳回理由');
+        
+        if($refund_id == 0 || intval($approve_status) < 0 || intval($approve_status) > 3) return responseToJson(1, '参数错误');
+
+        $is_update = RefundApply::setAppointRefundApproveStatus($refund_id, $approve_status, $approve_context);
+
+        return $is_update ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
+
     }
 
 
-    //设置流程状态
+
+
+    /**
+     * @api {post} admin/refund/setApproveStatus 设置流程状态
+     * @apiGroup refund
+     * 
+     * 
+     * @apiParam {NUmber} refundId 退款单id
+     * @apiParam {NUmber} processStatus 流程状态状态(0进行中；1已结束)
+     * 
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "设置成功",
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '请求失败'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
     public function setProcessStatus(Request $request) {
+        
+        $refund_id = (isset($request->refundId) && is_numeric($request->refundId)) ? $request->refundId : 0;
+        $process_status = ($request->processStatus ?? false && is_numeric($request->processStatus)) ? $request->processStatus : -1;
+        
+        if($refund_id == 0 || intval($process_status) < 0 || intval($process_status) > 1 ) return responseToJson(1, '参数错误');
+
+        if(RefundApply::judgeAppointApproveStatus($refund_id)) return responseToJson(1, '该订单还未审批!');
+
+        $is_update = RefundApply::setAppointRefundProcessStatus($refund_id, $process_status);
+
+        return $is_update ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
 
     }
 

@@ -13,7 +13,7 @@ class refund_apply
         
         $handle = DB::table(self::$sTableName)
         ->leftJoin('user_accounts', self::$sTableName . '.account_id', '=', 'user_accounts.id')
-        ->leftJoin(self::$sTableName . '.f_id', '=', 'coach_organize.id');
+        ->leftJoin('coach_organize', self::$sTableName . '.f_id', '=', 'coach_organize.id');
         if(isset($val['keyWord']))
             $handle = $handle->where('name', 'like', '%' . $val['keyWord'] . '%')->orWhere('phone', 'like', '%' . $val['keyWord'] . '%');
 
@@ -60,11 +60,43 @@ class refund_apply
 
 
 
-    //没写完
     public static function selectAppealMsg($refundId = 0) {
-        DB::table(self::$sTableName)
-            ->leftJoin(self::$sTableName . '.f_id', '=', 'coach_organize.id')
-            ->where('id', $refundId)->select('id', '')->first();
+        return DB::table(self::$sTableName)
+            ->leftJoin('coach_organize', self::$sTableName . '.f_id', '=', 'coach_organize.id')
+            ->where('id', $refundId)->select(
+                self::$sTableName . '.id', 
+                'coach_organize.coach_name',
+                self::$sTableName . '.apply_refund_money',
+                self::$sTableName . '.registration_deadline',
+                self::$sTableName . '.to_apply_for_reimbursement',
+                self::$sTableName . '.imgs'
+            )->first();
+    }
+
+    public static function setAppointRefundApproveStatus($refundId, $approveStatus, $approveContext = '') {
+        return DB::table(self::$sTableName)
+        ->where('id', $refundId)
+        ->update([
+            'approve_status' => $approveStatus, 
+            'approve_context' => $approveContext, 
+            'update_time' => time()
+            ]);
+
+    }
+
+    public static function judgeAppointApproveStatus($refundId = 0) {
+
+        return DB::table(self::$sTableName)->where('id', $refundId)->value('approve_status');
+    }
+
+
+    public static function setAppointRefundProcessStatus($refundId = 0, $processStatus) {
+        return DB::table(self::$sTableName)
+        ->where('id', $refundId)
+        ->update([
+            'process_status' => $processStatus, 
+            'update_time' => time()
+            ]);
     }
     
 }
