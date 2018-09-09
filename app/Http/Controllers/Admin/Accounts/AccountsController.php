@@ -7,8 +7,14 @@
 namespace App\Http\Controllers\Admin\Accounts;
 
 use App\Http\Controllers\Controller;
+use App\Models\user_information as UserInformation;
 use Illuminate\Http\Request;
 use DB;
+
+/**
+ * 错误类型
+ */
+define('METHOD_ERROR','The request type error');
 
 class AccountsController extends Controller 
 {
@@ -37,5 +43,19 @@ class AccountsController extends Controller
     public function index(Request $request) {
         $a = test();
         var_dump($a);
+    }
+    
+    public function getActivityUser(Request $request){
+        if(!$request->isMethod('get'))
+            return responseToJson(1,METHOD_ERROR);
+        $key  = isset($request->key) ? $request->key : '';
+        $queryKey = isset($result->queryKey) ? $request->queryKey : '';
+        $result = UserInformation::getActiveUser($key,$request->page,$request->pageSize,$queryKey);
+        return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
+    }
+    
+    public function createActivityExcel(Request $request){
+        if(!$request->isMethod('post'))
+            return responseToJson(1,METHOD_ERROR);
     }
 }

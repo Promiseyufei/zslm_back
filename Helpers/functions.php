@@ -285,13 +285,7 @@ function getByteToMb($bytes) {
          $requestArray = $_POST;
      else
          throw new Exception("Type must be in 1 or 2");
-//     foreach ($requestArray as $key => $value){
-//         $issetParam =  !in_array($key,$requestParams);
-//         $isNullParam = $value == null;
-//         if($issetParam || $isNullParam){
-//             return $key;
-//         }
-//     }
+     
      for($subscript = 0;$subscript<sizeof($requestParams);$subscript++){
 
             if(!isset($requestArray[$requestParams[$subscript]]) || $requestArray[$requestParams[$subscript]]==null)
