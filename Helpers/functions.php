@@ -41,9 +41,9 @@ function responseToJson($code = 0, $msg = '', $paras = null)
  * @param $msg
  * @param $paras
  */
-function getFileName($ext)
+function getFileName($ext, $suffix = 'jpg')
 {
-    $filename = time() . '-' . uniqid() . '-' . $ext;
+    $filename = time() . '-' . uniqid() . '-' . $ext . '.' . $suffix;
     return $filename;
 }
 
@@ -285,12 +285,25 @@ function getByteToMb($bytes) {
          $requestArray = $_POST;
      else
          throw new Exception("Type must be in 1 or 2");
-     
      for($subscript = 0;$subscript<sizeof($requestParams);$subscript++){
 
             if(!isset($requestArray[$requestParams[$subscript]]) || $requestArray[$requestParams[$subscript]]==null)
                 return $requestParams[$subscript];
      }
      return 'yes';
+ }
+
+
+
+ function mergeRepeatArray(...$arrays) {
+    if(count($arrays) == 1) 
+        return array_unique($arrays);
+    else {
+        $array_b = [];
+        foreach($arrays as $key=> $array) 
+            $array_b += array_flip($array);
+        return array_keys($array_b);
+        
+    }
  }
 

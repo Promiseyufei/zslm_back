@@ -58,4 +58,124 @@ class zslm_information
         return $handel;
     }
 
+
+    private static function judgeScreenState($screenState, $title, &$handle) {
+        switch($screenState) {
+            case 0:
+                $handle = $handle->where($title, '=', 0);
+                break;
+            case 1:
+                $handle = ($title == 'father_id') ? $handle->where($title, '<>', 0) : $handle->where($title, '=', 1);
+                break;
+            default :
+                break;
+        }
+    }
+
+    private static function judgeInfoType($infoType, $title, &$handle) {
+        switch($infoType) 
+        {
+            case 0:
+                break;
+            default :
+                $handle->where($title, $infoType);
+                break;
+        }
+    }
+
+    public static function getInformationPageMsg(array $selectMsg = []) {
+
+        $handle = DB::table(self::$sTableName)->where('is_delete', 0);
+
+        $sort_type_arr = [['weight', 'desc'], ['weight', 'asc'], ['update_time', 'desc']];
+
+        switch($selectMsg['screenType'])
+        {
+            case 0:
+                self::judgeScreenState($selectMsg['screenState'], 'is_show', $handle);
+                break;
+            case 1:
+                self::judgeScreenState($selectMsg['screenState'], 'is_recommend', $handle);
+                break;
+            case 2:
+                self::judgeInfoType()($selectMsg['infoType'], 'z_type', $handle);
+                break;
+            default :
+                break;
+        }
+
+        $handle = ($selectMsg['infoNameKeyword'] ?? '') ? $handle->where('zx_name', 'like', '%' . $selectMsg['infoNameKeyword'] . '%') : $handle;
+
+        return $handel->orderBy(...$sort_type_arr[$selectMsg['sortType']])
+        ->offset($selectMsg['pageCount'] * $selectMsg['pageNumber'])->limit($selectMsg['pageCount'])
+        ->slect('id', 'zx_name', 'weight', 'is_show', 'is_recommend', 'z_type', 'z_from', 'update_time')->get();
+        
+    }
+
+
+    public static function getInfoAppiCount(array $conditionArr = []) {
+
+        return DB::table(self::$sTableName)->where($conditionArr)->count();
+    }
+
+    public static function setAppiInfoState(array $updateMsg = []) {
+        $handle = DB::table(self::$sTableName)->where('id', $activity['info_id']);
+        switch($activity['type'])
+        {
+            case 0:
+                return $handle->update(['weight' => $activity['state'], 'update_time' => time()]);
+                break;
+            case 1:
+                return $handle->update(['is_show' => $activity['state'], 'update_time' => time()]);
+                break;
+            case 2:
+                return $handle->update(['is_recommend' => $activity['state'], 'update_time' => time()]);
+                break;
+        }
+    }
+
+
+    public static function getAppointInfoMsg($infoId = 0, $msgName = '') {
+        if(empty($msgName))
+            return DB::table(self::$sTableName)->where('id', $infoId)->first();
+        else
+            return DB::table(self::$sTableName)->where('id', $infoId)->select(...$msgName)->first();
+    }
+
+    public static function delAppointInfo($infoId = 0) {
+        return DB::table(self::$sTableName)->where('id', $infoId)->update(['is_delete' => 1, 'update_time' => time()]);
+    }
+
+
+    public static function createInfo(array $createMsg = []) {
+
+        return DB::table(self::$sTableName)->insertGetId($createMsg);
+    }
+
+
+
+
+    public static function getAutoRecommendInfos($recomInfoCount = 8) {
+        return DB::table(self::$sTable)->where([
+            ['is_delete', '=', 0],
+            ['is_show', '=', 0],
+            ['is_recommend', '=', 0]
+        ])->orderBy('weight', 'desc')->skip($recomInfoCount)->pluck('id');
+    }
+    
+
+
+
+    //手动设置资讯的推荐阅读时使用
+    public static function getAllInfo($pageNum = 0, $pageCount = 10) {
+
+
+        return DB::table(self::$sTableName)->where('is_delete', 0)
+        ->select('id', 'zx_name')->orderBy('update_time', 'desc')
+        ->offset($pageNum * $pageCount)->limit($pageCount)->get();
+
+    }
+
+
+
 }

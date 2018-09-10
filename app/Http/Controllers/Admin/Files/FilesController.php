@@ -87,7 +87,7 @@ class FilesController extends Controller
             return responseToJson(1,METHOD_ERROR);
         
         $isset = judgeRequest(1,['page','pageSize']);
-        if($isset == 'yes')
+        if($isset != 'yes')
             return responseToJson(1,'The lack of '.$isset);
         if(!is_numeric($request->page) || !is_numeric($request->pageSize))
             return responseToJson(1,FORMAT_ERROR);
@@ -253,6 +253,9 @@ class FilesController extends Controller
             return responseToJson(1,METHOD_ERROR);
     
         $isDataIntegrity = judgeRequest(2,['fileId','weight']);
+        if($isDataIntegrity != 'yes'){
+            return responseToJson(1,'The lack of '.$isDataIntegrity);
+        }
         $result =  MajorFiles::updateShowWeight($request->fileId,$request->weight);
         return $result == 1 ? responseToJson(1,'success') : responseToJson(1,'no data update');
     }

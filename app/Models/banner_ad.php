@@ -14,14 +14,14 @@ class banner_ad
             ['url_id', '=', $indexId],
             ['is_delete','=',0],
             ['type', '=', $btType],
-        ])->select('id', 'img', 'img_alt', 're_rul', 're_alt','show_weight','create_time')
-        ->get();
+        ])->select('id', 'img', 'img_alt', 're_url', 're_alt','show_weight','create_time')
+        ->get()->toArray();
         
         if(isset($index_banners) && count($index_banners) > 0) {
             return $index_banners;
         }
         else 
-            return false;
+            return [];
     }
 
 
@@ -59,7 +59,7 @@ class banner_ad
         return $if_del ? true : false;
     }
 
-    public static function createBanAd($urlId = 0, $imgMessage = []) {
+    public static function createBanAd($imgMessage = []) {
         $create_id = DB::table(self::$sTableName)->insertGetId(array_merge($imgMessage,[
             'create_time' => time()
         ]));

@@ -25,7 +25,7 @@ class OperateIndexController extends Controller
 
 
     /**
-     * @api {post} admin/operate/getIndexBanner 获得指定区域的资讯内容
+     * @api {post} admin/operate/getAppointRegionData 获得指定区域的资讯内容
      * @apiGroup operate
      *
      * @apiParam {Number} regionId 指定区域的id

@@ -11,7 +11,7 @@
 >>>> Admin         后台接口
 >>>>>  Accounts     
 >>>>>  Files
->>>>>  Information
+>>>>>  Info
 >>>>>  News
 >>>>>  Operate
 >>>>>  Refund

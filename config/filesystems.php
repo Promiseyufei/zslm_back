@@ -58,6 +58,10 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/admin/operate'),
         ],
+        'info' => [
+            'driver' => 'local',
+            'root' => storage_path('app/admin/info'),
+        ],
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_KEY'),

@@ -60,8 +60,10 @@ class BannerController extends Controller
      *
      */
     public function getIndexListName(Request $request) {
+        // var_dump('test');die;
         if($request->isMethod('post')) {
-            $indexs_name = UrlsBt::getIndexUrlName() || [];
+            $indexs_name = UrlsBt::getIndexUrlName();
+            $indexs_name  = count($indexs_name) ? $indexs_name : [];
             if($indexs_name !== []) 
                 return responseToJson(0, '', $indexs_name);
             else 
@@ -118,9 +120,8 @@ class BannerController extends Controller
         if($request->isMethod('post')) {
             $url_id = is_numeric($request->indexId)? $request->indexId : 0;
             $bt_type = is_numeric($request->btType) ? $request->btType : -1;
-    
             if($url_id !== 0 && $bt_type >= 0) {
-                $url_bt = BannerAd::getIndexBt($url_id, $bt_type) || [];
+                $url_bt = BannerAd::getIndexBt($url_id, $bt_type);
                 if($url_bt !== []) {
                     foreach($url_bt as $key => &$value) {
                         $value->create_time = date('Y-m-d H:i:s', $value->create_time);
@@ -191,7 +192,7 @@ class BannerController extends Controller
      * @apiParam {String} btName 图片名称
      * @apiParam {String} btImgAlt 图片alt
      * @apiParam {String} reUrl 点击跳转的路由
-     * @apiParam {String} btId Banner的id
+     * @apiParam {String} btId Banner的id(必需)
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -217,16 +218,17 @@ class BannerController extends Controller
      */
     public function setBtMessage(Request $request) {
         if($request->isMethod('post')) {
-            if(trim($request->btName) ||  mb_strlen($request->btName, 'utf-8') > 30)
+            if((trim($request->btName) == '') || mb_strlen($request->btName, 'utf-8') > 30)
                 return responseToJson(1, '图片名称长度错误');
             else $bt_arr['bt_name'] = $request->btName;
-
+            
             if(mb_strlen($request->btImgAlt, 'utf-8') > 255)
                 return responseToJson(1,'图片alt属性长度错误');
             else if(strpos($request->btImgAlt,'/') || strpos($request->btImgAlt,'.')) 
                 return responseToJson(1, '图片名称含有非法字符');
             else
-                return $bt_arr['bt_img_alt'] = $request->btImgAlt;
+                $bt_arr['bt_img_alt'] = $request->btImgAlt;
+            
             
             $pattern="/(\\w+(-\\w+)*)(\\.(\\w+(-\\w+)*))*(\\?\\S*)?/";
             if(!preg_match($pattern, $request->reUrl)) 
@@ -235,7 +237,7 @@ class BannerController extends Controller
                 (trim($request->reUrl) == '') ? $bt_arr['re_url'] = '' : $bt_arr['re_url'] = $request->reUrl;
             
             if(!isset($request->btId)) return responseToJson(1, '无法获得当前banner的id');
-
+            
             try {
                 DB::beginTransaction();
                 $img_name = BannerAd::getBannerAdImgName($request->btId);
@@ -348,8 +350,8 @@ class BannerController extends Controller
             else if(isset($img)) return responseToJson(1,'请选择要上传的图片');
             else if($url_id == 0) return responseToJson(1, '请指定Banner页面');
     
-            if(!isset($img_name)) $img_name = getFileName('operate');
-    
+            if(!isset($img_name)) $img_name = getFileName('operate', $img_handle->getClientOriginalExtension());
+            else $img_name = $img_name . '.' . $img_handle->getClientOriginalExtension();
             $img_msg = [
                 'img' => $img_name,
                 'img_alt' => $img_alt,
@@ -360,10 +362,11 @@ class BannerController extends Controller
     
             try {
                 DB::beginTransaction();
-                $is_created = BannerAd::createBanAd($url_id, $img_msg);
+                $is_created = BannerAd::createBanAd($img_msg);
                 $is_create_img = $this->createDirImg($img_name, $img_handle);
+                
     
-                if($is_created && ($is_create_img == true)) {
+                if($is_created && ($is_create_img === true)) {
                     DB::commit();
                     return responseToJson(0, '上传成功'); 
                 }
@@ -387,12 +390,13 @@ class BannerController extends Controller
      */
     private function createDirImg($imgName = '', &$imgHandle) {
         if($imgHandle->isValid()) {
-            // $originalName = $imgHandle->getClientOriginalName(); //源文件名
-            // $ext = $file->getClientOriginalExtension();    //文件拓展名
+            $originalName = $imgHandle->getClientOriginalName(); //源文件名
+            $ext = $imgHandle->getClientOriginalExtension();    //文件拓展名
 
-            $file_type_arr = ['png','jpg','jpeg','tif'];
+            $file_type_arr = ['png','jpg','jpeg','tif','image/jpeg'];
             $type = $imgHandle->getClientMimeType(); //文件类型
             $realPath = $imgHandle->getRealPath();   //临时文件的绝对路径
+            $size = $imgHandle->getSize();
 
             /**
              * 
@@ -400,17 +404,15 @@ class BannerController extends Controller
              * 判断是否在文件夹中存在
              *  判断大小
              */
-            if(!in_array(strtolower($type), $file_type_arr)) return [1,'请上传格式为图片的文件'];
+            if(!in_array(strtolower($ext), $file_type_arr)) return [1,'请上传格式为图片的文件'];
             else if(Storage::disk('operate')->exists($imgName)) return [1, '图片已存在'];
-            else {
-                $img_size = getByteToMb(Storage::disk('operate')->size($imgName));
-                if($img_size > 3) return [1, '文件超出最大限制'];
-            }
+            else if(getByteToMb($size) > 3) return [1, '文件超出最大限制'];
+                
 
-            $bool = Storage::disk('article')->put($imgName, file_get_contents($realPath));
+            $bool = Storage::disk('operate')->put($imgName, file_get_contents($realPath));
             return $bool ? $bool : [1, '图片上传失败'];
         }
-        else [1, '图片未上传'];
+        else return [1, '图片未上传'];
     }
 
     /**
