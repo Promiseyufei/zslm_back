@@ -15,6 +15,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
 include('admin.php');
 include('front.php');

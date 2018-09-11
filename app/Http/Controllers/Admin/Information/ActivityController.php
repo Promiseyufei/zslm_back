@@ -801,7 +801,7 @@ class ActivityController extends Controller
      */
     public function getAllActivitys(Request $request) {
 
-        return responseToJson(0, ZslmActivitys::getAllActivity('id,active_name'));
+        return responseToJson(0, ZslmActivitys::getAllActivity(['id', 'active_name']));
         
     }
 
@@ -899,7 +899,6 @@ class ActivityController extends Controller
         $get_activits_id_arr = ZslmActivitys::getAutoRecommendActivitys($recom_activity_count);
 
         if(count($get_activits_id_arr) < 1) return responseToJson(1, '暂无能够设置的活动');
-
 
         $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'relation_activity', strChangeArr($get_activits_id_arr, ','));
 

@@ -108,15 +108,15 @@ class zslm_activitys
     }
 
 
-    public static function getAllActivity($getMsgName = '') {
+    public static function getAllActivity(array $getMsgName = []) {
         if(!empty($getMsgName))
-            return DB::table(self::$sTableName)->where('is_delete', 0)->select($getMsgName)->get();
+            return DB::table(self::$sTableName)->where('is_delete', 0)->select(...$getMsgName)->get();
         else
             return DB::table(slef::$sTableName)->where('is_delete', 0)->get();
     }
 
 
-        /**
+    /**
      * 自动设置推荐活动时获得可以推荐的活动的id数组
      */
     public static function getAutoRecommendActivitys($recomActivityCount = 8) {
