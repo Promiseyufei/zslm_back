@@ -3,7 +3,7 @@
 
 /**
  * 李闪磊
- * ２０１８－９－１２
+ * 2018-09-12
  * 自定义阿里云短信服务接口封装时需要的配置信息
  */
 return array(
@@ -39,10 +39,16 @@ return array(
     'endPointName' => 'cn-hangzhou',
 
 
-
-
+    /**
+     * AccessKeyId
+     */
     'accessKeyId' => 'LTAItBjguvI9h5rV',
 
+
+
+    /**
+     * AccessKeyScret
+     */
     'accessKeySecret' => '0lqnisn6tSLL30kw3JeHVxyc2t64bp',
 
 
@@ -56,11 +62,12 @@ return array(
 
     /**
      * 短信模板
+     * 短信名称 => 模板code
      */
-    'templateCode' => [
-        '测试' => 'SMS_144451921'
-    ]
+    'templateCode' => array(
 
+        '测试' => 'SMS_144451921'
+    )
 
 
 );
