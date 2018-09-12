@@ -156,7 +156,13 @@ class NewsController extends Controller
         
         if(isset($major_arr) && isset($activity_arr) && $condition < 0) return responseToJson(1, '请选择专业和活动的关系');
 
-        UserAccounts::getBatchAccounts();
+        UserAccounts::getBatchAccounts([
+            'page_num'      => $page_num,
+            'condition'     => $condition,
+            'major_arr'     => $major_arr,
+            'page_count'    => $page_count,
+            'activity_arr'  => $activity_arr
+        ]);
 
 
 

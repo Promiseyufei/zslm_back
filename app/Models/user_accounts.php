@@ -82,4 +82,21 @@ class user_accounts
     }
 
 
+    public static function getBatchAccounts(array $parameter = []) {
+
+
+        switch($parameter['condition'])
+        {
+            case 0:
+
+                // DB::table(self::$sTableName)->where();
+                break;
+            case 1:
+                break;
+            default :
+                break;
+        }
+    }
+
+
 }

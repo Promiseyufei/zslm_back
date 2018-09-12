@@ -11,8 +11,19 @@
 |
 */
 
+use App\Http\Controllers\Auto\Sms\SmsController;
+
 Route::get('/', function () {
     return view('welcome');
+});
+
+
+Route::get('/smsSend', function() {
+    SmsController::sendSms('15837587256', ['name'=>'李闪磊'], '测试', '');
+});
+
+Route::get('/smsBatchSend', function() {
+    SmsController::sendBatchSms(['15837587256', '13569829175'],'测试', [['name'=>'李闪磊'], ['name' => '尤齐秦']]);
 });
 
 include('admin.php');
