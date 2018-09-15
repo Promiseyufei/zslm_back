@@ -307,3 +307,31 @@ function getByteToMb($bytes) {
     }
  }
 
+
+
+//  /**
+//   * 查找某个值是否存在于多维数组中
+//   * @params $value 需要潮汛的值
+//   * @params $array 多维数组
+//   * @return $item 存在指定值的一维数组数组
+//   */
+// function deep_in_array($value, $array) {
+//     foreach($array as $key => $item) {
+//         if(!is_array($item)) {
+//             if ($item == $value) {
+//                 return $item;
+//             } else {
+//                 continue;
+//             }
+//         }
+//         if(is_object($item))
+//             $array[$key] = $item = $item->toArray();
+
+//         if(in_array($value, $item)) {
+//             return $item;
+//         } else if($this->deep_in_array($value, $item)) {
+//             return $item;
+//         }
+//     }
+//     return false;
+// }

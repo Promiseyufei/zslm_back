@@ -17,6 +17,10 @@ class news
         return $create_id ? $create_id : 0;
     }
 
+    public static function updateStatus($newsId) {
+        return DB::table(self::$sTableName)->update(['success' => 1, 'update_time' => time()]);
+    }
+
 
     
 

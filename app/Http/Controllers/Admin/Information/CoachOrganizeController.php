@@ -408,7 +408,6 @@ class CoachOrganizeController extends Controller
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
 
         $total_id = (isset($request->totalCoachId) && is_numeric($request->totalCoachId)) ? $request->totalCoachId : 0;
-
         $page_num = (isset($request->pageNum) && is_numeric($request->pageNum)) ? $request->pageNum : -1; 
 
         if($total_id == 0 || $page_num < 0) return responseToJson(1, '参数错误');
@@ -488,19 +487,19 @@ class CoachOrganizeController extends Controller
         $cover_name = getFileName('coach', $cover_handle->getClientOriginalExtension());
         $logo_name = getFileName('coach', $logo_handle->getClientOriginalExtension());
         $msg = [
-            'coach_name' => trim($request->coachName),
-            'province' => $request->provice,
-            'phone' => trim($request->phone),
-            'address' => trim($request->address),
-            'web_url' => trim($request->webUrl),
-            'father_id' => empty($request->CoachForm) ? $request->CoachForm : $request->totalCoachId,
-            'if_coupons' => $request->couponsType,
+            'coach_name'    => trim($request->coachName),
+            'province'      => $request->provice,
+            'phone'         => trim($request->phone),
+            'address'       => trim($request->address),
+            'web_url'       => trim($request->webUrl),
+            'father_id'     => empty($request->CoachForm) ? $request->CoachForm : $request->totalCoachId,
+            'if_coupons'    => $request->couponsType,
             'if_back_money' => $request->backMoneyType,
-            'title' => empty(trim($request->title)) ? '' : trim($request->title),
-            'keywords' => empty(trim($request->keywords)) ? '' : trim($request->keywords),
-            'description' => empty(trim($request->description)) ? '' : trim($request->description),
-            'cover_name' => $cover_name,
-            'logo_name' => $logo_name
+            'title'         => empty(trim($request->title)) ? '' : trim($request->title),
+            'keywords'      => empty(trim($request->keywords)) ? '' : trim($request->keywords),
+            'description'   => empty(trim($request->description)) ? '' : trim($request->description),
+            'cover_name'    => $cover_name,
+            'logo_name'     => $logo_name
         ];
 
         try {

@@ -39,7 +39,7 @@
 >> front.php        前台路由
 >> login.php        登录路由
 >> web.php          路由入口
-> apidoc           API存放处
+> api           API存放处
 
 
 

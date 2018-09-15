@@ -17,7 +17,8 @@
     },
     "autoload": {
         "classmap": [
-            "database"
+            "database",
+            "app/libs/sms/api_sdk"
         ],
         "psr-4": {
             "App\\": "app/"
