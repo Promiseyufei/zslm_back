@@ -14,4 +14,8 @@ class user_follow_major
 
         return DB::table(self::$sTableName)->whereIn('major_id', $selectMajorArr)->where('is_focus')->pluck('user_id');
     }
+    
+    public static function getMajorId($id){
+        return DB::table(self::$sTableName)->where('user_id',$id)->where('is_focus',0)->get(['major_id']);
+    }
 }

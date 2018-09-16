@@ -10,11 +10,50 @@
     
     
     use Illuminate\Http\Request;
-
+    use DB;
+    define('ADDRESS_SEPARATOR',',');
+    
     class zslm_major
     {
         private static $sTableName = 'zslm_major';
+    
+        /**
+         * 通过省的id获取院校专业
+         * @param Request $request
+         */
+        public static function getMajorByP(Request $request){
+            
+            return DB::table(self::$sTableName)
+                        ->where('province','like',$request->provinceId.ADDRESS_SEPARATOR.'%')
+                        ->orWhere('z_name','like',$request->word)
+                        ->whereIn()
+                        ->offset(($request->page-1)*$request->pageSize)
+                        ->limit($request->pageSize)
+                        ->get(['id','z_name']);
+        }
         
+        public static function getMajorName($ids){
+            
+            $result = DB::table(self::$sTableName)
+                ->whereIn('id',$ids)
+                ->get(['z_name']);
+            return $result;
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        public static function getMajorId($name){
+        
+            return  DB::table(self::$sTableName)->where('z_name','like','%'.$name.'%')->get(['id']);
+        }
+        
+        
+
         public static function getAppointMajorMsg($majorId){
             return DB::table(self::$sTableName)->where('id',$majorId)->get();
         }
@@ -44,8 +83,7 @@
                     break;
             }
         }
-
-
+        
         public static function delMajor($majorId) {
             return DB::table(self::$sTableName)->where('id', $majorId)->update(['is_delete' => 1, 'update_time'=> time()]);
         }
@@ -53,9 +91,7 @@
         public static function updateMajorTime($majorId) {
             return DB::table(self::$sTableName)->where('id', $majorId)->update(['update_time'=> time()]);
         }
-
-
-
+        
         private static function judgeScreenState($screenState, $title, &$handle) {
             switch($screenState) {
                 case 0:
@@ -93,9 +129,7 @@
 
             return count($get_page_msg >= 0) ? $get_page_msg : false;
         }
-
-
-
+        
         public static function getAutoRecommendMajors($recomMajorCount = 8) {
             return DB::table(self::$sTableName)->where([
                 ['is_delete', '=', 0],
@@ -103,13 +137,5 @@
                 ['if_recommended', '=', 0]
             ])->orderBy('weight','desc')->skip($recomMajorCount)->pluck('id');
         }
-
-
-
-
-
-
-
-
 
     }

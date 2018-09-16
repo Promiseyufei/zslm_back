@@ -10,6 +10,7 @@
     namespace App\Models;
 
     use DB;
+    use App\Models\zslm_major as ZslmMajor;
     use Illuminate\Http\Request;
 
     /**
@@ -30,13 +31,23 @@
             $nexgPage = $request->page;
             $pageSize = $request->pageSize;
             $offsetPostion = ($nexgPage-1)*$pageSize;
+            $majorId = ZslmMajor::getMajor($request->id);
+            $queryWhere = 'is_delete = 0 and (file_name like '.
+                $request->fileName.'%'.
+                'or file_type = '. $request->fileType.
+                'or file_year = '.$request->fileYear;
             $searchData=DB::table(self::$sTableName)
-                        ->where('is_delete',0)
+                        ->whereRaw($queryWhere)
+                        ->whereIn('id',$majorId)
                         ->offset($offsetPostion)
                         ->limit($pageSize)
                         ->get(['id','show_weight','file_name','file_type','file_year','is_show','create_time']);
-            dd($searchData);
             return empty($searchData) ? null:$searchData;
+        }
+        
+        public static function getCountData(){
+            $countNum = DB::table(self::$sTableName)->where('is_delete',0)->count('id');
+            return $countNum;
         }
         
         public static function uploadFile(Request $request){
@@ -80,6 +91,15 @@
          */
         public static function crushingFiles(){
         
+        }
+        
+        /**
+         *
+         */
+        public static function updateShowWeight($id,$weight){
+            
+            $updateResult = DB::table(self::$sTableName)->where('id',$id)->update(['show_weight'=>$weight]);
+            return $updateResult;
         }
         
     }

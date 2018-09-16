@@ -4,6 +4,9 @@
 /**
  * 后台管理员
  */
+
+Route::get('/test','Admin\Accounts\AccountsController@createActivityExcel');
+
 Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
     /**
@@ -32,8 +35,6 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
     Route::group(['prefix' => 'files', 'namespace' => 'Files'],function() {
 
         Route::get('getUploadFile','FilesController@getUploadFile');
-        
-        Route::get('test','FilesController@updateFile');
     });
 
 

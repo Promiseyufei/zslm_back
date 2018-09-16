@@ -134,6 +134,10 @@ class zslm_activitys
         return DB::table(self::$sTableName)->insertGetId($createActivityMsg);
 
     }
+    
+    public static function getUserActivitys($activity_ids){
+        return DB::table(self::$sTableName)->where('is_delete',0)->whereIn('id',$activity_ids)->get(['name']);
+    }
 
 
 

@@ -83,6 +83,11 @@ class zslm_coupon
             'update_time'    => time()
             ]);
     }
+    
+    public static function getCouponName($coupon_id){
+        return DB::table(self::$sTableName)->whereIn('id',$coupon_id)->get(['name']);
+    }
+    
 
 
     

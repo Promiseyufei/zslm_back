@@ -11,16 +11,27 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use App\Models\major_files as MajorFiles;
+use App\Models\dict_region as dictRegion;
 use DB;
 
 use Illuminate\Support\Facades\Storage;
+
+
+/**
+ * 错误提示
+ * METHOD_ERROR 请求错误 请求方式与规定不一样
+ * FORMAT_ERROR 数据格式错误
+ *
+ */
+define('METHOD_ERROR','The request type error');
+define('FORMAT_ERROR','The data format error');
 
 class FilesController extends Controller 
 {
 
     private  $fileUrl = 'public/major_file/';
     public function test(){
-        Storage::putFileAS($this->fileUrl,new File('D:\media.html'),'test.html');
+       MajorFiles::getCountData();
     }
     
     public function test1(Request $request){
@@ -73,16 +84,18 @@ class FilesController extends Controller
      */
     public function getUploadFile(Request $request){
         if(!$request->isMethod("get"))
-            return responseToJson(1,'The request type error');
+            return responseToJson(1,METHOD_ERROR);
         
         $isset = judgeRequest(1,['page','pageSize']);
-        if($isset == 'yes')
+        if($isset != 'yes')
             return responseToJson(1,'The lack of '.$isset);
         if(!is_numeric($request->page) || !is_numeric($request->pageSize))
-            return responseToJson(1,'The data format error');
+            return responseToJson(1,FORMAT_ERROR);
         $serachData = MajorFiles::getUploadFile($request);
-        return $serachData != null ? responseToJson(0,'success',$serachData) : responseToJson(1,'no data');
+        $countPage = MajorFiles::getCountData();
+        return $serachData != null ? responseToJson(0,'success',['data'=>$serachData,'dataCount'=>$countPage]) : responseToJson(1,'no data');
     }
+    
     
     /**
      * @api {post} /admin/files/uploadFile 上传文件
@@ -129,7 +142,7 @@ class FilesController extends Controller
     
     public function uploadFile(Request $request){
         if(!$request->isMethod('post'))
-            return responseToJson(1,'The request type error');
+            return responseToJson(1,METHOD_ERROR);
         $isDataIntegrity = judgeRequest(2,['uploadFile','fileType','fileYear','fileDescribe','isShow']);
         $judgeResult = $this->isDataIntegrity($request,$isDataIntegrity);
         if(!empty($judgeResult))
@@ -174,7 +187,7 @@ class FilesController extends Controller
      */
     public function deleteFile(Request $request){
         if(!$request->isMethod('post'))
-            return responseToJson('1','The request type error');
+            return responseToJson('1',METHOD_ERROR);
         if(!isset($request->fileId))
             return responseToJson(1,"No file id");
         if(!is_numeric($request->fileId))
@@ -217,7 +230,7 @@ class FilesController extends Controller
      */
     public function updateFile(Request $request){
         if(!$request->isMethod('post'))
-            return responseToJson(1,'The request type error');
+            return responseToJson(1,METHOD_ERROR);
         $isDataIntegrity = judgeRequest(2,['fileId','fileName','fileType','fileYear','fileDescribe','isShow']);
         $judgeResult = $this->isDataIntegrity($request,$isDataIntegrity);
         if(!empty($judgeResult))
@@ -234,5 +247,29 @@ class FilesController extends Controller
             return responseToJson(1,'upload error');
         }
     }
+    
+    public function updateShowWeight(Request $request){
+        if(!$request->isMethod('post'))
+            return responseToJson(1,METHOD_ERROR);
+    
+        $isDataIntegrity = judgeRequest(2,['fileId','weight']);
+        if($isDataIntegrity != 'yes'){
+            return responseToJson(1,'The lack of '.$isDataIntegrity);
+        }
+        $result =  MajorFiles::updateShowWeight($request->fileId,$request->weight);
+        return $result == 1 ? responseToJson(1,'success') : responseToJson(1,'no data update');
+    }
+    
+    public function getProvice(Request $request){
+        if(!$request->isMethod('get'))
+            return responseToJson(1,METHOD_ERROR);
+        $provice = dictRegion::getProvince();
+        if(!empty($provice))
+            return responseToJson(0,'success',$provice);
+        else
+            return responseToJson(1,'no provice data');
+    }
+    
+    
     
 }

@@ -294,11 +294,7 @@ function getByteToMb($bytes) {
  }
 
 
- /**
-  * 合并数组并去重
-  *@params $arrays 一个或过个数组参数
-  *@return 合并并去重的数组
-  */
+
  function mergeRepeatArray(...$arrays) {
     if(count($arrays) == 1) 
         return array_unique($arrays);
