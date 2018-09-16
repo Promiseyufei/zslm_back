@@ -229,7 +229,7 @@ class NewsController extends Controller
 
 
     /**
-     * @api {post} admin/news/getNewNewsMessage 获得新消息的信息
+     * @api {post} admin/news/getNewNewsMessage 获得新消息的信息并发送
      * 
      * @apiGroup news
      * 

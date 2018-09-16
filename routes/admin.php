@@ -236,6 +236,9 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
      */
     Route::group(['prefix' => 'news', 'namespace' => 'News'],function() {
 
+        Route::get('test','HistoricalNewsController@getFailSendNews');
+
+
     });
 
 
