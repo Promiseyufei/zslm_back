@@ -77,6 +77,7 @@ class HistoricalNewsController extends Controller
         if($keywords == '' || $start_time == 0 || $end_time == 0 || ($start_time > $end_time) || $page_count == 0 || $page_num < 0) return responseToJson(1, '参数错误');
 
         $get_all_news_msg = News::selectAllNewsMsg($keywords, $start_time, $end_time, $page_count, $page_num);
+        dd($get_all_news_msg);
 
         return (is_array($get_all_news_msg) && !empty($get_all_news_msg)) ? responseToJson(0, '', $get_all_news_msg) : responseToJson(1, '查询失败');
 
@@ -145,7 +146,9 @@ class HistoricalNewsController extends Controller
 
         $get_fail = News::getAllFailNews();
 
-        dd($get_fail);
+        return responseToJson(0, 'success', $get_fail);
+
+        // dd($get_fail);
 
 
 

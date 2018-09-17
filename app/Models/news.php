@@ -54,14 +54,14 @@ class news
 
     //获得所有失败的消息
     public static function getAllFailNews() {
-        // return DB::table(self::$sTableName)
-        // ->leftJoin('news_users', self::$sTableName . '.id', '=', 'news_users.news_id')
-        // ->where([
-        //     [self::$sTableName .'.is_delete', '=', 0],
-        //     ['success', '=', 0]
-        // ])
-        // ->select(self::$sTableName.'.id', self::$sTableName . '.type')
-        // ->get()->groupBy(self::$sTableName.'.id');
+        return DB::table(self::$sTableName)
+        ->leftJoin('news_users', self::$sTableName . '.id', '=', 'news_users.news_id')
+        ->where([
+            [self::$sTableName .'.is_delete', '=', 0],
+            ['success', '=', 0]
+        ])
+        ->select(self::$sTableName.'.id', self::$sTableName . '.type')
+        ->get()->groupBy(self::$sTableName.'.id');
     }
 
 

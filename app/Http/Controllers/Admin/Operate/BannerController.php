@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use App\Models\banner_ad as BannerAd;
 use App\Models\urls_bt as UrlsBt;
 use DB;
+use Log;
 
 class BannerController extends Controller 
 {
@@ -122,19 +123,20 @@ class BannerController extends Controller
             $bt_type = is_numeric($request->btType) ? $request->btType : -1;
             if($url_id !== 0 && $bt_type >= 0) {
                 $url_bt = BannerAd::getIndexBt($url_id, $bt_type);
-                if($url_bt !== []) {
-                    foreach($url_bt as $key => &$value) {
-                        $value->create_time = date('Y-m-d H:i:s', $value->create_time);
-                    }
+                if(is_array($url_bt)) {
+                    if(count($url_bt) > 0)
+                        foreach($url_bt as $key => &$value) {
+                            $value->create_time = date('Y-m-d H:i:s', $value->create_time);
+                        }
                     return responseToJson(0,'',$url_bt);
                 }
                 else 
                     return responseToJson(1,'请求失败',$url_bt);
             }
-            else responseToJson(1,'参数错误');
+            else return responseToJson(1,'参数错误');
         }
         else 
-        return responseToJson(2, '请求方式错误');
+            return responseToJson(2, '请求方式错误');
     }
 
 
@@ -291,7 +293,7 @@ class BannerController extends Controller
      */
     public function deleteBannerAd(Request $request) {
         if($request->isMethod('post')) {
-            $bt_id = (isset($request->btId) && is_numeric($request->btId)) ? $request->btId : 0;
+            $bt_id = isset($request->btId) ? $request->btId : 0;
             if(!$bt_id) return responseToJson(1, '参数错误');
     
             $is_delete = BannerAd::delBannerBt($bt_id);

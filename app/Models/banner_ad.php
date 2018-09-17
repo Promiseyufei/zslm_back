@@ -17,7 +17,7 @@ class banner_ad
         ])->select('id', 'img', 'img_alt', 're_url', 're_alt','show_weight','create_time')
         ->get()->toArray();
         
-        if(isset($index_banners) && count($index_banners) > 0) {
+        if(isset($index_banners) && count($index_banners) >= 0) {
             return $index_banners;
         }
         else 
@@ -51,11 +51,17 @@ class banner_ad
     }
 
 
-    public static function delBannerBt($btId = 0) {
-        $if_del = DB::table(self::$sTableName)->where('id', $btId)->update([
-            'is_delete' => 1,
-            'update_time' => time()
-        ]);
+    public static function delBannerBt($btId) {
+        if(is_array($btId)) 
+            $if_del = DB::table(self::$sTableName)->whereIn('id', $btId)->update([
+                'is_delete' => 1,
+                'update_time' => time()
+            ]);
+        else
+            $if_del = DB::table(self::$sTableName)->where('id', $btId)->update([
+                'is_delete' => 1,
+                'update_time' => time()
+            ]);
         return $if_del ? true : false;
     }
 
