@@ -10,8 +10,8 @@ class zslm_information
 
     public static function getInformIdToData($id = 0) {
         $data = DB::table(self::$sTableName)
-        ->leftJoin('dict_information_type', self::$sTableName.'.z_type', '=', 'dict_information_type.id')
-        ->where('id', $id)
+        ->leftJoin('dict_information_type', self::$sTableName . '.z_type', '=', 'dict_information_type.id')
+        ->where(self::$sTableName . '.id', $id)
         ->select(
             'dict_information_type.id', 
             self::$sTableName.'.weight', 
@@ -20,7 +20,7 @@ class zslm_information
             self::$sTableName.'.create_time'
         )->first();
 
-        return empty($data) ? $data : [];
+        return !empty($data) ? $data : [];
     }
 
 

@@ -340,11 +340,11 @@ class BannerController extends Controller
      */  
     public function createBannerAd(Request $request) {
         if($request->isMethod('post')) {
-            $img_name = trim($request->imgName);
-            $img_alt  = trim($request->imgAlt);
-            $re_url   = trim($request->reUrl);
-            $img_handle      = $request->file('img');
-            $url_id   = $request->urlId || 0;
+            $img_name   = trim($request->imgName);
+            $img_alt    = trim($request->imgAlt);
+            $re_url     = trim($request->reUrl);
+            $img_handle = $request->file('img');
+            $url_id     = is_numeric($request->urlId) ? $request->urlId : 0;
             
             if(mb_strlen($img_name,'utf-8') >= 100) return responseToJson(1, '名称长度超出范围');
             else if(mb_strlen($img_alt) >= 255) return responseToJson(1,'图片描述长度超出范围');
@@ -361,12 +361,12 @@ class BannerController extends Controller
                 'type'=> 0,
                 'url_id' => $url_id
             ];
+
     
             try {
                 DB::beginTransaction();
                 $is_created = BannerAd::createBanAd($img_msg);
                 $is_create_img = $this->createDirImg($img_name, $img_handle);
-                
     
                 if($is_created && ($is_create_img === true)) {
                     DB::commit();
@@ -408,7 +408,7 @@ class BannerController extends Controller
              */
             if(!in_array(strtolower($ext), $file_type_arr)) return [1,'请上传格式为图片的文件'];
             else if(Storage::disk('operate')->exists($imgName)) return [1, '图片已存在'];
-            else if(getByteToMb($size) > 3) return [1, '文件超出最大限制'];
+            else if(getByteToMb($size) > 4) return [1, '文件超出最大限制'];
                 
 
             $bool = Storage::disk('operate')->put($imgName, file_get_contents($realPath));

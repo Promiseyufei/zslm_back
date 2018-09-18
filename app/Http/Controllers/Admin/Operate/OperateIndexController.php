@@ -68,11 +68,14 @@ class OperateIndexController extends Controller
      */
     public function getAppointRegionData(Request $request) {
         if($request->isMethod('post')) {
-            $region_id = isset($request->regionId) && is_numeric($request) ? $request->regionId : 0;
+
+            $region_id = isset($request->regionId) && is_numeric($request->regionId) ? $request->regionId : 0;
             $region_data = InformationIndexRegion::getinformIndexRegionData($region_id, ['region_name', 'zx_id']);
             if(!$region_data) return responseToJson(1, '请求失败');
             
-            $region_data->zx_id = strpos(trim($region_data->zx_id), ',') > 0 ? explode(',', trim($region_data)) : [];
+            $region_data->zx_id = ($region_data->zx_id != null) 
+            ? (strpos(trim($region_data->zx_id), ',') > 0 
+            ? explode(',', trim($region_data->zx_id)) : [$region_data->zx_id]) : null;
             if(!empty($region_data->zx_id)) {
                 foreach($region_data->zx_id as $key => $value) {
                     $region_data->zx_id[$key] = ZslmInformation::getInformIdToData($value);
@@ -129,6 +132,7 @@ class OperateIndexController extends Controller
             if($region_name == '') return responseToJson(1, '名称不能为空');
             if($region_id >= 0 && !empty($region_name)) {
                 $if_update = InformationIndexRegion::setRegionName($region_id, $region_name);
+                var_dump($if_update);
                 return $if_update ? responseToJson(0, '更新成功') : responseToJson(1, '更新失败');
             }
         }
@@ -219,7 +223,7 @@ class OperateIndexController extends Controller
     public function deleteAppoinInformation(Request $request) {
         if($request->isMethod('post')) {
             $region_id = is_numeric($request->RegionId) ? $request->RegionId : 0;
-            $information_id = is_numeric($request->InformationId) ? $request->InformationId : 0;
+            $information_id = isset($request->InformationId) ? $request->InformationId : 0;
 
             if(!empty($region_id) && !empty($information_id)) {
                 $is_delete = InformationIndexRegion::deleteRegionInformation($region_id, $information_id);

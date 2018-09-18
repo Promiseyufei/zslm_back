@@ -302,19 +302,19 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
          * 资讯首页
          */
 
-        Route::post('getAppointRegionData', 'BannerController@getAppointRegionData');
+        Route::post('getAppointRegionData', 'OperateIndexController@getAppointRegionData');
 
-        Route::post('setAppointRegionName', 'BannerController@setAppointRegionName');
+        Route::post('setAppointRegionName', 'OperateIndexController@setAppointRegionName');
 
-        Route::post('setAppoinInformationWeight', 'BannerController@setAppoinInformationWeight');
+        Route::post('setAppoinInformationWeight', 'OperateIndexController@setAppoinInformationWeight');
 
-        Route::post('deleteAppoinInformation', 'BannerController@deleteAppoinInformation');
+        Route::post('deleteAppoinInformation', 'OperateIndexController@deleteAppoinInformation');
 
-        Route::post('getInformPagingData', 'BannerController@getInformPagingData');
+        Route::post('getInformPagingData', 'OperateIndexController@getInformPagingData');
 
-        Route::post('addAppoinInformations', 'BannerController@addAppoinInformations');
+        Route::post('addAppoinInformations', 'OperateIndexController@addAppoinInformations');
 
-        Route::post('getInformationType', 'BannerController@getInformationType');
+        Route::post('getInformationType', 'OperateIndexController@getInformationType');
 
 
     });
