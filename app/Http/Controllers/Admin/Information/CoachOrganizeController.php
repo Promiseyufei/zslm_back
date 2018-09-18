@@ -21,7 +21,7 @@ class CoachOrganizeController extends Controller
     
 
     /**
-     * @api {post} admin/information/getPageCoachOrganize 获取活动列表页分页数据
+     * @api {post} admin/information/getPageCoachOrganize 获取辅导机构列表页分页数据
      * @apiGroup information
      * 
      * 

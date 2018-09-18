@@ -26,5 +26,10 @@ Route::get('/smsBatchSend', function() {
     SmsController::sendBatchSms(['15837587256', '13569829175'],'测试', [['name'=>'李闪磊'], ['name' => '尤齐秦']]);
 });
 
-include('admin.php');
-include('front.php');
+
+Route::group(['middleware' => 'cors'], function() {
+    include('admin.php');
+    include('front.php');
+
+});
+

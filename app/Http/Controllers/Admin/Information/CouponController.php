@@ -96,7 +96,7 @@ class CouponController extends Controller
     /**
      * @api {post} admin/information/getPageCouponCount 优惠券列表页(对于辅导机构)分页总数
      * @apiGroup information
-     * ZslmCoupon
+     * 
      * @apiParam {Array} conditionArr 筛选条件
      * 
      *

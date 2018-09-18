@@ -1012,86 +1012,6 @@ define({ "api": [
   {
     "type": "post",
     "url": "admin/information/createCoupon",
-    "title": "更新指定优惠券的字段信息",
-    "group": "information",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "couponId",
-            "description": "<p>优惠券id</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "couponName",
-            "description": "<p>优惠券名称</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "couponType",
-            "description": "<p>优惠券类型(0:满减型; 1:优惠型)</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "context",
-            "description": "<p>优惠券内容</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "couponcol",
-            "description": "<p>优惠券说明</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"更新成功\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "type": "Object[]",
-            "optional": false,
-            "field": "error",
-            "description": "<p>这里是失败时返回实例</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '更新失败/参数错误'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/CouponController.php",
-    "groupTitle": "information",
-    "name": "PostAdminInformationCreatecoupon"
-  },
-  {
-    "type": "post",
-    "url": "admin/information/createCoupon",
     "title": "新增优惠券",
     "group": "information",
     "parameter": {
@@ -2715,45 +2635,6 @@ define({ "api": [
   {
     "type": "post",
     "url": "admin/information/getMajorProvincesAndCities",
-    "title": "获得所在省市字典表（注意按省分组）",
-    "group": "information",
-    "success": {
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"father_id\":\"0\"\n             \"name\":\"xx省\",\n             \"citys\":{\n                 {\n                     \"id\":\"xx\",\n                     \"name\":\"xx市\"\n                     \"father_id\":\"xx\"\n                 },\n                 {\n                     \"id\":\"xx\",\n                     \"name\":\"xx市\",\n                     \"father_id\":\"xx\"\n                 }\n             }\n         }\n  }\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "type": "Object[]",
-            "optional": false,
-            "field": "error",
-            "description": "<p>这里是失败时返回实例</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
-    "groupTitle": "information",
-    "name": "PostAdminInformationGetmajorprovincesandcities"
-  },
-  {
-    "type": "post",
-    "url": "admin/information/getMajorProvincesAndCities",
     "title": "获得活动省市字典",
     "group": "information",
     "success": {
@@ -2787,6 +2668,45 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "app/Http/Controllers/Admin/Information/ActivityController.php",
+    "groupTitle": "information",
+    "name": "PostAdminInformationGetmajorprovincesandcities"
+  },
+  {
+    "type": "post",
+    "url": "admin/information/getMajorProvincesAndCities",
+    "title": "获得所在省市字典表(注意按省分组)",
+    "group": "information",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"father_id\":\"0\"\n             \"name\":\"xx省\",\n             \"citys\":{\n                 {\n                     \"id\":\"xx\",\n                     \"name\":\"xx市\"\n                     \"father_id\":\"xx\"\n                 },\n                 {\n                     \"id\":\"xx\",\n                     \"name\":\"xx市\",\n                     \"father_id\":\"xx\"\n                 }\n             }\n         }\n     }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Information/MajorController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetmajorprovincesandcities"
   },
@@ -2923,7 +2843,7 @@ define({ "api": [
   {
     "type": "post",
     "url": "admin/information/getPageCoachOrganize",
-    "title": "获取活动列表页分页数据",
+    "title": "获取辅导机构列表页分页数据",
     "group": "information",
     "parameter": {
       "fields": {
@@ -3086,6 +3006,58 @@ define({ "api": [
     "filename": "app/Http/Controllers/Admin/Information/CouponController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationGetpagecoupon"
+  },
+  {
+    "type": "post",
+    "url": "admin/information/getPageCouponCount",
+    "title": "优惠券列表页(对于辅导机构)分页总数",
+    "group": "information",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Array",
+            "optional": false,
+            "field": "conditionArr",
+            "description": "<p>筛选条件</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n        count:240\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Information/CouponController.php",
+    "groupTitle": "information",
+    "name": "PostAdminInformationGetpagecouponcount"
   },
   {
     "type": "post",
@@ -3635,6 +3607,58 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "admin/information/setAutoInfoRelationCollege",
+    "title": "设置指定资讯的推荐院校专业设置(自动设置)",
+    "group": "information",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "infoId",
+            "description": "<p>活动的id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"设置成功\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '更新失败/参数错误'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Information/InformationController.php",
+    "groupTitle": "information",
+    "name": "PostAdminInformationSetautoinforelationcollege"
+  },
+  {
+    "type": "post",
     "url": "admin/information/setAutomaticRecActivitys",
     "title": "自动设置推荐活动",
     "group": "information",
@@ -3684,58 +3708,6 @@ define({ "api": [
     "filename": "app/Http/Controllers/Admin/Information/ActivityController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationSetautomaticrecactivitys"
-  },
-  {
-    "type": "post",
-    "url": "admin/information/setAutomaticRecInfos",
-    "title": "设置指定资讯的推荐院校专业设置(自动设置)",
-    "group": "information",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "infoId",
-            "description": "<p>活动的id</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"设置成功\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "type": "Object[]",
-            "optional": false,
-            "field": "error",
-            "description": "<p>这里是失败时返回实例</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '更新失败/参数错误'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/InformationController.php",
-    "groupTitle": "information",
-    "name": "PostAdminInformationSetautomaticrecinfos"
   },
   {
     "type": "post",
@@ -4374,6 +4346,86 @@ define({ "api": [
   },
   {
     "type": "post",
+    "url": "admin/information/updateAppointCoupon",
+    "title": "更新指定优惠券的字段信息",
+    "group": "information",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "couponId",
+            "description": "<p>优惠券id</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "couponName",
+            "description": "<p>优惠券名称</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "couponType",
+            "description": "<p>优惠券类型(0:满减型; 1:优惠型)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "context",
+            "description": "<p>优惠券内容</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "couponcol",
+            "description": "<p>优惠券说明</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"更新成功\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '更新失败/参数错误'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Information/CouponController.php",
+    "groupTitle": "information",
+    "name": "PostAdminInformationUpdateappointcoupon"
+  },
+  {
+    "type": "post",
     "url": "admin/information/updateAppointInfoMsg",
     "title": "编辑指定咨询信息",
     "group": "information",
@@ -4479,6 +4531,156 @@ define({ "api": [
     "filename": "app/Http/Controllers/Admin/Information/InformationController.php",
     "groupTitle": "information",
     "name": "PostAdminInformationUpdateappointinfomsg"
+  },
+  {
+    "type": "post",
+    "url": "admin/information/updateAppointProjectMsg",
+    "title": "编辑指定招生项目信息",
+    "group": "information",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "projectId",
+            "description": "<p>招生项目id</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "projectName",
+            "description": "<p>招生项目名称</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Float",
+            "optional": false,
+            "field": "minCost",
+            "description": "<p>招生项目最小费用</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Float",
+            "optional": false,
+            "field": "maxCost",
+            "description": "<p>招生项目最大费用</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "cost",
+            "description": "<p>招生项目费用</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "studentCount",
+            "description": "<p>招生名额</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "language",
+            "description": "<p>授课语言</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "classSituation",
+            "description": "<p>班级情况</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "eductionalSystme",
+            "description": "<p>学制</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "canConditions",
+            "description": "<p>报考条件</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "scoreDescribe",
+            "description": "<p>分数线描述</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "graduationCertificate",
+            "description": "<p>毕业证书</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "recruitmentPattern",
+            "description": "<p>统招模式</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "enrollmentMode",
+            "description": "<p>招生模式</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "professionalDirection",
+            "description": "<p>专业方向</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"更新成功\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Information/StudentProjectController.php",
+    "groupTitle": "information",
+    "name": "PostAdminInformationUpdateappointprojectmsg"
   },
   {
     "type": "post",
@@ -4736,9 +4938,9 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "admin/information/getPageCouponCount",
-    "title": "优惠券列表页(对于辅导机构)分页总数",
-    "group": "information_ZslmCoupon",
+    "url": "admin/news/batchScreenAccounts",
+    "title": "批量筛选用户",
+    "group": "news",
     "parameter": {
       "fields": {
         "Parameter": [
@@ -4746,8 +4948,36 @@ define({ "api": [
             "group": "Parameter",
             "type": "Array",
             "optional": false,
-            "field": "conditionArr",
-            "description": "<p>筛选条件</p>"
+            "field": "majorIdArr",
+            "description": "<p>院校专业id数组</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Array",
+            "optional": false,
+            "field": "activityIdArr",
+            "description": "<p>活动id数组</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "condition",
+            "description": "<p>筛选条件(当同时选择院校专业和活动时进行选择筛选条件．０需同时满足两个条件；１满足以上任意一个条件即可)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageCount",
+            "description": "<p>页面显示行数</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageNumber",
+            "description": "<p>跳转页面下标</p>"
           }
         ]
       }
@@ -4756,7 +4986,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n        count:240\n  }\n}",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"account\":\"账号(手机号)\",\n             \"user_name\":\"用户昵称\",\n             \"real_name\":\"真实姓名\",\n             \"sex\":\"性别\",\n             \"address\":\"居住省市(常住地)\",\n             \"schooling_id\":\"最高学历\",\n             \"graduate_school\":\"毕业学校\",\n             \"industry\":\"所属行业\",\n             \"worked_year\":\"工作年限\"\n         }\n  }\n}",
           "type": "json"
         }
       ]
@@ -4782,15 +5012,15 @@ define({ "api": [
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/CouponController.php",
-    "groupTitle": "information_ZslmCoupon",
-    "name": "PostAdminInformationGetpagecouponcount"
+    "filename": "app/Http/Controllers/Admin/News/SendNewsController.php",
+    "groupTitle": "news",
+    "name": "PostAdminNewsBatchscreenaccounts"
   },
   {
     "type": "post",
-    "url": "admin/information/updateAppointProjectMsg",
-    "title": "编辑指定招生项目信息",
-    "group": "information_testbbb",
+    "url": "admin/news/getAllAccounts",
+    "title": "获取全部用户",
+    "group": "news",
     "parameter": {
       "fields": {
         "Parameter": [
@@ -4798,106 +5028,15 @@ define({ "api": [
             "group": "Parameter",
             "type": "Number",
             "optional": false,
-            "field": "projectId",
-            "description": "<p>招生项目id</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "projectName",
-            "description": "<p>招生项目名称</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Float",
-            "optional": false,
-            "field": "minCost",
-            "description": "<p>招生项目最小费用</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Float",
-            "optional": false,
-            "field": "maxCost",
-            "description": "<p>招生项目最大费用</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "cost",
-            "description": "<p>招生项目费用</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "studentCount",
-            "description": "<p>招生名额</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "language",
-            "description": "<p>授课语言</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "classSituation",
-            "description": "<p>班级情况</p>"
+            "field": "pageCount",
+            "description": "<p>页面显示行数</p>"
           },
           {
             "group": "Parameter",
             "type": "Number",
             "optional": false,
-            "field": "eductionalSystme",
-            "description": "<p>学制</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "canConditions",
-            "description": "<p>报考条件</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "scoreDescribe",
-            "description": "<p>分数线描述</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "graduationCertificate",
-            "description": "<p>毕业证书</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "recruitmentPattern",
-            "description": "<p>统招模式</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "enrollmentMode",
-            "description": "<p>招生模式</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "professionalDirection",
-            "description": "<p>专业方向</p>"
+            "field": "pageNumber",
+            "description": "<p>跳转页面下标</p>"
           }
         ]
       }
@@ -4906,7 +5045,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"更新成功\",\n}",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"account\":\"账号(手机号)\",\n             \"user_name\":\"用户昵称\",\n             \"real_name\":\"真实姓名\",\n             \"sex\":\"性别\",\n             \"address\":\"居住省市(常住地)\",\n             \"schooling_id\":\"最高学历\",\n             \"graduate_school\":\"毕业学校\",\n             \"industry\":\"所属行业\",\n             \"worked_year\":\"工作年限\"\n         }\n  }\n}",
           "type": "json"
         }
       ]
@@ -4932,9 +5071,308 @@ define({ "api": [
       ]
     },
     "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Information/StudentProjectController.php",
-    "groupTitle": "information_testbbb",
-    "name": "PostAdminInformationUpdateappointprojectmsg"
+    "filename": "app/Http/Controllers/Admin/News/SendNewsController.php",
+    "groupTitle": "news",
+    "name": "PostAdminNewsGetallaccounts"
+  },
+  {
+    "type": "post",
+    "url": "admin/news/getAppointNews",
+    "title": "获得指定的消息详情",
+    "group": "news",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "newsId",
+            "description": "<p>消息id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"news_title\":\"消息标题\",\n             \"context\":\"消息内容\",\n             \"url\":\"相关链接\",\n             \"carrier\":\"消息载体类型\",\n             \"type\":\"消息类型\",\n             \"create_time\":\"发送时间\",\n             \"success\":\"发送状态\"\n         }\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/News/HistoricalNewsController.php",
+    "groupTitle": "news",
+    "name": "PostAdminNewsGetappointnews"
+  },
+  {
+    "type": "post",
+    "url": "admin/news/getNewNewsMessage",
+    "title": "获得新消息的信息并发送",
+    "group": "news",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Array",
+            "optional": false,
+            "field": "userArr",
+            "description": "<p>发送用户的id数组</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "carrier",
+            "description": "<p>消息载体类型(0：短信形式；1：站内信形式；2：短信+站内信)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "type",
+            "description": "<p>消息类型(0：无，默认；1：个人助手类；2：系统消息类；3：院校动态类（只能发站内信）)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "title",
+            "description": "<p>页面显示行数</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "context",
+            "description": "<p>消息正文</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "url",
+            "description": "<p>相关链接</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"account\":\"账号(手机号)\",\n             \"user_name\":\"用户昵称\",\n             \"real_name\":\"真实姓名\",\n             \"sex\":\"性别\",\n             \"address\":\"居住省市(常住地)\",\n             \"schooling_id\":\"最高学历\",\n             \"graduate_school\":\"毕业学校\",\n             \"industry\":\"所属行业\",\n             \"worked_year\":\"工作年限\"\n         }\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/News/SendNewsController.php",
+    "groupTitle": "news",
+    "name": "PostAdminNewsGetnewnewsmessage"
+  },
+  {
+    "type": "post",
+    "url": "admin/news/getScreenNews",
+    "title": "获得筛选的消息(注意分页)",
+    "group": "news",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "newTitleKeywords",
+            "description": "<p>消息标题关键字</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Time",
+            "optional": false,
+            "field": "startTime",
+            "description": "<p>开始时间</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Time",
+            "optional": false,
+            "field": "endTime",
+            "description": "<p>结束时间</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageCount",
+            "description": "<p>页面显示行数</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageNumber",
+            "description": "<p>跳转页面下标</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"carrier\":\"消息载体类型\",\n             \"type\":\"消息类型\",\n             \"news_title\":\"消息标题\",\n             \"create_time\":\"发送时间\",\n             \"success\":\"发送状态(0失败，1成功)\"\n         }\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/News/HistoricalNewsController.php",
+    "groupTitle": "news",
+    "name": "PostAdminNewsGetscreennews"
+  },
+  {
+    "type": "post",
+    "url": "admin/news/manualSelectionAccounts",
+    "title": "手动选择用户",
+    "group": "news",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "keyWord",
+            "description": "<p>账号/昵称/真实姓名关键字</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "sex",
+            "description": "<p>用户性别id</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "condition",
+            "description": "<p>筛选条件(当同时选择院校专业和活动时进行选择筛选条件．０需同时满足两个条件；１满足以上任意一个条件即可)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageCount",
+            "description": "<p>页面显示行数</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageNumber",
+            "description": "<p>跳转页面下标</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"account\":\"账号(手机号)\",\n             \"user_name\":\"用户昵称\",\n             \"real_name\":\"真实姓名\",\n             \"sex\":\"性别\",\n             \"address\":\"居住省市(常住地)\",\n             \"schooling_id\":\"最高学历\",\n             \"graduate_school\":\"毕业学校\",\n             \"industry\":\"所属行业\",\n             \"worked_year\":\"工作年限\"\n         }\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/News/SendNewsController.php",
+    "groupTitle": "news",
+    "name": "PostAdminNewsManualselectionaccounts"
   },
   {
     "type": "post",
@@ -5217,58 +5655,6 @@ define({ "api": [
   {
     "type": "post",
     "url": "admin/operate/deleteBannerAd",
-    "title": "删除页面上的指定广告",
-    "group": "operate",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "btId",
-            "description": "<p>要删除的Billboard的id</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"删除成功\"\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "type": "Object[]",
-            "optional": false,
-            "field": "error",
-            "description": "<p>这里是失败时返回实例</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": 'xxxxxx'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "version": "0.0.0",
-    "filename": "app/Http/Controllers/Admin/Operate/BillboardController.php",
-    "groupTitle": "operate",
-    "name": "PostAdminOperateDeletebannerad"
-  },
-  {
-    "type": "post",
-    "url": "admin/operate/deleteBannerAd",
     "title": "删除一级页面上的Banner",
     "group": "operate",
     "parameter": {
@@ -5315,6 +5701,58 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "app/Http/Controllers/Admin/Operate/BannerController.php",
+    "groupTitle": "operate",
+    "name": "PostAdminOperateDeletebannerad"
+  },
+  {
+    "type": "post",
+    "url": "admin/operate/deleteBannerAd",
+    "title": "删除页面上的指定广告",
+    "group": "operate",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "btId",
+            "description": "<p>要删除的Billboard的id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"删除成功\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": 'xxxxxx'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Operate/BillboardController.php",
     "groupTitle": "operate",
     "name": "PostAdminOperateDeletebannerad"
   },
@@ -6241,6 +6679,295 @@ define({ "api": [
     "filename": "app/Http/Controllers/Admin/Operate/BannerController.php",
     "groupTitle": "operate",
     "name": "PostAdminOperateSetbtweight"
+  },
+  {
+    "type": "get",
+    "url": "admin/refund/export",
+    "title": "导出退款单表格",
+    "group": "refund",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Refund/ExportExcelController.php",
+    "groupTitle": "refund",
+    "name": "GetAdminRefundExport"
+  },
+  {
+    "type": "post",
+    "url": "admin/refund/getRefundPageMsg",
+    "title": "获取退款单管理页面分页数据",
+    "group": "refund",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "keyWord",
+            "description": "<p>关键字(手机号/用户姓名)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "screenState",
+            "description": "<p>筛选状态(按审批状态筛选，0未审批，１通过，２驳回,3全部)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageCount",
+            "description": "<p>页面显示行数</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageNumber",
+            "description": "<p>跳转页面下标</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"create_time\":\"退款申请时间\",\n             \"user_account\":\"账号(手机号)\",\n             \"coach_name\":\"辅导机构名称\",\n             \"apply_refund_money\":\"申请退款金额\",\n             \"coupon_key\":\"优惠券标识\",\n             \"registration_deadline\":\"报名日期\",\n             \"phone\":\"联系电话\",\n             \"alipay_account\":\"支付宝账号\",\n             \"name\":\"收款人\",\n             \"card\":\"银行卡号\",\n             \"bank\":\"开户行信息\",\n         }\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Refund/RefundController.php",
+    "groupTitle": "refund",
+    "name": "PostAdminRefundGetrefundpagemsg"
+  },
+  {
+    "type": "post",
+    "url": "admin/refund/selectAppointAppealMessage",
+    "title": "查看指定退款订单的申诉信息",
+    "group": "refund",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "NUmber",
+            "optional": false,
+            "field": "refundId",
+            "description": "<p>退款单id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"\",\n\"data\": {\n\n         {\n             \"id\":\"xxx\",\n             \"coach_name\":\"辅导机构名称\",\n             \"apply_refund_money\":\"申请退款金额\",\n             \"registration_deadline\":\"报名日期\",\n             \"to_apply_for_reimbursement\":\"申诉理由\",\n             \"imgs\":\"相关图片\"\n         }\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Refund/RefundController.php",
+    "groupTitle": "refund",
+    "name": "PostAdminRefundSelectappointappealmessage"
+  },
+  {
+    "type": "post",
+    "url": "admin/refund/setApproveStatus",
+    "title": "设置流程状态",
+    "group": "refund",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "NUmber",
+            "optional": false,
+            "field": "refundId",
+            "description": "<p>退款单id</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "NUmber",
+            "optional": false,
+            "field": "processStatus",
+            "description": "<p>流程状态状态(0进行中；1已结束)</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"设置成功\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Refund/RefundController.php",
+    "groupTitle": "refund",
+    "name": "PostAdminRefundSetapprovestatus"
+  },
+  {
+    "type": "post",
+    "url": "admin/refund/setApproveStatus",
+    "title": "修改审批状态",
+    "group": "refund",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "NUmber",
+            "optional": false,
+            "field": "refundId",
+            "description": "<p>退款单id</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "NUmber",
+            "optional": false,
+            "field": "approveStatus",
+            "description": "<p>审批状态(0未审批，１通过，２驳回)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "approveContext",
+            "description": "<p>驳回内容(审批状态设置成驳回时需要提交驳回理由，该参数在未审批或通过时不提交)</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n\"code\": 0,\n\"msg\": \"设置成功\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Object[]",
+            "optional": false,
+            "field": "error",
+            "description": "<p>这里是失败时返回实例</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 40x\n{\n  \"code\": \"1\",\n   \"msg\": '请求失败'\n}\n\n HTTP/1.1 5xx\n{\n  \"code\": \"2\",\n   \"msg\": '请求方式错误'\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/Http/Controllers/Admin/Refund/RefundController.php",
+    "groupTitle": "refund",
+    "name": "PostAdminRefundSetapprovestatus"
   },
   {
     "type": "get",
