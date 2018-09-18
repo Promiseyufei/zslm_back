@@ -96,7 +96,6 @@ class NewsController extends Controller
      * @api {post} admin/news/batchScreenAccounts 批量筛选用户
      * @apiGroup news
      * 
-     * 
      * @apiParam {Array} majorIdArr 院校专业id数组
      * @apiParam {Array} activityIdArr 活动id数组
      * @apiParam {Number} condition 筛选条件(当同时选择院校专业和活动时进行选择筛选条件．０需同时满足两个条件；１满足以上任意一个条件即可)
@@ -172,7 +171,7 @@ class NewsController extends Controller
 
 
     /**
-     * @api {post} admin/news/batchScreenAccounts 手动选择
+     * @api {post} admin/news/manualSelectionAccounts 手动选择用户
      * 
      * @apiGroup news
      * 

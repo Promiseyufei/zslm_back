@@ -28,7 +28,7 @@ class HistoricalNewsController extends Controller
      * @apiParam {Time} startTime 开始时间
      * @apiParam {Time} endTime 结束时间
      * @apiParam {Number} pageCount 页面显示行数
-     * @apiParam {Number}} pageNumber 跳转页面下标
+     * @apiParam {Number} pageNumber 跳转页面下标
      * 
      *
      * @apiSuccessExample　{json} Success-Response:
@@ -90,7 +90,7 @@ class HistoricalNewsController extends Controller
      * 
      * @apiGroup news
      * 
-     * @apiParam {Number}} newsId 消息id
+     * @apiParam {Number} newsId 消息id
      * 
      *
      * @apiSuccessExample　{json} Success-Response:

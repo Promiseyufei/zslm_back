@@ -79,7 +79,7 @@ class StudentProjectController extends Controller
 
     /**
      * @api {post} admin/information/updateAppointProjectMsg 编辑指定招生项目信息
-     * @apiGroup information testbbb
+     * @apiGroup information
      * 
      * 
      * @apiParam {Number} projectId 招生项目id

@@ -537,7 +537,7 @@ class MajorController extends Controller
 
 
     /**
-     * @api {post} admin/information/getMajorProvincesAndCities 获得所在省市字典表（注意按省分组）
+     * @api {post} admin/information/getMajorProvincesAndCities 获得所在省市字典表(注意按省分组)
      * @apiGroup information
      * 
      * @apiSuccessExample　{json} Success-Response:
@@ -564,7 +564,7 @@ class MajorController extends Controller
      *                  }
      *              }
      *          }
-     *   }
+     *      }
      * }
      *
      * @apiError　{Object[]} error　 这里是失败时返回实例

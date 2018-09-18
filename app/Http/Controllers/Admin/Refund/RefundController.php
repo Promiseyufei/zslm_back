@@ -156,7 +156,7 @@ class RefundController extends Controller
      * 
      * @apiParam {NUmber} refundId 退款单id
      * @apiParam {NUmber} approveStatus 审批状态(0未审批，１通过，２驳回)
-     * @apiParam {String}} approveContext 驳回内容(审批状态设置成驳回时需要提交驳回理由，该参数在未审批或通过时不提交)
+     * @apiParam {String} approveContext 驳回内容(审批状态设置成驳回时需要提交驳回理由，该参数在未审批或通过时不提交)
      * 
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
