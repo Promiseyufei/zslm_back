@@ -30,7 +30,7 @@ function responseToJson($code = 0, $msg = '', $paras = null)
     // if (!empty($paras)) {
     $res["result"] = $paras;
     // }
-    return response()->json($res);
+    return response()->json($res)->setEncodingOptions(JSON_UNESCAPED_UNICODE);
 }
 
 

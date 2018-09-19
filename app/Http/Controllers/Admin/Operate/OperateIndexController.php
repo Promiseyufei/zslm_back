@@ -23,7 +23,6 @@ class OperateIndexController extends Controller
 
 
 
-
     /**
      * @api {post} admin/operate/getAppointRegionData 获得指定区域的资讯内容
      * @apiGroup operate
@@ -132,7 +131,6 @@ class OperateIndexController extends Controller
             if($region_name == '') return responseToJson(1, '名称不能为空');
             if($region_id >= 0 && !empty($region_name)) {
                 $if_update = InformationIndexRegion::setRegionName($region_id, $region_name);
-                var_dump($if_update);
                 return $if_update ? responseToJson(0, '更新成功') : responseToJson(1, '更新失败');
             }
         }
@@ -230,7 +228,6 @@ class OperateIndexController extends Controller
 
                 return $is_delete ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
             }
-
         }
         else 
             return responseToJson(2, '请求方式错误');
@@ -304,12 +301,13 @@ class OperateIndexController extends Controller
                 'page_number' => $page_number,
                 'title_keyword' => $title_keyword
             ]);
-            if(count($select_data) > 0) {
+            if(count($select_data) > 0 && count($select_data['data']) > 0) {
                 $inform_type = DictInformType::getAllInformType()->toArray();
     
-                foreach($select_data as $key => $item) {
-                    $select_data[$key]->z_type = $inform_type[$select_data[$key]->z_type];
-                    $select_data[$key]->create_time = date('Y-m-d H:i:s', $select_data[$key]->create_time);
+                foreach($select_data['data'] as $key => $item) {
+                    foreach($inform_type as $keys => $value)
+                        if($select_data['data'][$key]->z_type == $value->id) $select_data['data'][$key]->z_type = $value->name;
+                    $select_data['data'][$key]->create_time = date('Y-m-d H:i:s', $select_data['data'][$key]->create_time);
                 }
             }
             return responseToJson(0, '', $select_data);
@@ -317,9 +315,6 @@ class OperateIndexController extends Controller
         }
         else 
             return responseToJson(2, '请求方式错误');
-
-
-
      }
 
 
@@ -360,6 +355,7 @@ class OperateIndexController extends Controller
         $appoint_id = isset($request->appointId) && is_numeric($request->appointId) ? $request->appointId : -1;
         if($appoint_id > -1) {
             $is_update = InformationIndexRegion::addRegionInform($appoint_id, $inform_arr);
+            var_dump($is_update);
             return $is_update ? responseToJson(0, '添加成功') : responseToJson(1, '添加失败');
         }
         else 

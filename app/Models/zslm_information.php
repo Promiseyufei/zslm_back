@@ -39,14 +39,16 @@ class zslm_information
             ['is_show', '=', 0]
         ]);
         if(!empty($dataArr['inform_type_id']))
-            $handel = $handel->where('z_type', $$dataArr['inform_type_id']);
+            $handel = $handel->where('z_type', $dataArr['inform_type_id']);
 
-        $handel = $handel->where('zx_name', 'like', '%'.$dataArr['title_keyword']);
+        $handel = $handel->where('zx_name', 'like', '%' . $dataArr['title_keyword'] . '%');
 
         if($dataArr['sort_type'])
             $handel = $handel->orderBy('create_time', 'desc');
         else
             $handel = $handel->orderBy('create_time', 'asc');
+        
+        $count = $handel->count();
 
         $handel = $handel
             ->offset($dataArr['page_count'] * $dataArr['page_number'])
@@ -55,7 +57,7 @@ class zslm_information
             ->get()
             ->toArray();
 
-        return $handel;
+        return ['count'=> $count, 'data' => $handel];
     }
 
 
