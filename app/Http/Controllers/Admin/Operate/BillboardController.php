@@ -59,7 +59,8 @@ class BillboardController extends Controller
      */
     public function getAllPageListName(Request $request) {
         if($request->isMethod('post')) {
-            $indexs_name = UrlsBt::getIndexUrlName(1) || [];
+            $indexs_name = UrlsBt::getIndexUrlName(1);
+            $indexs_name = count($indexs_name) > 0 ? $indexs_name : [];
             if($indexs_name !== []) 
                 return responseToJson(0, '', $indexs_name);
             else 
@@ -115,10 +116,9 @@ class BillboardController extends Controller
         if($request->isMethod('post')) {
             $url_id = is_numeric($request->pageId)? $request->pageId : 0;
             $bt_type = is_numeric($request->btType) ? $request->btType : -1;
-    
             if($url_id !== 0 && $bt_type >= 0) {
-                $url_bt = BannerAd::getIndexBt($url_id, $bt_type) || [];
-                if($url_bt !== []) {
+                $url_bt = BannerAd::getIndexBt($url_id, $bt_type);
+                if(count($url_bt) >= 0) {
                     foreach($url_bt as $key => &$value) {
                         $value->create_time = date('Y-m-d H:i:s', $value->create_time);
                     }
@@ -285,7 +285,7 @@ class BillboardController extends Controller
      */
     public function deletePageBillboard(Request $request) {
         if($request->isMethod('post')) {
-            $bt_id = (isset($request->btId) && is_numeric($request->btId)) ? $request->btId : 0;
+            $bt_id = isset($request->btId) ? $request->btId : 0;
             if(!$bt_id) return responseToJson(1, '参数错误');
     
             $is_delete = BannerAd::delBannerBt($bt_id);
@@ -331,20 +331,22 @@ class BillboardController extends Controller
      */
     public function createPageBillboard(Request $request) {
         if($request->isMethod('post')) {
-            $img_name = trim($request->imgName);
-            $img_alt  = trim($request->imgAlt);
-            $re_url   = trim($request->reUrl);
-            $img_handle      = $request->file('img');
-            $url_id   = $request->urlId || 0;
-            
+            $img_name   = trim($request->imgName);
+            $img_alt    = trim($request->imgAlt);
+            $re_url     = trim($request->reUrl);
+            $img_handle = $request->file('img');
+            $url_id     = $request->urlId ? $request->urlId : 0;
             if(mb_strlen($img_name,'utf-8') >= 100) return responseToJson(1, '名称长度超出范围');
             else if(mb_strlen($img_alt) >= 255) return responseToJson(1,'图片描述长度超出范围');
             else if(mb_strlen($re_url) >= 255) return responseToJson(1,'跳转路由长度超出范围');
             else if(isset($img)) return responseToJson(1,'请选择要上传的图片');
             else if($url_id == 0) return responseToJson(1, '请指定广告页面');
-    
-            if(!isset($img_name)) $img_name = getFileName('operate');
-    
+            
+            if(!isset($img_name)) 
+                $img_name = getFileName('operate', $img_handle->getClientOriginalExtension());
+            else 
+                $img_name = $img_name . '.' . $img_handle->getClientOriginalExtension();
+            
             $img_msg = [
                 'img' => $img_name,
                 'img_alt' => $img_alt,
@@ -352,13 +354,12 @@ class BillboardController extends Controller
                 'type'=> 1,
                 'url_id' => $url_id
             ];
-    
+
             try {
                 DB::beginTransaction();
-                $is_created = BannerAd::createBanAd($url_id, $img_msg);
+                $is_created = BannerAd::createBanAd($img_msg);
                 $is_create_img = $this->createDirImg($img_name, $img_handle);
-    
-                if($is_created && ($is_create_img == true)) {
+                if($is_created && ($is_create_img === true)) {
                     DB::commit();
                     return responseToJson(0, '上传成功'); 
                 }
@@ -381,25 +382,24 @@ class BillboardController extends Controller
         if($imgHandle->isValid()) {
             // $originalName = $imgHandle->getClientOriginalName(); //源文件名
             // $ext = $file->getClientOriginalExtension();    //文件拓展名
-
-            $file_type_arr = ['png','jpg','jpeg','tif'];
+            $file_type_arr = ['png','jpg','jpeg','tif','image/jpeg', 'image/png'];
             $type = $imgHandle->getClientMimeType(); //文件类型
             $realPath = $imgHandle->getRealPath();   //临时文件的绝对路径
-
+            $size = $imgHandle->getSize();
+            // var_dump(in_array(strtolower($type), $file_type_arr));die;
             /**
              * 
              * 判断类型
              * 判断是否在文件夹中存在
              *  判断大小
              */
-            if(!in_array(strtolower($type), $file_type_arr)) return [1,'请上传格式为图片的文件'];
-            else if(Storage::disk('operate')->exists($imgName)) return [1, '图片已存在'];
-            else {
-                $img_size = getByteToMb(Storage::disk('operate')->size($imgName));
-                if($img_size > 3) return [1, '文件超出最大限制'];
+            if(!in_array(strtolower($type), $file_type_arr)) {
+                return [1,'请上传格式为图片的文件'];
             }
-
-            $bool = Storage::disk('article')->put($imgName, file_get_contents($realPath));
+            // else if(Storage::disk('operate')->exists($imgName)) return [1, '图片已存在'];
+            else if(getByteToMb($size) > 4) return [1, '文件超出最大限制'];
+                
+            $bool = Storage::disk('operate')->put($imgName, file_get_contents($realPath));
             return $bool ? $bool : [1, '图片上传失败'];
         }
         else [1, '图片未上传'];

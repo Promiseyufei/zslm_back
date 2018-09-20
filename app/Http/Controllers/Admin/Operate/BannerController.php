@@ -361,8 +361,7 @@ class BannerController extends Controller
                 'type'=> 0,
                 'url_id' => $url_id
             ];
-
-    
+            
             try {
                 DB::beginTransaction();
                 $is_created = BannerAd::createBanAd($img_msg);
@@ -407,7 +406,7 @@ class BannerController extends Controller
              *  判断大小
              */
             if(!in_array(strtolower($ext), $file_type_arr)) return [1,'请上传格式为图片的文件'];
-            else if(Storage::disk('operate')->exists($imgName)) return [1, '图片已存在'];
+            // else if(Storage::disk('operate')->exists($imgName)) return [1, '图片已存在'];
             else if(getByteToMb($size) > 4) return [1, '文件超出最大限制'];
                 
 

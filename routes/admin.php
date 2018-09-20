@@ -277,17 +277,17 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
          * 广告
          */
 
-        Route::post('getAllPageListName', 'BannerController@getAllPageListName');
+        Route::post('getAllPageListName', 'BillboardController@getAllPageListName');
 
-        Route::post('getAppointPageBillboard', 'BannerController@getAppointPageBillboard');
+        Route::post('getAppointPageBillboard', 'BillboardController@getAppointPageBillboard');
 
-        Route::post('setBillboardWeight', 'BannerController@setBillboardWeight');
+        Route::post('setBillboardWeight', 'BillboardController@setBillboardWeight');
 
-        Route::post('setBillboardMessage', 'BannerController@setBillboardMessage');
+        Route::post('setBillboardMessage', 'BillboardController@setBillboardMessage');
 
-        Route::post('deletePageBillboard', 'BannerController@deletePageBillboard');
+        Route::post('deletePageBillboard', 'BillboardController@deletePageBillboard');
 
-        Route::post('createPageBillboard', 'BannerController@createPageBillboard');
+        Route::post('createPageBillboard', 'BillboardController@createPageBillboard');
 
 
         /**
