@@ -9,6 +9,6 @@ class Test
     public static $sTable = 'test';
 
     public static function getName() {
-        
+            
     }
 }

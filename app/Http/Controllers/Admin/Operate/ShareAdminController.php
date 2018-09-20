@@ -38,7 +38,9 @@ class ShareAdminController extends Controller
      *              "wx_count":"xxxxxxxxxxxx",
      *              "wb_count":"xxxxxxxxxxxx",
      *              "wx_browse":"xxxxxxxxxxxx",
-     *              "wb_browse":"xxxxxxxxxxxx"
+     *              "wb_browse":"xxxxxxxxxxxx",
+     *              "total_count": "xxx",
+     *              "total_browse":"xxx"
      *          }
      *   }
      * }
@@ -76,7 +78,11 @@ class ShareAdminController extends Controller
             'rise_or_drop'  => $rise_or_drop,
             'content_type'  => $title_keyword,
             'title_keyword' => $title_keyword 
-        ]);
+        ])->toArray()->map(function($item) {
+            $item->total_count = $item->wx_count + $item->wb_count;
+            $item->total_browse = $item->wx_browse + $item->wb_browse;
+            return $item;
+        });
 
         return isset($page_data) ? responseToJson(0, '', $page_data) : responseToJson(1, '请求失败', $page_count);
 
