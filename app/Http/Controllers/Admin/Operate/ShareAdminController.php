@@ -66,23 +66,23 @@ class ShareAdminController extends Controller
         $page_count = (isset($request->pageCount) && is_numeric($request->pageCount)) ? $request->pageCount : 10;
         $sort_type = (isset($request->sortType) && is_numeric($request->sortType)) ? $request->sortType : 0;
         $rise_or_drop = (isset($request->riseOrDrop) && is_numeric($request->riseOrDrop)) ? $request->riseOrDrop : 0;
-        $content_type = (isset($request->contentType) && is_numeric($request->contentType)) ? $request->contentType : 3;
+        $content_type = is_numeric($request->contentType) ? $request->contentType : 3;
 
         $title_keyword = isset($request->titleKeyword) ? trim($request->titleKeyword) : '';
-
-
+        var_dump('aaa');die;
         $page_data = Share::getAppointToAllShareMsg([
             'page_num'      => $page_num, 
             'page_count'    => $page_count, 
             'sort_type'     => $sort_type, 
             'rise_or_drop'  => $rise_or_drop,
-            'content_type'  => $title_keyword,
+            'content_type'  => $content_type,
             'title_keyword' => $title_keyword 
-        ])->toArray()->map(function($item) {
-            $item->total_count = $item->wx_count + $item->wb_count;
-            $item->total_browse = $item->wx_browse + $item->wb_browse;
-            return $item;
-        });
+        ]);
+        // ->toArray()->map(function($item) {
+        //     $item->total_count = $item->wx_count + $item->wb_count;
+        //     $item->total_browse = $item->wx_browse + $item->wb_browse;
+        //     return $item;
+        // });
 
         return isset($page_data) ? responseToJson(0, '', $page_data) : responseToJson(1, '请求失败', $page_count);
 

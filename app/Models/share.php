@@ -37,7 +37,6 @@ class share
 
     //获得指定页面的分享记录
     public static function getAppointToAllShareMsg(array $dataArr) {
-
         if($dataArr['content_type'] < 3) {
             $join_name = '';
             $join_title = '';
@@ -48,7 +47,7 @@ class share
                         ->leftJoin('zslm_major', self::$sTableName.'.relation_id', '=', 'zslm_major.id')
                         ->where([
                             [self::$sTableName.'.relation_type', '=', 2],
-                            ['zslm_major.z_name', 'like', '%'.$dataArr['titleKeyword'].'%']
+                            ['zslm_major.z_name', 'like', '%'.$dataArr['title_keyword'].'%']
                         ]);
                     $join_name = 'zslm_major';
                     $join_title = 'z_name';
@@ -58,7 +57,7 @@ class share
                         ->leftJoin('zslm_activitys', self::$sTableName.'.relation_id', '=', 'zslm_activitys.id')
                         ->where([
                             [self::$sTableName.'.relation_type', '=', 1],
-                            ['zslm_activitys.active_name', 'like', '%'.$dataArr['titleKeyword'].'%']
+                            ['zslm_activitys.active_name', 'like', '%'.$dataArr['title_keyword'].'%']
                         ]);
                     $join_name = 'zslm_activitys';
                     $join_title = 'active_name';
@@ -68,14 +67,14 @@ class share
                         ->leftJoin('zslm_information', self::$sTableName.'.relation_id', '=', 'zslm_information.id')
                         ->where([
                             [self::$sTableName.'.relation_type', '=', 0],
-                            ['zslm_information.name', 'like', '%'.$dataArr['titleKeyword'].'%']
+                            ['zslm_information.name', 'like', '%'.$dataArr['title_keyword'].'%']
                         ]);
                     $join_name = 'zslm_information';
                     $join_title = 'name';
                     break;
             }
 
-            $select_data = self::selectSort($handel)
+            $select_data = self::selectSort($dataArr, $handel)
             ->offset($dataArr['page_num'] * $dataArr['page_count'])
             ->limit($dataArr['page_count'])
             ->select(
@@ -87,15 +86,15 @@ class share
                 self::$sTableName . '.wb_browse',
                 self::$sTableName . '.total_count',
                 self::$sTableName . '.total_browse'
-
             )->get();
         }
         else {
+            var_dump(self::selectSort($dataArr, DB::table(self::$sTableName)));
             $select_data = self::selectSort($dataArr, DB::table(self::$sTableName))
             ->offset($dataArr['page_num'] * $dataArr['page_count'])
             ->limit($dataArr['page_count'])
             ->select('id', 'wx_count', 'wb_count', 'wx_browse', 'wb_browse', 'total_count', 'total_browse')
-            ->get()->toArray()->transform(function($item, $key) {
+            ->get()->toArray()->map(function($item, $key) {
                 switch($item->relation_type) 
                 {
                     case 0 :
@@ -108,6 +107,7 @@ class share
                         $item->name = DB::table('zslm_major')->where('id', $item->relation_id)->value('z_name');
                         break;
                 }
+                return $item;
             });
         }
 
@@ -118,6 +118,8 @@ class share
 
 
     private static function selectSort($dataArr, $handel) {
+        // var_dump($handel);
+
         switch($dataArr['sort_type'])
         {
             case 0:
@@ -139,6 +141,7 @@ class share
                 $handel = $dataArr['rise_or_drop'] ? $handel->orderBy('wb_browse','desc') : $handel->orderBy('wb_browse','asc');
                 break;
         }
+        
 
         return $handel;
 

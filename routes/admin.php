@@ -293,9 +293,9 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
         /**
          * 分享记录
          */
-        Route::post('getPagingData', 'BannerController@getPagingData');
+        Route::post('getPagingData', 'ShareAdminController@getPagingData');
 
-        Route::post('getPagingCount', 'BannerController@getPagingCount');
+        Route::post('getPagingCount', 'ShareAdminController@getPagingCount');
 
 
         /**
