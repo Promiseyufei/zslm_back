@@ -25,8 +25,8 @@ class MajorController extends Controller
      * 
      * 
      * @apiParam {String} majorNameKeyword 专业名称关键字
-     * @apiParam {Number} screenType 筛选方式(0按展示状态；1按推荐状态;2全部)
-     * @apiParam {Number} screenState 筛选状态(0展示/推荐；1不展示/不推荐;2全部)
+     * @apiParam {Number} screenType 展示状态(0按展示；1按不展示;2全部)
+     * @apiParam {Number} screenState 推荐状态(0推荐；1不推荐;2全部)
      * @apiParam {Number} sortType 排序类型(0按权重升序；1按权重降序;2按信息更新时间)
      * @apiParam {Number} pageCount 页面显示行数
      * @apiParam {Number} pageNumber 跳转页面下标
@@ -41,7 +41,7 @@ class MajorController extends Controller
      *
      *          {
      *              "id":"xxx",
-     *              "name":"xxxxxxxxxxxx",
+     *              "z_name":"xxxxxxxxxxxx",
      *              "weight":"xxxxxxxxxxxx",
      *              "is_show":"xxxxxx",
      *              "if_recommended":"xxxxxxxxxxxx",
@@ -68,7 +68,7 @@ class MajorController extends Controller
      */
     public function getMajorPageMessage(Request $request) {
 
-        if($request->isMethod('post')) return responseToJson(2, '请求方式失败');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式失败');
 
         $rules = [
             'majorNameKeyword' => 'nullable|string|max:255',
@@ -92,7 +92,13 @@ class MajorController extends Controller
 
         $get_msg = ZslmMajor::getMajorPageMsg($request->all());
 
-        return $get_msg ? responseToJson(0, '', $get_msg) : responseToJson(1, '查询失败');
+        foreach($get_msg['get_page_msg'] as $key => $value) {
+            $get_msg['get_page_msg'][$key]->is_show = $value->is_show ? false : true;
+            $get_msg['get_page_msg'][$key]->if_recommended = $value->if_recommended ? false : true;
+            $get_msg['get_page_msg'][$key]->update_time = date('Y-m-d H:i:s', $value->update_time);
+        }
+
+        return isset($get_msg) ? responseToJson(0, '', $get_msg) : responseToJson(1, '查询失败');
         
     }
 
@@ -177,9 +183,8 @@ class MajorController extends Controller
     public function setMajorState(Request $request) {
         if($request->isMethod('post')) {
             $major_id = (isset($request->majorId) && is_numeric($request->majorId)) ? $request->majorId : 0;
-            $type = (isset($request->type) && is_numeric($request->type)) ? $request->type : -1;
-            $state = (isset($request->state) && is_numeric($request->state)) ? $request->state : -1;
-
+            $type = (is_numeric($request->type)) ? $request->type : -1;
+            $state = (is_numeric($request->state)) ? $request->state : -1;
             if($major_id > 0 && $type != -1 && $state != -1) {
                 if($type > 0 && $state > 1) return responseToJson(1, '状态值错误');
                 $is_update = ZslmMajor::setAppiMajorState([
