@@ -346,8 +346,9 @@ class MajorController extends Controller
         $major_id = (isset($request->majorId) && is_numeric($request->majorId)) ? $request->majorId : 0;
 
         if($major_id != 0) {
-            $is_del = ZslmMajor::updateMajorTime($major_id);
-            return $is_del ? responseToJson(0, '更新成功') : responseToJson(1, '更新失败');
+            $now_time = time();
+            $is_update = ZslmMajor::updateMajorTime($major_id, $now_time);
+            return $is_update ? responseToJson(0, '更新成功', date("Y-m-d H:i:s",$now_time)) : responseToJson(1, '更新失败');
         }
         else return responseToJson(1, '参数错误');
     }
@@ -591,10 +592,12 @@ class MajorController extends Controller
 
             $region = Dict::dictRegion();
 
+            
             foreach($region[0] as $key=>$item) {
                 $item->citys = $region[$item->id];
                 unset($region[$item->id]);
             }
+            // var_dump($region);
 
             return responseToJson(0, '', $region);
     }

@@ -82,8 +82,9 @@
             return DB::table(self::$sTableName)->where('id', $majorId)->update(['is_delete' => 1, 'update_time'=> time()]);
         }
 
-        public static function updateMajorTime($majorId) {
-            return DB::table(self::$sTableName)->where('id', $majorId)->update(['update_time'=> time()]);
+        public static function updateMajorTime($majorId, $nowTime) {
+
+            return DB::table(self::$sTableName)->where('id', $majorId)->update(['update_time'=> $nowTime]);
         }
         
         // private static function judgeScreenState($screenState, $title, &$handle) {
