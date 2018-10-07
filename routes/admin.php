@@ -281,44 +281,42 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
          * 广告
          */
 
-        Route::post('getAllPageListName', 'BannerController@getAllPageListName');
+        Route::post('getAllPageListName', 'BillboardController@getAllPageListName');
 
-        Route::post('getAppointPageBillboard', 'BannerController@getAppointPageBillboard');
+        Route::post('getAppointPageBillboard', 'BillboardController@getAppointPageBillboard');
 
-        Route::post('setBillboardWeight', 'BannerController@setBillboardWeight');
+        Route::post('setBillboardWeight', 'BillboardController@setBillboardWeight');
 
-        Route::post('setBillboardMessage', 'BannerController@setBillboardMessage');
+        Route::post('setBillboardMessage', 'BillboardController@setBillboardMessage');
 
-        Route::post('deletePageBillboard', 'BannerController@deletePageBillboard');
+        Route::post('deletePageBillboard', 'BillboardController@deletePageBillboard');
 
-        Route::post('createPageBillboard', 'BannerController@createPageBillboard');
+        Route::post('createPageBillboard', 'BillboardController@createPageBillboard');
 
     
         /**
          * 分享记录
          */
-        Route::get('getPagingData', 'ShareAdminController@getPagingData');
-
+        Route::post('getPagingData', 'ShareAdminController@getPagingData');
         Route::post('getPagingCount', 'ShareAdminController@getPagingCount');
-
-
+        
         /**
          * 资讯首页
          */
 
-        Route::post('getAppointRegionData', 'BannerController@getAppointRegionData');
+        Route::post('getAppointRegionData', 'OperateIndexController@getAppointRegionData');
 
-        Route::post('setAppointRegionName', 'BannerController@setAppointRegionName');
+        Route::post('setAppointRegionName', 'OperateIndexController@setAppointRegionName');
 
-        Route::post('setAppoinInformationWeight', 'BannerController@setAppoinInformationWeight');
+        Route::post('setAppoinInformationWeight', 'OperateIndexController@setAppoinInformationWeight');
 
-        Route::post('deleteAppoinInformation', 'BannerController@deleteAppoinInformation');
+        Route::post('deleteAppoinInformation', 'OperateIndexController@deleteAppoinInformation');
 
-        Route::post('getInformPagingData', 'BannerController@getInformPagingData');
+        Route::post('getInformPagingData', 'OperateIndexController@getInformPagingData');
 
-        Route::post('addAppoinInformations', 'BannerController@addAppoinInformations');
+        Route::post('addAppoinInformations', 'OperateIndexController@addAppoinInformations');
 
-        Route::post('getInformationType', 'BannerController@getInformationType');
+        Route::post('getInformationType', 'OperateIndexController@getInformationType');
 
 
     });

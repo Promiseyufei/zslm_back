@@ -41,13 +41,7 @@
                 ->get(['z_name']);
             return $result;
         }
-        
-        
-        
-        
-        
-        
-        
+
         
         public static function getMajorId($name){
         
@@ -75,13 +69,13 @@
             switch($major['type'])
             {
                 case 0:
-                    return $handle->update(['weight' => $major['state']]);
+                    return $handle->update(['weight' => $major['state'], 'update_time' => time()]);
                     break;
                 case 1:
-                    return $handle->update(['is_show' => $major['state']]);
+                    return $handle->update(['is_show' => $major['state'], 'update_time' => time()]);
                     break;
                 case 2:
-                    return $handle->update(['if_recommended' => $major['state']]);
+                    return $handle->update(['if_recommended' => $major['state'], 'update_time' => time()]);
                     break;
             }
         }
@@ -90,46 +84,78 @@
             return DB::table(self::$sTableName)->where('id', $majorId)->update(['is_delete' => 1, 'update_time'=> time()]);
         }
 
-        public static function updateMajorTime($majorId) {
-            return DB::table(self::$sTableName)->where('id', $majorId)->update(['update_time'=> time()]);
+        public static function updateMajorTime($majorId, $nowTime) {
+
+            return DB::table(self::$sTableName)->where('id', $majorId)->update(['update_time'=> $nowTime]);
         }
         
-        private static function judgeScreenState($screenState, $title, &$handle) {
-            switch($screenState) {
-                case 0:
-                    $handle = $handle->where($title, '=', 0);
-                    break;
-                case 1:
-                    $handle = $handle->where($title, '=', 1);
-                    break;
-                default :
-                    break;
-            }
-        }
+        // private static function judgeScreenState($screenState, $title, &$handle) {
+        //     switch($screenState) {
+        //         case 0:
+        //             $handle = $handle->where($title, '=', 0);
+        //             break;
+        //         case 1:
+        //             $handle = $handle->where($title, '=', 1);
+        //             break;
+        //         default :
+        //             break;
+        //     }
+        // }
 
         public static function getMajorPageMsg(array $val = []) {
 
             $handle = DB::table(self::$sTableName)->where('is_delete', 0);
             $sort_type = [0=>['weight','desc'], 1=>['weight','asc'], 2=>['update_time','desc']];
+            
             if(isset($val['majorNameKeyword'])) $handle = $handle->where('z_name', 'like', '%' . $val['majorNameKeyword'] . '%');
 
             switch($val['screenType'])
             {
                 case 0:
-                    self::judgeScreenState($val['screenState'], 'is_show', $handle);
+                    $handle = $handle->where('is_show', 0);
                     break;
                 case 1:
-                    self::judgeScreenState($val['screenState'], 'if_recommended', $handle);
+                    $handle = $handle->where('is_show', 1);
                     break;
                 default :
                     break;
             }
+            switch($val['screenState'])
+            {
+                case 0:
+                    $handle = $handle->where('if_recommended', 0);
+                    break;
+                case 1: 
+                    $handle = $handle->where('if_recommended', 1);
+                    break;
+                default:
+                    break;
+            }
 
-            $get_page_msg = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])
-            ->offset($val['pageCount'] * $val['pageNumber'])
-            ->limit($val['pageCount'])->get();
+            $handle = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1]);
 
-            return count($get_page_msg >= 0) ? $get_page_msg : false;
+            $count = $handle->count();
+
+            $get_page_msg = $handle
+                ->offset($val['pageCount'] * $val['pageNumber'])
+                ->limit($val['pageCount'])
+                ->select(
+                    'id',
+                    'z_name',
+                    'weight',
+                    'is_show',
+                    'if_recommended',
+                    'update_time'
+                )
+                ->get()
+                ->map(function($item) {
+                    $item_student_project_count = DB::table('major_recruit_project')->where('major_id', $item->id)->count();
+                    $item->student_project_count = $item_student_project_count;
+                    
+                    return $item;
+                })->toArray();
+
+            return $count >= 0 ? ['count'=>$count, 'get_page_msg' => $get_page_msg] : [];
         }
         
         public static function getAutoRecommendMajors($recomMajorCount = 8) {

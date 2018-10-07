@@ -15,7 +15,7 @@ class urls_bt
             ->select('id','name','url')
             ->get();
         else 
-            $index_name = DB::table(self::$sTbaleName)
+            $index_name = DB::table(self::$sTableName)
             ->select('id', 'name', 'url')
             ->get();
 

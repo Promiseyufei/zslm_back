@@ -23,7 +23,6 @@ class OperateIndexController extends Controller
 
 
 
-
     /**
      * @api {post} admin/operate/getAppointRegionData 获得指定区域的资讯内容
      * @apiGroup operate
@@ -68,11 +67,14 @@ class OperateIndexController extends Controller
      */
     public function getAppointRegionData(Request $request) {
         if($request->isMethod('post')) {
-            $region_id = isset($request->regionId) && is_numeric($request) ? $request->regionId : 0;
+
+            $region_id = isset($request->regionId) && is_numeric($request->regionId) ? $request->regionId : 0;
             $region_data = InformationIndexRegion::getinformIndexRegionData($region_id, ['region_name', 'zx_id']);
             if(!$region_data) return responseToJson(1, '请求失败');
             
-            $region_data->zx_id = strpos(trim($region_data->zx_id), ',') > 0 ? explode(',', trim($region_data)) : [];
+            $region_data->zx_id = ($region_data->zx_id != null) 
+            ? (strpos(trim($region_data->zx_id), ',') > 0 
+            ? explode(',', trim($region_data->zx_id)) : [$region_data->zx_id]) : null;
             if(!empty($region_data->zx_id)) {
                 foreach($region_data->zx_id as $key => $value) {
                     $region_data->zx_id[$key] = ZslmInformation::getInformIdToData($value);
@@ -219,14 +221,13 @@ class OperateIndexController extends Controller
     public function deleteAppoinInformation(Request $request) {
         if($request->isMethod('post')) {
             $region_id = is_numeric($request->RegionId) ? $request->RegionId : 0;
-            $information_id = is_numeric($request->InformationId) ? $request->InformationId : 0;
+            $information_id = isset($request->InformationId) ? $request->InformationId : 0;
 
             if(!empty($region_id) && !empty($information_id)) {
                 $is_delete = InformationIndexRegion::deleteRegionInformation($region_id, $information_id);
 
                 return $is_delete ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
             }
-
         }
         else 
             return responseToJson(2, '请求方式错误');
@@ -300,12 +301,13 @@ class OperateIndexController extends Controller
                 'page_number' => $page_number,
                 'title_keyword' => $title_keyword
             ]);
-            if(count($select_data) > 0) {
+            if(count($select_data) > 0 && count($select_data['data']) > 0) {
                 $inform_type = DictInformType::getAllInformType()->toArray();
     
-                foreach($select_data as $key => $item) {
-                    $select_data[$key]->z_type = $inform_type[$select_data[$key]->z_type];
-                    $select_data[$key]->create_time = date('Y-m-d H:i:s', $select_data[$key]->create_time);
+                foreach($select_data['data'] as $key => $item) {
+                    foreach($inform_type as $keys => $value)
+                        if($select_data['data'][$key]->z_type == $value->id) $select_data['data'][$key]->z_type = $value->name;
+                    $select_data['data'][$key]->create_time = date('Y-m-d H:i:s', $select_data['data'][$key]->create_time);
                 }
             }
             return responseToJson(0, '', $select_data);
@@ -313,9 +315,6 @@ class OperateIndexController extends Controller
         }
         else 
             return responseToJson(2, '请求方式错误');
-
-
-
      }
 
 
@@ -356,6 +355,7 @@ class OperateIndexController extends Controller
         $appoint_id = isset($request->appointId) && is_numeric($request->appointId) ? $request->appointId : -1;
         if($appoint_id > -1) {
             $is_update = InformationIndexRegion::addRegionInform($appoint_id, $inform_arr);
+            var_dump($is_update);
             return $is_update ? responseToJson(0, '添加成功') : responseToJson(1, '添加失败');
         }
         else 
