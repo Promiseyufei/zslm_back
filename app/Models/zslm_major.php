@@ -21,15 +21,17 @@
          * 通过省的id获取院校专业
          * @param Request $request
          */
-        public static function getMajorByP(Request $request){
-            
+        public static function getMajorByP($provice){
             return DB::table(self::$sTableName)
-                        ->where('province','like',$request->provinceId.ADDRESS_SEPARATOR.'%')
-                        ->orWhere('z_name','like',$request->word)
-                        ->whereIn()
-                        ->offset(($request->page-1)*$request->pageSize)
-                        ->limit($request->pageSize)
+                        ->where('province','like',$provice)
                         ->get(['id','z_name']);
+        }
+        
+        public static function getMajorIdByName($name){
+            $result = DB::table(self::$sTableName)
+                ->where('z_name',$name)
+                ->first(['id']);
+            return $result;
         }
         
         public static function getMajorName($ids){

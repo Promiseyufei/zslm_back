@@ -48,7 +48,7 @@ class share
                         ->leftJoin('zslm_major', self::$sTableName.'.relation_id', '=', 'zslm_major.id')
                         ->where([
                             [self::$sTableName.'.relation_type', '=', 2],
-                            ['zslm_major.z_name', 'like', '%'.$dataArr['titleKeyword'].'%']
+                            ['zslm_major.z_name', 'like', '%'.$dataArr['title_keyword'].'%']
                         ]);
                     $join_name = 'zslm_major';
                     $join_title = 'z_name';
@@ -75,7 +75,7 @@ class share
                     break;
             }
 
-            $select_data = self::selectSort($handel)
+            $select_data = self::selectSort($dataArr,$handel)
             ->offset($dataArr['page_num'] * $dataArr['page_count'])
             ->limit($dataArr['page_count'])
             ->select(
@@ -99,7 +99,7 @@ class share
                 switch($item->relation_type) 
                 {
                     case 0 :
-                        $item->name = $DB::table('zslm_information')->where('id', $item->relation_id)->value('name');
+                        $item->name = DB::table('zslm_information')->where('id', $item->relation_id)->value('name');
                         break;
                     case 1 :
                         $item->name = DB::table('zslm_activitys')->where('id', $item->relation_id)->value('active_name');

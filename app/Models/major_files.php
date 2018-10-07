@@ -31,18 +31,32 @@
             $nexgPage = $request->page;
             $pageSize = $request->pageSize;
             $offsetPostion = ($nexgPage-1)*$pageSize;
-            $majorId = ZslmMajor::getMajor($request->id);
-            $queryWhere = 'is_delete = 0 and (file_name like '.
-                $request->fileName.'%'.
-                'or file_type = '. $request->fileType.
-                'or file_year = '.$request->fileYear;
+            if($request->fileType <2)
+                $queryWhere = self::$sTableName.'.is_delete = 0 and (file_name like '."'%".
+                    $request->fileName."%'".
+                    ' and file_type = '. $request->fileType.
+                    ' and file_year like'."'%".$request->fileYear."%'".
+                    ' and z_name like '."'%".$request->majorNmae."%')";
+            else
+                $queryWhere = self::$sTableName.'.is_delete = 0 and (file_name like '."'%".
+                    $request->fileName."%'".
+                    ' and file_year like '."'%".$request->fileYear."%')";
+    
             $searchData=DB::table(self::$sTableName)
                         ->whereRaw($queryWhere)
-                        ->whereIn('id',$majorId)
+                        ->join('zslm_major',self::$sTableName.'.major_id','=','zslm_major.id')
                         ->offset($offsetPostion)
                         ->limit($pageSize)
-                        ->get(['id','show_weight','file_name','file_type','file_year','is_show','create_time']);
-            return empty($searchData) ? null:$searchData;
+                        ->get([self::$sTableName.'.id','show_weight','file_name','file_type','file_year',self::$sTableName.'.is_show',self::$sTableName.'.create_time','z_name','show_weight']);
+            
+            $count=DB::table(self::$sTableName)
+                ->whereRaw($queryWhere)
+                ->join('zslm_major',self::$sTableName.'.major_id','=','zslm_major.id')
+                ->count(self::$sTableName.'.major_id');
+            
+            return empty($searchData) ? null:[$searchData,$count];
+
+            
         }
         
         public static function getCountData(){
@@ -76,7 +90,7 @@
         
         public static function delteFile(Request $request){
             $fileId = $request->fileId;
-            $updateResult = DB::table(self::$sTableName)->where('id',$fileId)->update(['is_delete'=>1]);
+            $updateResult = DB::table(self::$sTableName)->whereIn('id',$fileId)->update(['is_delete'=>1]);
             return $updateResult;
         }
         

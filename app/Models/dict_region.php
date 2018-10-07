@@ -1,5 +1,6 @@
 <?php
     /**
+     * 地区字典
      * Created by PhpStorm.
      * User: star
      * Date: 2018/9/8
@@ -14,8 +15,8 @@
     
         private static $sTableName = 'dict_region';
         
-        public static function getProvince(){
-           $provice =  DB::table(self::$sTableName)->where('father_id',0)->get(['id','name']);
+        public static function getProvinceIdByName($name){
+           $provice =  DB::table(self::$sTableName)->whereIn('name',$name)->get(['id']);
            return $provice;
         }
         

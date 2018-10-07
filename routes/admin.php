@@ -33,9 +33,12 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
      * Files模块
      */
     Route::group(['prefix' => 'files', 'namespace' => 'Files'],function() {
-
-        Route::get('getUploadFile','FilesController@getUploadFile');
+        Route::get('getuploadfile','FilesController@getUploadFile');
         Route::post('upload','FilesController@uploadFile');
+        Route::post('deletefiles','FilesController@deleteFile');
+        Route::any('updateweight','FilesController@updateShowWeight');
+        Route::any('test','FilesController@getMajorByRegion');
+//        getMajorByRegion
     });
 
 
@@ -290,13 +293,13 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
         Route::post('createPageBillboard', 'BannerController@createPageBillboard');
 
-
+    
         /**
          * 分享记录
          */
-        Route::post('getPagingData', 'BannerController@getPagingData');
+        Route::get('getPagingData', 'ShareAdminController@getPagingData');
 
-        Route::post('getPagingCount', 'BannerController@getPagingCount');
+        Route::post('getPagingCount', 'ShareAdminController@getPagingCount');
 
 
         /**

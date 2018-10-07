@@ -8,6 +8,7 @@ namespace App\Http\Controllers\Admin\Files;
 
 use App\Http\Controllers\Controller;
 
+use App\Models\zslm_major as zslmMajor;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use App\Models\major_files as MajorFiles;
@@ -34,14 +35,6 @@ class FilesController extends Controller
        MajorFiles::getCountData();
     }
     
-    public function test1(Request $request){
-//        Storage::move($this->fileUrl.'/test.html',$this->fileUrl.'/ttt.html');
-//        dd(judgeRequest(1,['fileId']));
-    }
-    
-    public function index(Request $request) {
-        var_dump('test');
-    }
     /**
      * @api {get} /admin/files/getUploadFile?page=1&pageSize=5 获取上传过的文件信息
      * @apiName getUploadFile
@@ -86,14 +79,15 @@ class FilesController extends Controller
         if(!$request->isMethod("get"))
             return responseToJson(1,METHOD_ERROR);
         
-        $isset = judgeRequest(1,['page','pageSize']);
-        if($isset != 'yes')
-            return responseToJson(1,'The lack of '.$isset);
-        if(!is_numeric($request->page) || !is_numeric($request->pageSize))
+//        $isset = judgeRequest(1,['page','pageSize']);
+//        if($isset != 'yes')
+//            return responseToJson(1,'The lack of '.$isset);
+        
+        if(!is_numeric(intval($request->page)) || !is_numeric(intval($request->pageSize)))
             return responseToJson(1,FORMAT_ERROR);
+//        return $request->pageSize;
         $serachData = MajorFiles::getUploadFile($request);
-        $countPage = MajorFiles::getCountData();
-        return $serachData != null ? responseToJson(0,'success',['data'=>$serachData,'dataCount'=>$countPage]) : responseToJson(1,'no data');
+        return $serachData != null ? responseToJson(0,'success',['data'=>$serachData[0],'dataCount'=>$serachData[1]]) : responseToJson(1,'no data');
     }
     
     
@@ -143,7 +137,7 @@ class FilesController extends Controller
     public function uploadFile(Request $request){
         if(!$request->isMethod('post'))
             return responseToJson(1,METHOD_ERROR);
-        $isDataIntegrity = judgeRequest(2,['uploadFile','fileType','fileYear','fileDescribe','isShow']);
+        $isDataIntegrity = judgeRequest(2,['fileType','fileYear','fileDescribe','isShow']);
         $judgeResult = $this->isDataIntegrity($request,$isDataIntegrity);
         if(!empty($judgeResult))
             return $judgeResult;
@@ -153,6 +147,7 @@ class FilesController extends Controller
             MajorFiles::uploadFile($request);
             Storage::putFileAs($this->fileUrl,$request->file('uploadFile'),$request->fileName);
             DB::commit();
+            return responseToJson(0,'success');
         }catch (\Exception $e){
             DB::rollBack();
             return responseToJson(1,'upload error');
@@ -190,11 +185,15 @@ class FilesController extends Controller
             return responseToJson('1',METHOD_ERROR);
         if(!isset($request->fileId))
             return responseToJson(1,"No file id");
-        if(!is_numeric($request->fileId))
-            return responseToJson(1,'FileId is not Numbers');
+        foreach ($request->fileId as $key => $value ){
+            if(!is_numeric($value))
+                return responseToJson(1,'FileId is not Numbers');
+        }
+    
         $isDelete =  MajorFiles::delteFile($request);
         return  $isDelete>0 ? responseToJson(0,'success'):responseToJson(1,'No data to be deleted');
     }
+    
     
     
     /**
@@ -229,6 +228,8 @@ class FilesController extends Controller
      *     }
      */
     public function updateFile(Request $request){
+        
+
         if(!$request->isMethod('post'))
             return responseToJson(1,METHOD_ERROR);
         $isDataIntegrity = judgeRequest(2,['fileId','fileName','fileType','fileYear','fileDescribe','isShow']);
@@ -252,10 +253,10 @@ class FilesController extends Controller
         if(!$request->isMethod('post'))
             return responseToJson(1,METHOD_ERROR);
     
-        $isDataIntegrity = judgeRequest(2,['fileId','weight']);
-        if($isDataIntegrity != 'yes'){
-            return responseToJson(1,'The lack of '.$isDataIntegrity);
-        }
+//        $isDataIntegrity = judgeRequest(2,['fileId','weight']);
+//        if($isDataIntegrity != 'yes'){
+//            return responseToJson(1,'The lack of '.$isDataIntegrity);
+//        }
         $result =  MajorFiles::updateShowWeight($request->fileId,$request->weight);
         return $result == 1 ? responseToJson(1,'success') : responseToJson(1,'no data update');
     }
@@ -268,6 +269,27 @@ class FilesController extends Controller
             return responseToJson(0,'success',$provice);
         else
             return responseToJson(1,'no provice data');
+    }
+    
+    
+    public function getMajorByRegion(Request $request){
+//        if(!$request->isMethod('get'))
+//            return responseToJson(1,METHOD_ERROR);
+//        if(!isset($request->provice))
+//            return responseToJson(1,'No provice is selected,please try again');
+        $test=['henan'];
+        $provice_id = dictRegion::getProvinceIdByName($test);
+        if(empty($provice_id))
+            return responseToJson(1,'something was wrong ,please try again');
+        $provice_id_bash = [];
+        $lenght = sizeof($provice_id);
+        for($i = 0;$i<$lenght;$i++){
+            $provice_id_bash[] = $provice_id[$i]->id.'%';
+        }
+        $majors = [];
+        for($i = 0;$i < $lenght;$i++)
+            $majors[] = zslmMajor::getMajorByP($provice_id_bash[$i]);
+        dd($majors);
     }
     
     
