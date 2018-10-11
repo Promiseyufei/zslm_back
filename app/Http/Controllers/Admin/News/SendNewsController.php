@@ -81,10 +81,33 @@ class SendNewsController extends Controller
 
         $get_all_user = UserAccounts::getAllAccounts($page_count, $page_num);
 
+        // $province = getMajorProvincesAndCity()[0];
+
+        // foreach($get_all_user['map'] as $key => $item) {
+        //     if($item->address != null) {
+        //         $get_all_user['map'][$key]->address = strChangeArr($item->address, ',');
+        //         foreach($province[$item->address[0]]->citys as $value) 
+        //             if($item->address[1] == $value->id) $get_all_user['map'][$key]->address[1] = $value->name;
+    
+        //         $get_all_user['map'][$key]->address[0] = $province[$item->address[0]]->name;
+        //         $get_all_user['map'][$key]->address = $get_all_user['map'][$key]->address[0] . '-' . $get_all_user['map'][$key]->address[1];
+        //     }
+        //     $get_all_user['map'][$key]->create_time = date("Y-m-d H:i",$item->create_time);
+        //     if($item->update_time != null)  $get_all_user['map'][$key]->update_time = date("Y-m-d H:i",$item->update_time);
+        //     ($item->head_portrait != "") ? ($get_all_user['map'][$key]->head_portrait = "自定义") : ($get_all_user['map'][$key]->head_portrait = "系统默认");
+        // }
+
+        SendNewsController::setProvinceCity($get_all_user);
+
+        return ((is_array($get_all_user) || is_object($get_all_user)) && count($get_all_user) > 0) ? responseToJson(0, '', $get_all_user) : responseToJson(1, '未查询到用户数据');
+
+    }
+
+    public static function setProvinceCity(&$get_all_user) {
+
         $province = getMajorProvincesAndCity()[0];
 
         foreach($get_all_user['map'] as $key => $item) {
-            // dd($item);
             if($item->address != null) {
                 $get_all_user['map'][$key]->address = strChangeArr($item->address, ',');
                 foreach($province[$item->address[0]]->citys as $value) 
@@ -97,8 +120,6 @@ class SendNewsController extends Controller
             if($item->update_time != null)  $get_all_user['map'][$key]->update_time = date("Y-m-d H:i",$item->update_time);
             ($item->head_portrait != "") ? ($get_all_user['map'][$key]->head_portrait = "自定义") : ($get_all_user['map'][$key]->head_portrait = "系统默认");
         }
-
-        return ((is_array($get_all_user) || is_object($get_all_user)) && count($get_all_user) > 0) ? responseToJson(0, '', $get_all_user) : responseToJson(1, '未查询到用户数据');
 
     }
 

@@ -27,13 +27,21 @@ class user_accounts
     }
 
 
-    public static function getAllAccounts($pageCount, $pageNum) {
+    public static function getAllAccounts($pageCount, $pageNum, $usersArr = []) {
 
         self::initialization();
 
         $map_handle = DB::table(self::$sTableName)
         ->leftJoin('user_information', self::$sTableName . '.id', '=', 'user_information.user_account_id')
         ->where(self::$sTableName . '.is_delete', 0);
+        
+        // dd($usersArr);
+
+        if($usersArr != []) {
+            $map_handle = $map_handle->whereIn(self::$sTableName . '.id', $usersArr);
+        }
+
+       
 
         $map_total = $map_handle->count();
 
@@ -41,6 +49,7 @@ class user_accounts
          ->offset($pageCount * ($pageNum - 1))
          ->limit($pageCount)
          ->get();
+        //  dd($map);
 
         return ['total' => $map_total, 'map' => self::setDeepArray($map)];
     }

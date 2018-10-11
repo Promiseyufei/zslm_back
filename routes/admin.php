@@ -243,6 +243,9 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
         // Route::get('test','HistoricalNewsController@getFailSendNews');
 
+        /**
+         * 发送消息
+         */
         Route::post('getAllAccounts','SendNewsController@getAllAccounts');
 
         Route::post('batchScreenAccounts','SendNewsController@batchScreenAccounts');
@@ -255,7 +258,18 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
         Route::post('getAllActivityDict','SendNewsController@getAllActivityDict');
 
-        Route::post('getAllActivityDict','SendNewsController@getAllActivityDict');
+        /**
+         * 历史消息
+         */
+        Route::post('getScreenNews','HistoricalNewsController@getScreenNews');
+
+        Route::post('getAppointNews','HistoricalNewsController@getAppointNews');
+
+        Route::post('getFailSendNews','HistoricalNewsController@getFailSendNews');
+
+        Route::post('exportNewsExcel','HistoricalNewsController@exportNewsExcel');
+
+        Route::post('getAppointUser','HistoricalNewsController@getAppointUser');
 
 
     });

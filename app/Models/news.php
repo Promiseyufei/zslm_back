@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use DB;
+use App\Models\user_accounts as UserAccounts;
 use Illuminate\Http\Request;
 
 class news
@@ -23,18 +24,32 @@ class news
 
     public static function selectAllNewsMsg($keywords, $startTime, $endTime, $pageCount, $pageNum) {
 
-        return DB::table(self::$sTableName)
-        ->where('is_delete', 0)
-        ->where('news_title', 'like', '%' . $keywords . '%')
-        ->whereBetween('create_time', [$startTime, $endTime])
-        ->orderBy('create_time', 'desc')
-        ->offset($pageCount * $pageNum)
+        $handle = DB::table(self::$sTableName)
+            ->where('is_delete', 0);
+
+        // if($keywords !== '') {
+        //     $handle = $handle->where('news_title', 'like', '%' . $keywords . '%')
+        //     ->orWhere('context', 'like', '%' . $keywords . '%');
+        // }
+        
+        if($startTime != 0 && $endTime == 0) 
+            $handle = $handle->where('create_time', '>', $startTime);
+        else if($startTime == 0 && $endTime != 0) 
+            $handle = $handle->where('create_time', '<', $endTime);
+        else if($startTime != 0 && $endTime != 0) 
+            $handle = $handle->whereBetween('create_time', [$startTime, $endTime]);
+        
+        $total = $handle->count();
+
+        $his_news = $handle->orderBy('create_time', 'desc')
+        ->offset($pageCount * ($pageNum - 1))
         ->limit($pageCount)
         ->select('id', 'carrier', 'news_title', 'create_time', 'success', 'type')
-        ->get()->toAyyay()->map(function($item) {
+        ->get()->map(function($item) {
             $item->create_time = date('Y-m-d H:i:s', $item->create_time);
             return $item; 
         });
+        return ['total' => $total, 'his_news' => $his_news];
     }
 
 
@@ -44,9 +59,15 @@ class news
         ->select('news_title', 'context', 'url', 'carrier', 'type', 'create_time', 'success')
         ->first();
 
-        $news->create_time = date('Y-m-d H:i:s', $item->create_time);
+        $news->create_time = date('Y-m-d H:i:s', $news->create_time);
 
         return $news;
+
+    }
+
+    public static function getAppointNewsToUsers($count, $num, $newsId) {
+        // var_dump(DB::table('news_users')->where('news_id', $newsId)->pluck('user_id')->toArray());
+        return UserAccounts::getAllAccounts($count, $num, DB::table('news_users')->where('news_id', $newsId)->pluck('user_id')->toArray());
 
     }
 
