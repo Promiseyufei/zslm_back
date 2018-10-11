@@ -1,5 +1,7 @@
  <?php
 
+use App\Models\dict as Dict;
+
 /**
  * 公共方法
  */
@@ -307,6 +309,21 @@ function getByteToMb($bytes) {
     }
  }
 
+
+ /**
+  * 获取省市字典
+  */
+ function getMajorProvincesAndCity() {
+    $region = Dict::dictRegion();
+
+    foreach($region[0] as $key=>$item) {
+        $item->citys = $region[$item->id];
+        unset($region[$item->id]);
+    }
+
+    return $region;
+
+ }
 
 
 //  /**

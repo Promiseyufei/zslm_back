@@ -18,7 +18,7 @@ class news
     }
 
     public static function updateStatus($newsId) {
-        return DB::table(self::$sTableName)->update(['success' => 1, 'update_time' => time()]);
+        return DB::table(self::$sTableName)->where('id', $newsId)->update(['success' => 1, 'update_time' => time()]);
     }
 
     public static function selectAllNewsMsg($keywords, $startTime, $endTime, $pageCount, $pageNum) {

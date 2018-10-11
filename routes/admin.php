@@ -241,7 +241,21 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
      */
     Route::group(['prefix' => 'news', 'namespace' => 'News'],function() {
 
-        Route::get('test','HistoricalNewsController@getFailSendNews');
+        // Route::get('test','HistoricalNewsController@getFailSendNews');
+
+        Route::post('getAllAccounts','SendNewsController@getAllAccounts');
+
+        Route::post('batchScreenAccounts','SendNewsController@batchScreenAccounts');
+
+        Route::post('manualSelectionAccounts','SendNewsController@manualSelectionAccounts');
+
+        Route::post('getNewNewsMessage','SendNewsController@getNewNewsMessage');
+
+        Route::post('getAllMajorDict','SendNewsController@getAllMajorDict');
+
+        Route::post('getAllActivityDict','SendNewsController@getAllActivityDict');
+
+        Route::post('getAllActivityDict','SendNewsController@getAllActivityDict');
 
 
     });

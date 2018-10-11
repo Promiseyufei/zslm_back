@@ -122,14 +122,14 @@ class CoachOrganizeController extends Controller
     }
 
     public function getMajorProvincesAndCities() {
-        $region = Dict::dictRegion();
+        // $region = Dict::dictRegion();
 
-        foreach($region[0] as $key=>$item) {
-            $item->citys = $region[$item->id];
-            unset($region[$item->id]);
-        }
+        // foreach($region[0] as $key=>$item) {
+        //     $item->citys = $region[$item->id];
+        //     unset($region[$item->id]);
+        // }
 
-        return responseToJson(0, '', $region);
+        return responseToJson(0, '', getMajorProvincesAndCity());
     }
 
 
