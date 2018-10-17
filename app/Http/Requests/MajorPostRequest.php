@@ -38,7 +38,7 @@ class MajorPostRequest extends FormRequest
             'schoolId'      => 'required|numeric',
             'majorName'     => 'required|string|max:45',
             'majorType'     => 'nullable|numeric',
-            'magorLogo'     => 'required|file',
+            'magorLogo'     => 'nullable|file',
             'title'         => 'nullable|string',
             'keywords'      => 'nullable|string',
             'description'   => 'nullable|string',

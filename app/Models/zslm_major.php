@@ -51,7 +51,7 @@
         
 
         public static function getAppointMajorMsg($majorId){
-            return DB::table(self::$sTableName)->where('id',$majorId)->get();
+            return DB::table(self::$sTableName)->where('id',$majorId)->first();
         }
 
         public static function getAllDictMajor() {

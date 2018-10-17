@@ -232,6 +232,18 @@ class MajorController extends Controller
         $major_id = (isset($request->majorId) && is_numeric($request->majorId)) ? $request->majorId : 0;
         if($major_id != 0) {
             $major = ZslmMajor::getAppointMajorMsg($major_id);
+
+            if($major->province !== '')
+                $major->province = Dict::getAppoinDictRegion(strChangeArr($major->province, ',')[1]);
+            
+            if($major->school_id !== '')
+                $major->school_id = Dict::getAppointSchoolName($major->school_id);
+
+            if($major->z_type != 0)
+                $major->z_type = Dict::getAppointDictMajorType($major->z_type);
+
+            $major->wc_image = strChangeArr($major->wc_image, ',');
+                
             return is_object($major) ? responseToJson(0, '', $major) : responseToJson(1, '获取信息失败');
         }
     }
@@ -266,8 +278,8 @@ class MajorController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
-    public function updateMajorMsg(MajorPostRequest $request) {
-
+    public function updateMajorMsg(Request $request) {
+        var_dump($request->wc_image);
     }
 
 

@@ -32,16 +32,14 @@ class user_accounts
         self::initialization();
 
         $map_handle = DB::table(self::$sTableName)
-        ->leftJoin('user_information', self::$sTableName . '.id', '=', 'user_information.user_account_id')
-        ->where(self::$sTableName . '.is_delete', 0);
+            ->leftJoin('user_information', self::$sTableName . '.id', '=', 'user_information.user_account_id')
+            ->where(self::$sTableName . '.is_delete', 0);
         
-        // dd($usersArr);
-
+        var_dump($usersArr);
+        
         if($usersArr != []) {
             $map_handle = $map_handle->whereIn(self::$sTableName . '.id', $usersArr);
         }
-
-       
 
         $map_total = $map_handle->count();
 
