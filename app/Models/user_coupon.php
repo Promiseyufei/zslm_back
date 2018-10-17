@@ -8,7 +8,7 @@
     
     namespace App\Models;
     
-    
+    use DB;
     class user_coupon
     {
         private static $sTableName = 'user_coupon';

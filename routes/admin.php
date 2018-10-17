@@ -13,8 +13,17 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
      * Accounts模块
      */
     Route::group(['prefix' => 'accounts', 'namespace' => 'Accounts'],function() {
-
-        Route::get('test', 'AccountsController@index');
+        
+        Route::get('getmajoruser', 'AccountsController@getMajorUser');
+        Route::get('createmajorexcel', 'AccountsController@createMajorExcel');
+        Route::get('getmajorone', 'AccountsController@getMajorOneUser');
+        Route::get('getuser', 'AccountsController@getUser');
+        Route::get('getoneuser', 'AccountsController@getOneUser');
+        Route::get('getcoupon', 'AccountsController@getCouponUser');
+        Route::get('getcouponone', 'AccountsController@getCouponOneUser');
+        Route::get('getactivityuser', 'AccountsController@getActivityUser');
+        Route::get('getactivityoneuser', 'AccountsController@getActivityOneUser');
+        
     });
 
 
@@ -115,7 +124,13 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
         /**
          * 活动管理模块　activity模块
          */
-
+        
+        Route::get('getpageinfo','ActivityController@getPageInfo');
+        
+        Route::post('setkwt','ActivityController@updateTiltle');
+        
+        Route::post('setin','ActivityController@updateIntroduce');
+        
         Route::post('getActivityPageMessage','ActivityController@getActivityPageMessage');
 
         Route::post('getActivityPageCount','ActivityController@getActivityPageCount');
@@ -341,11 +356,12 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
         Route::post('deleteAppoinInformation', 'OperateIndexController@deleteAppoinInformation');
 
         Route::post('getInformPagingData', 'OperateIndexController@getInformPagingData');
-
+    
         Route::post('addAppoinInformations', 'OperateIndexController@addAppoinInformations');
 
         Route::post('getInformationType', 'OperateIndexController@getInformationType');
-
+        
+        
 
     });
 

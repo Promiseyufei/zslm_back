@@ -24,7 +24,7 @@
     define('METHOD_ERROR','The request type error');
     define('EXPLODE_STR',',');
     define('EXCEL_NAME','活动账户导出表');
-    
+    define('MAX_INTEGER',2147483647);
     class AccountControllerBase extends Controller
     {
         protected function findAddress($id,$provice){
@@ -53,7 +53,8 @@
         }
     
         protected function createExcel($datas){
-         
+            ob_end_clean();
+            ob_start();
             Excel::create(iconv('UTF-8', 'UTF-8', EXCEL_NAME),function ($excel) use ($datas){
                 $excel->sheet('score',function($sheet) use ($datas){
                     $sheet->rows($datas);
@@ -121,9 +122,11 @@
                         $datas[$i+1][$j] = $proviceName.$cityName;
                     }else if($key == 'industry'){
                         $insutry = strChangeArr($data[$i]->industry,EXPLODE_STR);
-                        $fatherInsutry = $this->findIndustry(intval($insutry[0]),$insutrys);
-                        $sonInsutry = $this->findIndustry(intval($insutry[1]),$insutrys);
-                        $datas[$i+1][$j] =$fatherInsutry.'-'.$sonInsutry;
+                        $return_ins = '';
+                        for($i = 0;$i<sizeof($insutry);$i++){
+                            $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
+                        }
+                        $datas[$i+1][$j] =$return_ins;
                     }else if($key = 'schooling_id'){
                         $schoolingName = $this->findSchooling(intval($data[$i]->schooling_id),$schooling);
                         $datas[$i+1][$j] = $schoolingName;

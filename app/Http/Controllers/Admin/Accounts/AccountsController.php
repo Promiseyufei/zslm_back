@@ -17,40 +17,15 @@ use App\Models\dict_industry as DictInsutry;
 
 class AccountsController extends AccountControllerBase
 {
-
-    /**
-    * @api {get} index.php?i=  测试一
-    * @apiGroup test
-    * @apiVersion 0.0.1
-    * @apiDescription 这是第一个测试
-    * @apiParam {String} token 登录token
-    * @apiParamExample 请求样例
-    * /index.php?i=8888
-    *  @apiSuccess {int} type 类型 0：上行 1：下行
-    * @apiExample 请求成功数据
-    * {
-    *    "status": "1",
-    *    "data": {
-    *               "first": 1,
-    *               "last": 3,
-    *    },
-    *    "msg": "操作成功"
-    * } 
-    * @apiExample {json} 失败返回样例:
-    *     {"code":"0","msg":"修改成功"}
-    */
-    public function index(Request $request) {
-        $a = test();
-        var_dump($a);
-    }
     
     public function getActivityUser(Request $request){
         if(!$request->isMethod('get'))
             return responseToJson(1,METHOD_ERROR);
-        
-        $key  = isset($request->key) ? $request->key : '';
-        $queryKey = isset($result->queryKey) ? $request->queryKey : '';
-        $result = UserInformation::getInformation($key,$request->page,$request->pageSize,$queryKey,0);
+    
+        $name  = isset($request->name) ? $request->name : '';
+        $active = isset($result->active) ? $request->active : '';
+        $realname = isset($result->realname) ? $request->realname : '';
+        $result = UserInformation::getInformation($name,$active,$realname,$request->page,$request->pageSize,0);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
     
@@ -58,29 +33,55 @@ class AccountsController extends AccountControllerBase
         if(!$request->isMethod('get'))
             return responseToJson(1,METHOD_ERROR);
         
-        $key  = isset($request->key) ? $request->key : '';
-        $queryKey = isset($result->queryKey) ? $request->queryKey : '';
-        $result = UserInformation::getInformation($key,$request->page,$request->pageSize,$queryKey,1);
+        $name  = isset($request->name) ? $request->name : '';
+        $phone = isset($result->phone) ? $request->phone : '';
+        $realname = isset($result->realname) ? $request->realname : '';
+        $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,1);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
     
     public function getCouponUser(Request $request){
         if(!$request->isMethod('get'))
             return responseToJson(1,METHOD_ERROR);
-        
-        $key  = isset($request->key) ? $request->key : '';
-        $queryKey = isset($result->queryKey) ? $request->queryKey : '';
-        $result = UserInformation::getInformation($key,$request->page,$request->pageSize,$queryKey,2);
+    
+        $phone[0]  = isset($request->cid) ? $request->cid : '';
+        $phone[1]  = isset($request->cname) ? $request->cname : '';
+        $name = isset($request->name) ? $request->name : '';
+        $realname = isset($request->realname) ? $request->realname : '';
+        $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,2);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
     
     public function getUser(Request $request){
         if(!$request->isMethod('get'))
             return responseToJson(1,METHOD_ERROR);
-        $key  = isset($request->key) ? $request->key : '';
-        $queryKey = isset($result->queryKey) ? $request->queryKey : '';
-        $result = UserInformation::getInformation($key,$request->page,$request->pageSize,$queryKey,3);
-        return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
+        $phone  = isset($request->phone) ? $request->phone : '';
+        $name = isset($request->name) ? $request->name : '';
+        $realname = isset($request->realname) ? $request->realname : '';
+        $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,3);
+        
+        for($i = 0;$i<sizeof($result[0]);$i++){
+            $provice_name = '';
+            $city_name = '';
+            $return_ins = '';
+            if($result[0][$i]->address != null) {
+                $provice_arr = strChangeArr($result[0][$i]->address,EXPLODE_STR);
+                $provice = DictRegion::getAllArea();
+                $provice_name=$this->findAddress($provice_arr[0],$provice);
+                $city_name = $this->findAddress($provice_arr[1],$provice);
+            }
+            if($result[0][$i]->industry != null){
+                $insutry = strChangeArr($result[0][$i]->industry,EXPLODE_STR);
+                $insutrys = DictInsutry::getAllIndustry();
+                for($j = 0;$j<sizeof($insutry);$j++){
+                    $return_ins.= $this->findIndustry(intval($insutry[$j]),$insutrys);
+                }
+            }
+            $result[0][$i]->address = $provice_name.$city_name;
+            $result[0][$i]->industry = $return_ins;
+            $result[0][$i]->test = '';
+        }
+        return !empty([$result]) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
     
     public function getActivityOneUser(Request $request){
@@ -91,6 +92,29 @@ class AccountsController extends AccountControllerBase
         
         $user = $this->getUserId($request);
         $activity_names = $this->getActivityNames($request);
+    
+        $provice_name = '';
+        $city_name = '';
+        $return_ins = '';
+        if($user->address != null) {
+            $provice_arr = strChangeArr($user->address,EXPLODE_STR);
+            $provice = DictRegion::getAllArea();
+            $provice_name=$this->findAddress($provice_arr[0],$provice);
+            $city_name = $this->findAddress($provice_arr[1],$provice);
+        }
+        if($user->industry != null){
+            $insutry = strChangeArr($user->industry,EXPLODE_STR);
+            $insutrys = DictInsutry::getAllIndustry();
+            for($i = 0;$i<sizeof($insutry);$i++){
+                $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
+            }
+        }
+        $sname = DictSchooling::getSchoolingById($user->schooling_id);
+        $user->schooling_id = empty($sname) ? '' : $sname->name;
+        
+        $user->address = $provice_name.$city_name;
+        $user->industry = $return_ins;
+        
         return !empty($user) ? responseToJson(0,[$user,$activity_names]) : responseToJson(1,'no data');
     }
     
@@ -103,7 +127,25 @@ class AccountsController extends AccountControllerBase
         
         $user = $this->getUserId($request);
         $major_names = $this->getMajorNames($request);
-    
+        $provice_name = '';
+        $city_name = '';
+        $return_ins = '';
+        if($user->address != null) {
+            $provice_arr = strChangeArr($user->address,EXPLODE_STR);
+            $provice = DictRegion::getAllArea();
+            $provice_name=$this->findAddress($provice_arr[0],$provice);
+            $city_name = $this->findAddress($provice_arr[1],$provice);
+        }
+        if($user->industry != null){
+            $insutry = strChangeArr($user->industry,EXPLODE_STR);
+            $insutrys = DictInsutry::getAllIndustry();
+            for($i = 0;$i<sizeof($insutry);$i++){
+                $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
+            }
+        }
+        $user->address = $provice_name.$city_name;
+        $user->industry = $return_ins;
+        
         return !empty($user) ? responseToJson(0,[$user,$major_names]) : responseToJson(1,'no data');
     }
     
@@ -115,8 +157,25 @@ class AccountsController extends AccountControllerBase
     
         $user = $this->getUserId($request);
         $coupon_names = $this->getCouponNames($request);
-        
-        return !empty($user) ? responseToJson(0,[$user,$coupon_names]) : responseToJson(1,'no data');
+        $return_ins = '';
+        $provice_name = '';
+        $city_name = '';
+        if($user->address != null) {
+            $provice_arr = strChangeArr($user->address,EXPLODE_STR);
+            $provice = DictRegion::getAllArea();
+            $provice_name=$this->findAddress($provice_arr[0],$provice);
+            $city_name = $this->findAddress($provice_arr[1],$provice);
+        }
+        if($user->industry != null){
+            $insutry = strChangeArr($user->industry,EXPLODE_STR);
+            $insutrys = DictInsutry::getAllIndustry();
+            for($i = 0;$i<sizeof($insutry);$i++){
+                $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
+            }
+        }
+        $user->address = $provice_name.$city_name;
+        $user->industry = $return_ins;
+        return !empty($user) ? responseToJson(0,'success',[$user,$coupon_names]) : responseToJson(1,'no data');
     }
     
     public function getOneUser(Request $request){
@@ -125,6 +184,26 @@ class AccountsController extends AccountControllerBase
             return $judge;
     
         $user = $this->getUserId($request);
+        $return_ins='';
+        $provice_name = '';
+        $city_name = '';
+        if($user->address != null) {
+            $provice_arr = strChangeArr($user->address,EXPLODE_STR);
+            $provice = DictRegion::getAllArea();
+            $provice_name=$this->findAddress($provice_arr[0],$provice);
+            $city_name = $this->findAddress($provice_arr[1],$provice);
+        }
+        
+        if($user->industry != null){
+            $insutry = strChangeArr($user->industry,EXPLODE_STR);
+            $insutrys = DictInsutry::getAllIndustry();
+            for($i = 0;$i<sizeof($insutry);$i++){
+                $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
+            }
+        }
+        $user->address = $provice_name.$city_name;
+        $user->industry = $return_ins;
+        
         $activity_names = $this->getActivityNames($request);
         $major_names = $this->getMajorNames($request);
         $coupon_names = $this->getCouponNames($request);
@@ -151,21 +230,21 @@ class AccountsController extends AccountControllerBase
     }
     
     public function createMajorExcel(Request $request){
-        if(!$request->isMethod('post'))
+        if(!$request->isMethod('get'))
             return responseToJson(1,METHOD_ERROR);
         
         $provice = DictRegion::getAllArea();
         $schooling = DictSchooling::getAllSchooling();
         $insutrys = DictInsutry::getAllIndustry();
-        $data = $result = UserInformation::getInformation('',$request->page,$request->pageSize,'',1);
+        $data = $result = UserInformation::getInformation('','','',0,MAX_INTEGER,'',1);
         
         $datas = [['院校专业id','院校专业名称','账户id',
             '电话号码','头像','用户名',
             '真实姓名','性别','地址',
-            '学历','毕业院校','行业','工作年限']];
+            '学历','毕业院校','行业','工作年限','创建时间']];
     
         $datas =  $this->resultObjToArray($data,$datas,$provice,$schooling,$insutrys);
-        
+//        dd($datas);
         $this->createExcel($datas);
     }
     
@@ -205,5 +284,9 @@ class AccountsController extends AccountControllerBase
         $datas =  $this->resultObjToArray($data,$datas,$provice,$schooling,$insutrys);
         
         $this->createExcel($datas);
+    }
+    
+    public function  getAllArea(){
+        return responseToJson(0,'success',[DictRegion::getAllArea()]);
     }
 }

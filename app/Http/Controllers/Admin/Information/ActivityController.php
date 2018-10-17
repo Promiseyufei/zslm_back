@@ -8,17 +8,20 @@ namespace App\Http\Controllers\Admin\Information;
 
 
 use App\Models\activity_relation as ActivityRelation;
+use App\Models\dict_major_type as dictMajorType;
 use App\Models\zslm_activitys as ZslmActivitys;
 use App\Models\user_accounts as UserAccounts;
 use App\Http\Requests\ActivityCreateRequest;
 use App\Http\Requests\ActivityUpdateRequest;
 use App\Models\system_setup as SystemSetup;
+use App\Models\dict_region as dictRegion;
 use App\Models\zslm_major as ZslmMajor;
 use App\Models\news_users as NewsUsers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\dict as Dict;
 use App\Models\news as News;
+use Illuminate\Support\Facades\Storage;
 use Validator;
 use DB;
 
@@ -413,6 +416,7 @@ class ActivityController extends Controller
      *     }
      */ 
     public function createActivity(ActivityCreateRequest $request) {
+        
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         try {
             DB::beginTransaction();
@@ -428,10 +432,6 @@ class ActivityController extends Controller
                 'end_time'       => strtotime($request->endTime),
                 'sign_up_state'  => $request->signUpState,
                 'active_img'     => $img_name,
-                'title'          => !empty($request->title) ? trim($request->title) : '',
-                'keywords'       => !empty($request->keywords) ? trim($request->keywords) : '',
-                'description'    => !empty($request->description) ? trim($request->description) : '',
-                'introduce'      => trim($request->enrollmentMode),
                 'create_time'    => time()
             ];
     
@@ -441,7 +441,7 @@ class ActivityController extends Controller
 
             if($is_create && ($is_create_img === true)) {
                 DB::commit();
-                return responseToJson(0, '上传成功'); 
+                return responseToJson(0, '上传成功',$is_create);
             }
             else if(is_array($is_create_img) && $is_create_img[0] == 1) {
                 throw new \Exception($is_create_img[1]);
@@ -453,23 +453,70 @@ class ActivityController extends Controller
             return responseToJson(1, $e->getMessage());
         }
     }
+    
+    public function updateTiltle(Request $request){
+        
+        
+        
+        if(!isset($request->title)){
+            return responseToJson(1,'no title');
+        }else if(!isset($request->keywords)){
+            return responseToJson(1,'no keywords');
+        }else if(!isset($request->description)){
+            return responseToJson(1,'no description');
+        }else if(!isset($request->id)){
+            return responseToJson(1,'no id');
+        }
+        $result = ZslmActivitys::setTKDById($request);
+        if($result == 1){
+            return responseToJson(0,'success');
+        }else{
+            return responseToJson(1,'error');
+        }
+    }
+    
+    
+    public function updateIntroduce(Request $request){
+        if(!isset($request->introduce)){
+            return responseToJson(1,'no title');
+        }else if(!isset($request->id)){
+            return responseToJson(1,'no id');
+        }
+        $result = ZslmActivitys::setIntroduce($request);
+        if($result == 1){
+            return responseToJson(0,'success');
+        }else{
+            return responseToJson(1,'error',$result);
+        }
+    }
+    
+    public function getPageInfo(Request $request){
+        if(!$request->isMethod('get'))
+            return responseToJson(1,'request error');
+        
+        $major = dictMajorType::getAllSonMajor();
+        $provice = dictRegion::getProvice();
+        
+        if(sizeof($major)>0&&sizeof($provice)>0)
+            return responseToJson(0,'success',['major'=>$major,'provice'=>$provice]);
+        else
+            return responseToJson(1,'error');
+    }
 
 
-    private function createDirImg($imgName, &$imgHandle) {
+    private function createDirImg($imgName, $imgHandle) {
         if($imgHandle->isValid()) {
             $originalName = $imgHandle->getClientOriginalName(); //源文件名
-            $ext = $imgHandle->getClientOriginalExtension();    //文件拓展名
 
             $file_type_arr = ['png','jpg','jpeg','tif','image/jpeg'];
-            $type = $imgHandle->getClientMimeType(); //文件类型
+            $ext = $imgHandle->guessClientExtension(); //文件类型
             $realPath = $imgHandle->getRealPath();   //临时文件的绝对路径
             $size = $imgHandle->getSize();
-
-            if(!in_array(strtolower($ext), $file_type_arr)) return [1,'请上传格式为图片的文件'];
-            else if(Storage::disk('info')->exists($imgName)) return [1, '图片已存在'];
+     
+            if(!in_array(strtolower($ext), $file_type_arr)) return [1,"请上传 png jpg jpeg tif等格式的图片"];
+            else if(Storage::disk('info')->exists($imgName.$ext)) return [1, '图片已存在'];
             else if(getByteToMb($size) > 3) return [1, '文件超出最大限制'];
-
-            $bool = Storage::disk('info')->put($imgName, file_get_contents($realPath));
+            $bool = Storage::disk('info')->put($imgName.$ext, file_get_contents($realPath));
             return $bool ? $bool : [1, '图片上传失败'];
         }
         else return [1, '图片未上传'];

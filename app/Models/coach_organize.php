@@ -21,6 +21,10 @@ class coach_organize
                 break;
         }
     }
+    
+    public static function getCoachNameById($id){
+        return DB::table(self::$sTableName)->where('is_delete', 0)->where('id',$id)->first(['coach_name']);
+    }
 
     public static function getCoachPageMsg(array $val = []) {
         
