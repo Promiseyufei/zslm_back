@@ -18,7 +18,7 @@ use App\Models\news as News;
 
 use DB;
 
-class NewsController extends Controller 
+class SendNewsController extends Controller 
 {
 
 
@@ -48,7 +48,13 @@ class NewsController extends Controller
      *              "schooling_id":"最高学历",
      *              "graduate_school":"毕业学校",
      *              "industry":"所属行业",
-     *              "worked_year":"工作年限"
+     *              "worked_year":"工作年限",
+     *              "is_weixin":"0/1(是/否)",
+     *              "is_weibo":"0/1(是/否)",
+     *              "create_time":"账户创建时间",
+     *              "update_time":"信息更新时间",
+     *              "head_portrait":"头像:自定义/系统默认"
+     *              
      *          }
      *   }
      * }
@@ -75,17 +81,45 @@ class NewsController extends Controller
 
         $get_all_user = UserAccounts::getAllAccounts($page_count, $page_num);
 
-        $province = $this->getMajorProvincesAndCities($request);
+        // $province = getMajorProvincesAndCity()[0];
 
-        foreach($get_all_user as $key => $item) {
-            $get_all_user[$key]->address = strChangeArr($item->address, ',');
-            foreach($province[$item->address[0]]->citys as $value) 
-                if($item->address[1] == $value->id) $get_all_user[$key]->address[1] = $value->name;
+        // foreach($get_all_user['map'] as $key => $item) {
+        //     if($item->address != null) {
+        //         $get_all_user['map'][$key]->address = strChangeArr($item->address, ',');
+        //         foreach($province[$item->address[0]]->citys as $value) 
+        //             if($item->address[1] == $value->id) $get_all_user['map'][$key]->address[1] = $value->name;
+    
+        //         $get_all_user['map'][$key]->address[0] = $province[$item->address[0]]->name;
+        //         $get_all_user['map'][$key]->address = $get_all_user['map'][$key]->address[0] . '-' . $get_all_user['map'][$key]->address[1];
+        //     }
+        //     $get_all_user['map'][$key]->create_time = date("Y-m-d H:i",$item->create_time);
+        //     if($item->update_time != null)  $get_all_user['map'][$key]->update_time = date("Y-m-d H:i",$item->update_time);
+        //     ($item->head_portrait != "") ? ($get_all_user['map'][$key]->head_portrait = "自定义") : ($get_all_user['map'][$key]->head_portrait = "系统默认");
+        // }
 
-            $get_all_user[$key]->address[0] = $province[$item->address[0]]->name;
+        SendNewsController::setProvinceCity($get_all_user);
+
+        return ((is_array($get_all_user) || is_object($get_all_user)) && count($get_all_user) > 0) ? responseToJson(0, '', $get_all_user) : responseToJson(1, '未查询到用户数据');
+
+    }
+
+    public static function setProvinceCity(&$get_all_user) {
+
+        $province = getMajorProvincesAndCity()[0];
+
+        foreach($get_all_user['map'] as $key => $item) {
+            if($item->address != null) {
+                $get_all_user['map'][$key]->address = strChangeArr($item->address, ',');
+                foreach($province[$item->address[0]]->citys as $value) 
+                    if($item->address[1] == $value->id) $get_all_user['map'][$key]->address[1] = $value->name;
+    
+                $get_all_user['map'][$key]->address[0] = $province[$item->address[0]]->name;
+                $get_all_user['map'][$key]->address = $get_all_user['map'][$key]->address[0] . '-' . $get_all_user['map'][$key]->address[1];
+            }
+            $get_all_user['map'][$key]->create_time = date("Y-m-d H:i",$item->create_time);
+            if($item->update_time != null)  $get_all_user['map'][$key]->update_time = date("Y-m-d H:i",$item->update_time);
+            ($item->head_portrait != "") ? ($get_all_user['map'][$key]->head_portrait = "自定义") : ($get_all_user['map'][$key]->head_portrait = "系统默认");
         }
-
-        return (is_array($get_all_user) && count($get_all_user) > 0) ? responseToJson(0, '', $get_all_user) : responseToJson(1, '未查询到用户数据');
 
     }
 
@@ -235,7 +269,7 @@ class NewsController extends Controller
      * @apiParam {Array} userArr 发送用户的id数组
      * @apiParam {Number} carrier 消息载体类型(0：短信形式；1：站内信形式；2：短信+站内信)
      * @apiParam {Number} type 消息类型(0：无，默认；1：个人助手类；2：系统消息类；3：院校动态类（只能发站内信）)
-     * @apiParam {String} title 页面显示行数
+     * @apiParam {String} title 消息标题
      * @apiParam {String} context 消息正文
      * @apiParam {String} url 相关链接
      * 
@@ -280,7 +314,8 @@ class NewsController extends Controller
     public function getNewNewsMessage(Request $request) {
 
 
-        if($request->isMethod('post')) return responseToJson(2, '请求方式失败');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式失败');
+        var_dump($request->all());
 
         $user_arr = (isset($request->userArr) && is_array($request->userArr)) ? $request->userArr : [];
 
@@ -293,7 +328,7 @@ class NewsController extends Controller
 
         $url = (trim($request->url) ?? false) ? trim($request->url) : null;
 
-        $pattern='(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|([\s()<>]+|(\([\s()<>]+))*\))+(?:([\s()<>]+|(\([\s()<>]+))*\)|[^\s`!(){};:\'".,<>?«»“”‘’]))';
+        $pattern='@(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|([\s()<>]+|(\([\s()<>]+))*\))+(?:([\s()<>]+|(\([\s()<>]+))*\)|[^\s`!(){};:\'".,<>?«»“”‘’]))@';
 
         if(count($user_arr) < 1 || $carrier < 0 || $type < 0 || empty($title) || empty($context) || empty($url)) 
             return responseToJson(1, '请将信息进行完善');
@@ -350,14 +385,14 @@ class NewsController extends Controller
         if(count($user_phone_arr) == 1)
             array_merge($sms_message, [
                 'title' => $newsMsg['title'],
-                'context' => (mb_strlen($newsMsg['context'], 'utf-8') > 20) ? (mb_substr($newsMsg['context'], 0, 20, 'gb2312') . '...') : $newsMsg['context'],
+                'context' => (strip_tags(mb_strlen($newsMsg['context']), 'utf-8') > 20) ? (strip_tags(mb_substr($newsMsg['context']), 0, 20, 'gb2312') . '...') : strip_tags($newsMsg['context']),
                 // 'url' => $url
             ]);
         else
             for($i = 0; $i < count($user_phone_arr); $i++) 
                 array_push($sms_message, [
                     'title' => $newsMsg['title'],
-                    'context' => (mb_strlen($newsMsg['context'], 'utf-8') > 20) ? (mb_substr($newsMsg['context'], 0, 20, 'gb2312') . '...') : $newsMsg['context'],
+                    'context' => (strip_tags(mb_strlen($newsMsg['context']), 'utf-8') > 20) ? (strip_tags(mb_substr($newsMsg['context']), 0, 20, 'gb2312') . '...') : strip_tags($newsMsg['context']),
                     // 'url' => $url
                 ]);
         

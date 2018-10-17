@@ -27,56 +27,70 @@ class user_accounts
     }
 
 
-    public static function getAllAccounts($pageCount, $pageNum) {
+    public static function getAllAccounts($pageCount, $pageNum, $usersArr = []) {
 
         self::initialization();
 
-        $map = DB::table(self::$sTableName)
+        $map_handle = DB::table(self::$sTableName)
         ->leftJoin('user_information', self::$sTableName . '.id', '=', 'user_information.user_account_id')
-        ->where(self::$sTableName . '.is_delete', 0)
-        ->select(...self::getAppointUsersField())->distinct()
-         ->offset($pageCount * $pageNum)
+        ->where(self::$sTableName . '.is_delete', 0);
+        
+        // dd($usersArr);
+
+        if($usersArr != []) {
+            $map_handle = $map_handle->whereIn(self::$sTableName . '.id', $usersArr);
+        }
+
+       
+
+        $map_total = $map_handle->count();
+
+        $map = $map_handle->select(...self::getAppointUsersField())->distinct()
+         ->offset($pageCount * ($pageNum - 1))
          ->limit($pageCount)
          ->get();
+        //  dd($map);
 
-        return self::setDeepArray($map);
+        return ['total' => $map_total, 'map' => self::setDeepArray($map)];
     }
 
 
     private static function getAppointUsersField() {
         return array(
             self::$sTableName . '.id',
-            self::$sTableName . '.phone　as account',
+            self::$sTableName . '.create_time',
+            self::$sTableName . '.update_time',
+            self::$sTableName . '.phone as account',
             'user_information.sex',
-            'user_information.phone',
             'user_information.address',
             'user_information.industry',
             'user_information.user_name',
             'user_information.real_name',
             'user_information.worked_year',
             'user_information.schooling_id',
+            'user_information.head_portrait',
             'user_information.graduate_school'
         );
     }
 
 
     private static function setDeepArray($map) {
-        return $map->toAyyay()->map(function($item) {
-            deepInArray($item);
+        return $map->map(function($item) {
+            self::deepInArray($item);
             return $item;
         });
     }
 
     private static function initialization() {
 
-        if(slef::$sEducation == null) 
+        if(self::$sEducation == null) 
             self::$sEducation = Dict::dictEducation()->toArray();
 
-        else if(self::$sIndustry == null) 
-            self::$sIndustry = Dict::dictIndustry()->toAyyay();
+        if(self::$sIndustry == null) 
+            self::$sIndustry = Dict::dictIndustry()->toArray();
 
-        else if(self::$sWorkYears == null) 
-            self::$sWorkYears = Dict::workYears()->toAyyay();
+        if(self::$sWorkYears == null) 
+            self::$sWorkYears = Dict::workYears()->toArray();
     }
 
 
