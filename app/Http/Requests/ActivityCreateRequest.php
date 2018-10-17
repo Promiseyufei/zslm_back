@@ -33,10 +33,6 @@ class ActivityCreateRequest extends FormRequest
             'endTime'       => 'required|date|after:beginTime',
             'signUpState'   => 'required|numeric',
             'activeImg'     => 'required|file',
-            'title'         => 'nullable|string|max:255',
-            'keywords'      => 'nullable|string|max:255',
-            'description'   => 'nullable|string',
-            'introduce'     => 'required|string'
         ];
     }
 
@@ -54,14 +50,11 @@ class ActivityCreateRequest extends FormRequest
             'endTime.after'           => '选择的结束时间需在开始时间之后',
             'signUpState.numeric'     => '值不是数值',
             'activeImg.file'          => '上传的不是一个文件',
-            'title.max'               => '长度超过限制',
-            'keywords.max'            => '长度超过限制',
-            'description.*'           => 'description参数错误',
-            'introduce.*'             => '参数错误'
         ];
     }
 
     public function failedValidation(\Illuminate\Contracts\Validation\Validator $validator) {
+        var_dump( $validator->getMessageBag());
         return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
     }
 }

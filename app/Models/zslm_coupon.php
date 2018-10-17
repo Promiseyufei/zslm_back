@@ -85,7 +85,7 @@ class zslm_coupon
     }
     
     public static function getCouponName($coupon_id){
-        return DB::table(self::$sTableName)->whereIn('id',$coupon_id)->get(['name']);
+        return DB::table(self::$sTableName)->whereIn('id',$coupon_id)->where('is_enable',0)->get(['name']);
     }
     
 

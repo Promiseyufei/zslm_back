@@ -91,6 +91,24 @@ class zslm_activitys
                 break;
         }
     }
+    
+    /**
+     * setTKDByid
+     *
+     */
+    public static function setTKDById(Request $request){
+        return DB::table(self::$sTableName)
+            ->where('id', $request->id)
+            ->update(['title'=>$request->title,
+                'keywords'=>$request->keywords,
+                'description'=>$request->description]);
+    }
+    
+    public static function setIntroduce(Request $request){
+        return DB::table(self::$sTableName)
+            ->where('id', $request->id)
+            ->update(['description'=>$request->introduce]);
+    }
 
     public static function getAppointActivityMsg($activityId = 0, $msgName = '') {
         if(empty($msgName))
@@ -136,7 +154,7 @@ class zslm_activitys
     }
     
     public static function getUserActivitys($activity_ids){
-        return DB::table(self::$sTableName)->where('is_delete',0)->whereIn('id',$activity_ids)->get(['name']);
+        return DB::table(self::$sTableName)->where('is_delete',0)->whereIn('id',$activity_ids)->get(['active_name']);
     }
 
 

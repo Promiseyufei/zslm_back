@@ -8,7 +8,7 @@
     
     namespace App\Models;
     
-    
+    use DB;
     class user_activitys
     {
         public static $sTableName = 'user_activitys';

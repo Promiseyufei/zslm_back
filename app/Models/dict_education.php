@@ -18,4 +18,9 @@
             $schooling = DB::table(self::$sTableName)->get();
             return $schooling;
         }
+        
+        public static function getSchoolingById($id){
+            $schooling = DB::table(self::$sTableName)->where('id',$id)->first(['name']);
+            return $schooling;
+        }
     }
