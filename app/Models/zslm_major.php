@@ -166,4 +166,18 @@
             ])->orderBy('weight','desc')->skip($recomMajorCount)->pluck('id');
         }
 
+
+        public static function createOneMajor($majorMsg = [], $type = 0,$majorId = 0) {
+
+            if($type == 0)
+                return DB::table(self::$sTableName)->insertGetId(array_merge($majorMsg, [
+                    'create_time' => time()
+                ]));
+            else if($type == 1 && $majorId != 0) {
+                return DB::table(self::$sTableName)->where('id', $majorId)->update(array_merge($majorMsg, [
+                    'update_time' => time()
+                ]));
+            }
+        }
+
     }

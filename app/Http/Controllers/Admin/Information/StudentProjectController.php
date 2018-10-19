@@ -41,7 +41,9 @@ class StudentProjectController extends Controller
      *              "name":"xxxxxxxxxxxx",
      *              "weight":"xxxxxxxxxxxx",
      *              "is_show":"xxxx"
-     *              "update_time":"xx"
+     *              "update_time":"xx",
+     *              "z_name":"xxx",
+     *              ""
      *          }
      *   }
      * }
@@ -62,14 +64,14 @@ class StudentProjectController extends Controller
      *     }
      */
     public function getAllProject(Request $request) {
-        if(!$request->isMethod('get')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $major_id = (isset($request->majorId) && is_numeric($request->majorId)) ? $request->majorId : 0;
         $page_num = (isset($request->pageNum) && is_numeric($request->pageNum)) ? $request->pageNum : 0;
 
         if(!empty($major_id)) {
             $app_proect = MajorRecruitProject::getAppointProject($major_id, $page_num);
 
-            return is_array($app_proect) ? responseToJson(0, '', $app_proect) : responseToJson(1, '查询失败');
+            return is_object($app_proect['data']) ? responseToJson(0, '', $app_proect) : responseToJson(1, '查询失败');
         }
         else 
             return responseToJson(1, '参数错误');
@@ -231,7 +233,7 @@ class StudentProjectController extends Controller
             if($pro_id > 0 && $type != -1 && $state != -1) {
                 if($type > 0 && $state > 1) return responseToJson(1, '状态值错误');
                 $is_update = MajorRecruitProject::setAppiProjectState([
-                    'pro_id' => $major_id,
+                    'pro_id' => $pro_id,
                     'type'     => $type,
                     'state'    => $state
                 ]);

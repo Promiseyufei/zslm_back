@@ -352,3 +352,59 @@ function getByteToMb($bytes) {
 //     }
 //     return false;
 // }
+
+
+    /**
+     * 上传文件
+     */
+    function createDirImg($imgName = '', $imgHandle, $modularName) {
+        if($imgHandle->isValid()) {
+            $originalName = $imgHandle->getClientOriginalName(); //源文件名
+            $ext = $imgHandle->getClientOriginalExtension();    //文件拓展名
+
+            $file_type_arr = ['png','jpg','jpeg','tif','image/jpeg'];
+            $type = $imgHandle->getClientMimeType(); //文件类型
+            $realPath = $imgHandle->getRealPath();   //临时文件的绝对路径
+            $size = $imgHandle->getSize();
+
+            /**
+             * 
+             * 判断类型
+             * 判断是否在文件夹中存在
+             *  判断大小
+             */
+            if(!in_array(strtolower($ext), $file_type_arr)) return [1,'请上传格式为图片的文件'];
+            // else if(Storage::disk('operate')->exists($imgName)) return [1, '图片已存在'];
+            else if(getByteToMb($size) > 4) return [1, '文件超出最大限制'];
+                
+
+            $bool = Storage::disk($modularName)->put($imgName, file_get_contents($realPath));
+            return $bool ? $bool : [1, '图片上传失败'];
+        }
+        else return [1, '图片未上传'];
+    }
+
+    /**
+     * 修改图片名称
+     */
+    function updateDirImgName($imgUrl = '',$imgNewName = '', $modularName) {
+        if($imgUrl !== '' && $imgNewName !== '' && $modularName !== '') {
+            $img_arr = explode('/', $imgUrl); 
+            if(count($img_arr) >= 2)
+                return false;
+
+            try {
+                $exists = Storage::disk($modularName)->exists($imgUrl);
+                $exists_new = Storage::disk($modularName)->exists($imgNewName);
+                if($exists == true && $exists == !$exists_new) {
+                    $dir_url = dirname(Storage::url($imgUrl));
+                    return rename(Storage::url($imgUrl), $dir_url . $imgNewName);
+                }
+                throw new \Exception('error');
+            } catch(\Exception $e) {
+                return false;
+            }
+        }
+        else 
+            return false;
+    }

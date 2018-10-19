@@ -79,6 +79,8 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
         Route::post('updateMajorMsg','MajorController@updateMajorMsg');
 
+        Route::post('updateMajorExtendMsg','MajorController@updateMajorExtendMsg');
+
         Route::post('deleteMajor','MajorController@deleteMajor');
 
         Route::post('updateMajorInformationTime','MajorController@updateMajorInformationTime');
