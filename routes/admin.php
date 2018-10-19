@@ -118,7 +118,7 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
         Route::post('getUnifiedRecruitPattern','StudentProjectController@getUnifiedRecruitPattern');
 
-        Route::post('getUnifiedRecruitPattern','StudentProjectController@getUnifiedRecruitPattern');
+        Route::post('getAppointIdProject','StudentProjectController@getAppointIdProject');
         
 
 

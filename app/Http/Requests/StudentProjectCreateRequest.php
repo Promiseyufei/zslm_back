@@ -37,7 +37,8 @@ class StudentProjectCreateRequest extends FormRequest
             'graduationCertificate'  => 'required|string',
             'recruitmentPattern'     => 'required|numeric',
             'enrollmentMode'         => 'required|numeric',
-            'professionalDirection'  => 'required|numeric'
+            'professionalDirection'  => 'required|array',
+            'scoreType'  => 'required|numeric'
         ];
     }
 
@@ -57,11 +58,12 @@ class StudentProjectCreateRequest extends FormRequest
             'graduationCertificate.*'       => '参数错误',
             'recruitmentPattern.numeric'    => '值不是数值',
             'enrollmentMode.numeric'        => '值不是数值',
-            'professionalDirection.numeric' => '值不是数值'
+            'professionalDirection.array'   => '值不是数组',
+            'scoreType.numeric'             => '值不是数值'
         ];
     }
 
     public function failedValidation(\Illuminate\Contracts\Validation\Validator $validator) {
-        return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
+        return responseToJson(1, array_values($validator->getMessageBag()->toArray())[0][0]);
     }
 }
