@@ -34,9 +34,9 @@ class InformationController extends Controller
      * 
      * 
      * @apiParam {String} infoNameKeyword 咨询名称关键字
-     * @apiParam {Number} screenType 筛选方式(0按展示状态；1按推荐状态;２咨询类型;3全部)
+     * @apiParam {Number} screenType 展示状态(0按展示；1按不展示;2全部)
+     * @apiParam {Number} screenState 推荐状态(0推荐；1不推荐;2全部)
      * @apiParam {Number} infoType 咨询类型(0全部，非零传输咨询类型id)
-     * @apiParam {Number} screenState 筛选状态(0展示/推荐；1不展示/不推荐;2全部)
      * @apiParam {Number} sortType 排序(0按权重升序，1按权重降序，2按更新时间降序(默认))
      * @apiParam {Number} pageCount 页面显示行数
      * @apiParam {Number} pageNumber 跳转页面下标
@@ -57,7 +57,7 @@ class InformationController extends Controller
      *              "is_recommend":"推荐状态(0推荐，1不推荐)",
      *              "z_type":"咨询类型",
      *              "z_from":"咨询来源",
-     *              "update_time":"信息更新时间"
+     *              "create_time":"咨询发布时间"
      *          }
      *   }
      * }
@@ -104,16 +104,16 @@ class InformationController extends Controller
 
         if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
 
-        $get_info_msg = ZslmInformation::getInformationPageMsg($request->all())->toArray();
-
+        $get_info_msg = ZslmInformation::getInformationPageMsg($request->all());
         $info_type = Dict::dictInformationType()->toArray();
-        foreach($get_info_msg as $key => $info) {
+        foreach($get_info_msg['data'] as $key => $info) {
             foreach($info_type as $val)
-                ($info->z_type != $val->id) ? : $get_info_msg[$key]->z_type = $val->name;
-            $get_info_msg[$key]->update_time = date("Y-m-d H:i:s",$info->update_time);
+                ($info->z_type != $val->id) ? : $get_info_msg['data'][$key]->z_type = $val->name;
+            $get_info_msg['data'][$key]->create_time = date("Y-m-d H:i:s",$info->create_time);
+            $get_info_msg['data'][$key]->is_show = $get_info_msg['data'][$key]->is_show ? false : true;
+            $get_info_msg['data'][$key]->is_recommend = $get_info_msg['data'][$key]->is_recommend ? true : false;
         }
-
-        return ($get_info_msg ?? false) ? responseToJson(0, '', $get_info_msg) : responseToJson(1, '查询失败');
+        return is_array($get_info_msg['data']) ? responseToJson(0, '', $get_info_msg) : responseToJson(1, '查询失败');
                 
     }
 
@@ -169,7 +169,7 @@ class InformationController extends Controller
      * @api {post} admin/information/setAppointInfoState 设置咨询的状态值(权重，展示状态，推荐状态)
      * @apiGroup information
      *
-     * @apiParam {Number} infoId 指定活动的id
+     * @apiParam {Number} infoId 指定资讯的id
      * @apiParam {Number} type 要修改的状态类型(0修改权重；１修改展示状态；２修改推荐状态)
      * @apiParam {Number} state 要修改的值
      *
@@ -211,7 +211,7 @@ class InformationController extends Controller
                 'state'   => $state
             ]);
 
-            return ($is_update ?? 0) ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
+            return $is_update ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
         }
         else return responseToJson(1, '参数错误');
 
@@ -249,7 +249,9 @@ class InformationController extends Controller
         $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
         if($info_id != 0) {
             $info = ZslmInformation::getAppointInfoMsg($info_id);
-            return is_object($info) ? responseToJson(0, '', $info) : responseToJson(1, '获取信息失败');
+        
+        if($info->z_image != '') $info->z_image = 'http://localhost:81/zslm_back/storage/app/admin/info/' . $info->z_image;
+        return is_object($info) ? responseToJson(0, '', $info) : responseToJson(1, '获取信息失败');
         }
     }
 
@@ -329,7 +331,7 @@ class InformationController extends Controller
      *     }
      */
     public function deleteAppointInfo(Request $request) {
-        if(!$request->isMethod('get')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
 
         if($info_id == 0) return responseToJson(1, '参数错误');
@@ -343,17 +345,15 @@ class InformationController extends Controller
 
 
     /**
-     * @api {post} admin/information/createInfo 添加资讯
+     * @api {post} admin/information/createInfo 添加资讯主要信息
      * @apiGroup information
      *
      * @apiParam {String} infoName 资讯的标题
      * @apiParam {Number} infoType 资讯类型
      * @apiParam {String} infoFrom 资讯来源
+     * @apiParam {String} infoFromUrl 资讯来源url
+     * @apiParam {String} briefIntroduction 资讯简介
      * @apiParam {File} infoImage 资讯封面图
-     * @apiParam {String} infoText 资讯内容
-     * @apiParam {String} title 页面优化
-     * @apiParam {String} keywords 页面优化
-     * @apiParam {String} description 页面优化
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -390,22 +390,20 @@ class InformationController extends Controller
             'z_type'        => $request->infoType,
             'z_from'        => trim($request->infoFrom),
             'z_image'       => $img_name,
-            'z_text'        => trim($request->infoText),
-            'title'         => (trim($request->title) ?? false) ? trim($request->title) : '',
-            'keywords'      => (trim($request->keywords) ?? false) ? trim($request->keywords) : '',
-            'description'   => (trim($request->description) ?? false) ? trim($request->description) : ''
+            'from_url'      => $request->infoFromUrl,
+            'brief_introduction' => $request->briefIntroduction
         ];
 
         try {
             DB::beginTransaction();
 
-            $create_info_id = ZslmInformation::createInfo($create_msg);
+            $create_info_id = ZslmInformation::createOneInfo($create_msg);
     
-            $is_create_img = $this->createDirImg($img_name, $img_handle);
+            $is_create_img = createDirImg($img_name, $img_handle, 'info');
     
             if($create_info_id && ($is_create_img === true)) {
                 DB::commit();
-                return responseToJson(0, '上传成功'); 
+                return responseToJson(0, '上传成功', $create_info_id); 
             }
             else if(is_array($is_create_img) && $is_create_img[0] == 1)
                 throw new \Exception($is_create_img[1]);
@@ -415,6 +413,43 @@ class InformationController extends Controller
             return responseToJson(1, $e->getMessage());
         }
 
+    }
+
+    /**
+     * {post} admin/information/updateInfoExtendMsg 更新资讯优化信息
+     */
+    public function updateInfoExtendMsg(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $info_id = isset($request->infoId) && is_numeric($request->infoId) ? $request->infoId : 0;
+        $title = (isset($request->title) && mb_strlen($request->title, 'utf-8') < 255) ? $request->title : '';
+        $keywords = (isset($request->keywords) && mb_strlen($request->keywords, 'utf-8') < 255) ? $request->keywords : '';
+        $description = isset($request->description) ? $request->description : '';
+        // var_dump($request->all());
+        if($info_id == 0 || $title == '' || $keywords == '' || $description == '') return responseToJson(1, '参数错误');
+
+        $info_extend_msg_arr = [
+            'title' => $title,
+            'keywords' => $keywords,
+            'description' => $description
+        ];
+        $is_update = ZslmInformation::createOneInfo($info_extend_msg_arr, 1, $info_id);
+
+        return $is_update ? responseToJson(0, '更新成功') : responseToJson(1, '更新失败');
+    }
+
+    /**
+     * {post} admin/information/updateInfoTextMsg 更新资讯内容信息
+     */
+    public function updateInfoTextMsg(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $info_id = isset($request->infoId) && is_numeric($request->infoId) ? $request->infoId : 0;
+        $text = isset($request->text) ? $request->text : '';
+        if($info_id == 0) return responseToJson(1, '参数错误');
+        $info_text_msg_arr = [
+            'z_text' => $text
+        ];
+        $is_update = ZslmInformation::createOneInfo($info_text_msg_arr, 1, $info_id);
+        return $is_update ? responseToJson(0, '更新成功') : responseToJson(1, '更新失败');
     }
 
 
@@ -653,7 +688,7 @@ class InformationController extends Controller
      *     }
      */
     public function setManualRecInfos(Request $request) {
-        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
         $info_arr = (isset($request->infoArr) && is_array($request->infoArr)) ? $request->infoArr : [];
 
@@ -671,6 +706,37 @@ class InformationController extends Controller
 
         return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
+
+
+    /**
+     * @api {post} admin/information/getAppointInfoRecommendRead 在手动设置咨询的时候获得指定资讯的推荐阅读信息(手动设置)
+     * @apiGroup information
+     * @apiParam {Number} infoId 活动的id
+     */
+    public function getAppointInfoRecommendRead(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? intval($request->infoId) : 0;
+
+        if($info_id == 0) return responseToJson(1, '参数错误');
+        $get_recommend_read_id_arr = strChangeArr(InfomationRelation::getAppointInfoContent($info_id, 'tj_yd_id'), ',');
+
+
+        $get_re_read = ZslmInformation::getAppointInfoReRead($get_recommend_read_id_arr)->toArray();
+
+        // dd($get_re_read);
+
+        return is_array($get_re_read) ? responseToJson(0, '', $get_re_read) : responseToJson(1, '没有获得推荐阅读信息');
+
+
+    }
+
+    // private function judgeInfoRelationExistence($infoId) {
+    //     if($infoId < 1) return 0;
+
+    // }
+
+
+
 
 
 
@@ -705,12 +771,13 @@ class InformationController extends Controller
      *     }
      */
     public function setAutomaticRecInfos(Request $request) {
-        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
         if($info_id == 0) return responseToJson(0, '参数错误');
         $recom_info_count = SystemSetup::getContent('recommend_read');
 
-        $get_infos_id_arr = ZslmInformation::getAutoRecommendInfos($recom_info_count);
+        
+        $get_infos_id_arr = ZslmInformation::getAutoRecommendInfos($recom_info_count)->toArray();
 
         if(count($get_infos_id_arr) < 1) return responseToJson(1, '暂无能够设置的活动');
 
@@ -883,13 +950,22 @@ class InformationController extends Controller
             $size = $imgHandle->getSize();
 
             if(!in_array(strtolower($ext), $file_type_arr)) return [1,'请上传格式为图片的文件'];
-            else if(Storage::disk('info')->exists($imgName)) return [1, '图片已存在'];
+            // else if(Storage::disk('info')->exists($imgName)) return [1, '图片已存在'];
             else if(getByteToMb($size) > 3) return [1, '文件超出最大限制'];
 
             $bool = Storage::disk('info')->put($imgName, file_get_contents($realPath));
             return $bool ? $bool : [1, '图片上传失败'];
         }
         else return [1, '图片未上传'];
+    }
+
+
+    /**
+     * @api {post} admin/information/getInfoType 获得咨询类型
+     */
+    public function getInfoType() {
+
+        return responseToJson(0, '', Dict::dictInformationType());
     }
 
 
