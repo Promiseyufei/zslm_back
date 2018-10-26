@@ -34,7 +34,7 @@ class information_relation
     public static function setRecommendInfos($infoId = 0, $name = '', $infoStr = '') {
         
         if(self::judgeInfoRelationExistence($infoId)) {
-            // dd($infoStr);
+            // dd($name);
             return DB::table(self::$sTableName)->where('zx_id', $infoId)->update(["$name" => $infoStr]);
         }
     }
