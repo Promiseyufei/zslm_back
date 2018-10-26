@@ -14,4 +14,11 @@
     {
         private static $sTableName = 'user_third_accounts';
         
+        
+        public static function getTypeOfThread(array $ids){
+            
+         return   DB::table(self::$sTableName)
+                 ->whereIn('user_account_id',$ids)
+                 ->get(['user_account_id','third_account_type']);
+        }
     }

@@ -6,6 +6,7 @@
 
 namespace App\Http\Controllers\Admin\Accounts;
 
+use App\Models\user_third_accounts;
 use Illuminate\Http\Request;
 use Validator;
 use Excel;
@@ -59,11 +60,30 @@ class AccountsController extends AccountControllerBase
         $name = isset($request->name) ? $request->name : '';
         $realname = isset($request->realname) ? $request->realname : '';
         $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,3);
+        $id = [];
         
+        for($i = 0;$i<sizeof($result[0]);$i++){
+            $id[$i] = $result[0][$i]->user_account_id;
+        }
+
+        $thread =  user_third_accounts::getTypeOfThread($id);
+    
+    
+    
         for($i = 0;$i<sizeof($result[0]);$i++){
             $provice_name = '';
             $city_name = '';
             $return_ins = '';
+            $result[0][$i]->weixin = '未绑定';
+            $result[0][$i]->weibo = '未绑定';
+            for($j = 0;$j<sizeof($thread);$j++){
+                if($result[0][$i]->user_account_id == $thread[$j]->user_account_id)
+                    if($thread[$j]->third_account_type == 1)
+                        $result[0][$i]->weixin = '绑定';
+                    else if($thread[$j]->third_account_type == 2)
+                        $result[0][$i]->weibo = '绑定';
+            }
+//
             if($result[0][$i]->address != null) {
                 $provice_arr = strChangeArr($result[0][$i]->address,EXPLODE_STR);
                 $provice = DictRegion::getAllArea();
