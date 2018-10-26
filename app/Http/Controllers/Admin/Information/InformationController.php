@@ -730,10 +730,29 @@ class InformationController extends Controller
 
     }
 
-    // private function judgeInfoRelationExistence($infoId) {
-    //     if($infoId < 1) return 0;
 
-    // }
+    /**
+     * @api {post} admin/information/delAppointInfoRecommendRead 在手动设置咨询的时候删除或清空推荐阅读(手动设置)
+     * @apiGroup information
+     * @apiParam {Number} id 资讯id
+     * @apiParam {Number} infoId 待取消推荐阅读资讯id(当为数组时删除多个，当为数字时删除指定的推荐阅读, 当为null时清空)
+     */
+    public function delAppointInfoRecommendRead(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+
+        $id = (isset($request->id) && is_numeric($request->id)) ? intval($request->id) : 0;
+
+        if(isset($request->infoId) && is_numeric($request->infoId)) 
+            $info_id = intval($request->infoId);
+        else if(isset($request->infoId) && is_array($request->infoId)) 
+            $info_id = $request->infoId;
+        else $info_id = null;
+        
+        $is_del = InfomationRelation::delAppointInfoReRead($id, $info_id);
+
+        return $is_del ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
+
+    }
 
 
 
@@ -923,12 +942,13 @@ class InformationController extends Controller
      *     }
      */ 
     public function setAutoInfoRelationCollege(Request $request) {
-        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
         if($info_id == 0) return responseToJson(0, '参数错误');
         $recom_info_major_count = SystemSetup::getContent('recommend_info_major');
 
-        $get_major_id_arr = ZslmMajor::getAutoRecommendMajors($recom_info_major_count);
+        $get_major_id_arr = ZslmMajor::getAutoRecommendMajors($recom_info_major_count)->toArray();
+        // dd($get_major_id_arr);
 
         if(count($get_major_id_arr) < 1) return responseToJson(1, '暂无能够设置的活动');
 
@@ -937,6 +957,9 @@ class InformationController extends Controller
 
         return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
+
+
+
 
 
     private function createDirImg($imgName, &$imgHandle) {

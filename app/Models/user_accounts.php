@@ -35,8 +35,6 @@ class user_accounts
             ->leftJoin('user_information', self::$sTableName . '.id', '=', 'user_information.user_account_id')
             ->where(self::$sTableName . '.is_delete', 0);
         
-        var_dump($usersArr);
-        
         if($usersArr != []) {
             $map_handle = $map_handle->whereIn(self::$sTableName . '.id', $usersArr);
         }
@@ -47,7 +45,6 @@ class user_accounts
          ->offset($pageCount * ($pageNum - 1))
          ->limit($pageCount)
          ->get();
-        //  dd($map);
 
         return ['total' => $map_total, 'map' => self::setDeepArray($map)];
     }

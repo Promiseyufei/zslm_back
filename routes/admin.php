@@ -269,6 +269,8 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
         Route::post('getAppointInfoRecommendRead','InformationController@getAppointInfoRecommendRead');
 
+        Route::post('delAppointInfoRecommendRead','InformationController@delAppointInfoRecommendRead');
+
         
 
         
