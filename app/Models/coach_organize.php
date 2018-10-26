@@ -9,6 +9,8 @@ class coach_organize
     public static $sTableName = 'coach_organize';
 
 
+    
+    
     private static function judgeScreenState($screenState, $title, &$handle) {
         switch($screenState) {
             case 0:
@@ -22,6 +24,10 @@ class coach_organize
         }
     }
     
+    public static function getFatherCoach(){
+        return DB::table(self::$sTableName)->where('is_delete', 0)->where('father_id',0)->get(['id','coach_name']);
+    }
+    
     public static function getCoachNameById($id){
         return DB::table(self::$sTableName)->where('is_delete', 0)->where('id',$id)->first(['coach_name']);
     }
@@ -31,30 +37,20 @@ class coach_organize
         $handle = DB::table(self::$sTableName)->where('is_delete', 0);
         $sort_type = [0=>['is_show','desc'], 1=>['is_show','asc'], 2=>['update_time','desc']];
         if(isset($val['soachNameKeyword'])) $handle = $handle->where('coach_name', 'like', '%' . $val['soachNameKeyword'] . '%');
-
-        switch($val['screenType'])
-        {
-            case 0:
-                self::judgeScreenState($val['screenState'], 'is_show', $handle);
-                break;
-            case 1:
-                self::judgeScreenState($val['screenState'], 'is_recommend', $handle);
-                break;
-            case 2:
-                self::judgeScreenState($val['screenState'], 'if_coupons', $handle);
-                break;
-            case 3:
-                self::judgeScreenState($val['screenState'], 'if_back_money', $handle);
-                break;
-            default :
-                break;
-        }
-
+        if($val['showType'] != 2)
+            self::judgeScreenState($val['showType'], 'is_show', $handle);
+        if($val['recommendType'] != 2)
+            self::judgeScreenState($val['recommendType'], 'is_recommend', $handle);
+        if($val['couponsType'] != 2)
+            self::judgeScreenState($val['couponsType'], 'if_coupons', $handle);
+        if($val['moneyType'] != 2)
+            self::judgeScreenState($val['moneyType'], 'if_back_money', $handle);
+        $count = $handle->count();
+  
         $get_page_msg = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])
-        ->offset($val['pageCount'] * $val['pageNumber'])
+        ->offset($val['pageCount'] * ($val['pageNumber']-1))
         ->limit($val['pageCount'])->get();
-
-        return count($get_page_msg)>= 0 ? $get_page_msg : false;
+        return count($get_page_msg)>= 0 ? [$get_page_msg,$count] : false;
     }
 
     public static function getCoachAppiCount(array $condition = []) {
@@ -98,13 +94,38 @@ class coach_organize
         ->get();
     }
 
+    
+    
     public static function createCoach(array $createCoachMsg = []) {
-        
-        return DB::table(slef::$sTableName)->insertGetId($createCoachMsg);
+      
+        return DB::table(self::$sTableName)->insertGetId($createCoachMsg);
+    }
+    
+    public static function createKTD(Request $request){
+        return DB::table(self::$sTableName)
+            ->where('id',$request->id)
+            ->update([
+                'title'=>$request->title,
+                'keywords'=>$request->keywords,
+                'description'=>$request->description]);
+    }
+    
+    public static function createD(Request $request){
+        return DB::table(self::$sTableName)
+            ->where('id',$request->id)
+            ->update([
+                'describe'=>$request->describe]);
     }
 
     public static function setCouponsState($coachId = 0, $state = -1) {
         return DB::table(sself::$sTableName)->where('id', $coachId)->update(['if_coupons' => $state, 'update_time' => time()]);
+    }
+    
+    public static function setWeight(Request $request){
+        return DB::table(self::$sTableName)->where('id', $request->id)->update(['weight' => intval($request->weight), 'update_time' => time()]);
+    }
+    public static function setShow(Request $request){
+        return DB::table(self::$sTableName)->where('id', $request->id)->update(['is_show' => $request->state, 'update_time' => time()]);
     }
 
 }

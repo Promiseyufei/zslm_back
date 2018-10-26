@@ -163,7 +163,13 @@
                 ['is_delete', '=', 0],
                 ['is_show', '=', 0],
                 ['if_recommended', '=', 0]
-            ])->orderBy('weight','desc')->skip($recomMajorCount)->pluck('id');
+            ])->orderBy('weight','desc')->limit($recomMajorCount)->pluck('id');
+        }
+
+
+        public static function getMajorByids(array $id){
+            $data =  DB::table(self::$sTableName)->where('is_delete',0)->whereIn('id',$id)->get(['z_name','id','weight','update_time','province']);
+            return $data;
         }
 
 

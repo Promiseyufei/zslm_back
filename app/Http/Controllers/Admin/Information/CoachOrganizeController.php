@@ -11,14 +11,27 @@ use App\Models\coach_organize as CoachOrganize;
 use App\Http\Requests\CoachCreateRequest;
 use App\Http\Requests\CoachUpdateRequest;
 use App\Http\Controllers\Controller;
+use App\Models\dict_region as dictRegion;
 use Illuminate\Http\Request;
 use App\Models\dict as Dict;
+use Storage;
 use Validator;
 use DB;
 
 class CoachOrganizeController extends Controller 
 {
     
+    public function getPageInfo(Request $request){
+        if(!$request->isMethod('get'))
+            return responseToJson(1,'request error');
+            
+        $provice = dictRegion::getProvice();
+        $coach = CoachOrganize::getFatherCoach();
+        if(sizeof($provice)>0 && sizeof($coach)>0)
+            return responseToJson(0,'success',['provice'=>$provice,'coach'=>$coach]);
+        else
+            return responseToJson(1,'error');
+    }
 
     /**
      * @api {post} admin/information/getPageCoachOrganize 获取辅导机构列表页分页数据
@@ -76,12 +89,10 @@ class CoachOrganizeController extends Controller
      */
     public function getPageCoachOrganize(Request $request) {
 
-        if($request->isMethod('post')) return responseToJson(2, '请求方式失败');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式失败');
 
         $rules = [
             'soachNameKeyword' =>'nullable|string|max:255',
-            'screenType' => 'numeric',
-            'screenState' => 'numeric',
             'sortType' => 'numeric',
             'pageCount' => 'numeric',
             'pageNumber' => 'numeric'
@@ -89,8 +100,6 @@ class CoachOrganizeController extends Controller
 
         $message = [
             'soachNameKeyword.max' =>'搜索关键字超过最大长度',
-            'screenType.*'            =>'参数错误',
-            'screenState.*'           =>'参数错误',
             'pageCount.*'             => '参数错误',
             'pageNumber.*'            => '参数错误'
         ];
@@ -98,9 +107,9 @@ class CoachOrganizeController extends Controller
         $validator = Validator::make($request->all(), $rules, $message);
 
         if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
-
-        $coachs_msg = CoachOrganize::getCoachPageMsg($request->all()->toArray());
-
+        
+        $data = CoachOrganize::getCoachPageMsg($request->all());
+        $coachs_msg = $data[0]->toArray();
         $this->setProvice($coachs_msg);
 
         // $province = $this->getMajorProvincesAndCities($request);
@@ -115,12 +124,17 @@ class CoachOrganizeController extends Controller
         //     $coachs_msg[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
         // }
 
-        return $coachs_msg ? responseToJson(0, '', $coachs_msg) : responseToJson(1, '查询失败');
+        return $coachs_msg ? responseToJson(0, '', $data) : responseToJson(1, '查询失败');
 
 
 
     }
 
+    
+    public function getMajorP(){
+        return getMajorProvincesAndCity();
+    }
+    
     public function getMajorProvincesAndCities() {
         // $region = Dict::dictRegion();
 
@@ -421,16 +435,18 @@ class CoachOrganizeController extends Controller
     }
 
     private function setProvice(array &$msg = []) {
-        $province = $this->getMajorProvincesAndCities();
-
+        
+        $province = $this->getMajorP()[0];
         foreach($msg as $key => $item) {
             $msg[$key]->province = strChangeArr($item->province, ',');
-
-            foreach($province[$item->province[0]]->citys as $value) 
-                if($item->province[1] == $value->id) $msg[$key]->province[1] = $value->name;
-
-            $msg[$key]->province[0] = $province[$item->province[0]]->name;
-
+     
+            for($i = 0;$i<sizeof($province);$i++){
+                if( $msg[$key]->province[0] == $province[$i]->id){
+                    $msg[$key]->province = $province[$i]->name;
+                }
+                
+            }
+            
             $msg[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
         }
     }
@@ -487,31 +503,28 @@ class CoachOrganizeController extends Controller
         $cover_name = getFileName('coach', $cover_handle->getClientOriginalExtension());
         $logo_name = getFileName('coach', $logo_handle->getClientOriginalExtension());
         $msg = [
-            'coach_name'    => trim($request->coachName),
+            'coach_name'    => trim($request->coach_name),
             'province'      => $request->provice,
             'phone'         => trim($request->phone),
             'address'       => trim($request->address),
-            'web_url'       => trim($request->webUrl),
-            'father_id'     => empty($request->CoachForm) ? $request->CoachForm : $request->totalCoachId,
-            'if_coupons'    => $request->couponsType,
-            'if_back_money' => $request->backMoneyType,
-            'title'         => empty(trim($request->title)) ? '' : trim($request->title),
-            'keywords'      => empty(trim($request->keywords)) ? '' : trim($request->keywords),
-            'description'   => empty(trim($request->description)) ? '' : trim($request->description),
+            'web_url'       => trim($request->web_url),
+            'father_id'     => $request->father_id,
+            'if_coupons'    => $request->if_coupons,
+            'if_back_money' => $request->if_back_money,
             'cover_name'    => $cover_name,
             'logo_name'     => $logo_name
         ];
 
         try {
             DB::beginTransaction();
-
+     
             $is_create = CoachOrganize::createCoach($msg);
             $is_create_cover = $this->createDirImg($cover_name, $cover_handle);
             $is_create_logo = $this->createDirImg($logo_name, $logo_handle);
     
             if($is_create && $is_create_cover == true && $is_create_logo == true) {
                 DB::commit();
-                return responseToJson(0, '新建成功');
+                return responseToJson(0, '新建成功',$is_create);
             }
             else if(is_array($is_create_cover) && $is_create_cover[0] == 1) 
                 throw new \Exception($is_create_cover[1]);
@@ -520,6 +533,39 @@ class CoachOrganizeController extends Controller
         }catch(\Exception $e) {
             DB::rollback();//事务回滚
             return responseToJson(1, $e->getMessage());
+        }
+    }
+    
+    public function setNewKTD(Request $request){
+        if(!isset($request->title)){
+            return responseToJson(1,'no title');
+        }else if(!isset($request->keywords)){
+            return responseToJson(1,'no keywords');
+        }else if(!isset($request->description)){
+            return responseToJson(1,'no description');
+        }else if(!isset($request->id)){
+            return responseToJson(1,'no id');
+        }
+        $result = CoachOrganize::createKTD($request);
+        if($result == 1){
+            return responseToJson(0,'success');
+        }else{
+            return responseToJson(1,'添加失败');
+        }
+        
+    }
+
+    public function setD(Request $request){
+        if(!isset($request->describe)){
+            return responseToJson(1,'no describe');
+        }else if(!isset($request->id)){
+            return responseToJson(1,'no id');
+        }
+        $result = CoachOrganize::createD($request);
+        if($result == 1){
+            return responseToJson(0,'success');
+        }else{
+            return responseToJson(1,'error',$result);
         }
     }
 
@@ -546,6 +592,34 @@ class CoachOrganizeController extends Controller
 
     private function updateDirImgName() {
 
+    }
+    
+    public function updateWeight(Request $request){
+        if(!$request->isMethod('post'))
+            return responseToJson(1, '请求方式错误');
+        if(!isset($request->id))
+            return responseToJson(1, 'no id');
+        if(!isset($request->weight))
+            return responseToJson(1, 'no weight');
+        $result = CoachOrganize::setWeight($request);
+        if($result == 1)
+            return responseToJson(0,'success',$request->all());
+        else
+            responseToJson(1,'update error please try again');
+    }
+    
+    public function updateShow(Request $request){
+        if(!$request->isMethod('post'))
+            return responseToJson(1, '请求方式错误');
+        if(!isset($request->id))
+            return responseToJson(1, 'no id');
+        if(!isset($request->state))
+            return responseToJson(1, 'no weight');
+        $result = CoachOrganize::setShow($request);
+        if($result == 1)
+            return responseToJson(0,'success',$request->all());
+        else
+            responseToJson(1,'update error please try again');
     }
 
 }

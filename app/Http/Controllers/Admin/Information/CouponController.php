@@ -90,6 +90,17 @@ class CouponController extends Controller
         return ($coupons_msg != false) ? responseToJson(0,'', $coupons_msg) : responseToJson(1, '查询失败'); 
         
     }
+    
+    public function getCouponByCoachId(Request $request){
+        if(!$request->isMethod('get')) return responseToJson(2, '请求方式错误');
+        
+        $data = ZslmCoupon::getCouponByCoachId($request);
+        if(!empty($data) && sizeof($data)>0){
+            return responseToJson(0,'success',$data);
+        }else{
+            return responseToJson(1,'no data');
+        }
+    }
 
 
 

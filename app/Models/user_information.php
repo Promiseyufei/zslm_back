@@ -147,7 +147,6 @@
         }
         
         public static function getUser($queryString,$page,$pageSize){
-    
             $result =  DB::table(self::$sTableName)->where('user_information.is_delete',0)
                 ->join('user_accounts','user_accounts.id', '=' ,'user_information.user_account_id')
                 ->whereRaw($queryString)

@@ -17,6 +17,9 @@ class activity_relation
     }
 
 
+    public static function getGuanlianById($id){
+        return DB::table(self::$sTableName)->where('activity_id',$id)->first(['host_major_id','recommend_id','relation_activity']);
+    }
     /**
      * 设置指定活动的主办院校
      */
@@ -49,8 +52,12 @@ class activity_relation
      * 设置指定活动的关联推荐活动/推荐
      */
     public static function setRecommendActivitys($activityId = 0, $name = '', $activityStr = '') {
-
-        return DB::table(self::$sTableName)->where('activity_id', $activityId)->update([$name => $activityStr, 'update_time' => time()]);
+        $judge = DB::table(self::$sTableName)->where('activity_id',$activityId)->first();
+        if(sizeof($judge) == 1){
+            return DB::table(self::$sTableName)->where('activity_id', $activityId)->update([$name => $activityStr]);
+        }else{
+            return DB::table(self::$sTableName)->insert(['activity_id'=>$activityId,$name=>$activityStr]);
+        }
     }
 
     

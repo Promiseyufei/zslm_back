@@ -102,6 +102,8 @@ class MajorController extends Controller
         
     }
 
+    
+
 
 
     /**

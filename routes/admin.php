@@ -69,6 +69,7 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
         /**
          * 院校专业模块　major模块
          */
+       
         Route::post('getMajorPageMessage','MajorController@getMajorPageMessage');
 
         Route::post('getMajorPageCount','MajorController@getMajorPageCount');
@@ -126,6 +127,9 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
         /**
          * 活动管理模块　activity模块
          */
+    
+        
+         Route::get('getguanlian','ActivityController@getGuanlianById');
         
         Route::get('getpageinfo','ActivityController@getPageInfo');
         
@@ -175,6 +179,8 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
         /**
          * 辅导机构　
          */
+    
+        Route::get('getcoachinfo','CoachOrganizeController@getPageInfo');
 
         Route::post('getPageCoachOrganize','CoachOrganizeController@getPageCoachOrganize');
 
@@ -190,15 +196,23 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
         Route::post('getAllBranchCoach','CoachOrganizeController@getAllBranchCoach');
 
-        Route::post('createCoach','CoachOrganizeController@createCoach');
-
+            Route::post('createCoach','CoachOrganizeController@createCoach');
+        Route::post('createktd','CoachOrganizeController@setNewKTD');
+        Route::post('created','CoachOrganizeController@setD');
+        
 
         /**
          * 优惠券模块　coupon模块
          */
 
         Route::post('getPageCoupon','CouponController@getPageCoupon');
-
+        
+        Route::get('getcoachcoupon','CouponController@getCouponByCoachId');
+    
+        Route::post('updateweight','CoachOrganizeController@updateWeight');
+    
+        Route::post('updateshow','CoachOrganizeController@updateShow');
+        
         Route::post('getPageCouponCount','CouponController@getPageCouponCount');
 
         Route::post('setAppointCoachCouponsEnable','CouponController@setAppointCoachCouponsEnable');

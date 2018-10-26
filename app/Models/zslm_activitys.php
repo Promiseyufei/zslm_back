@@ -59,12 +59,12 @@ class zslm_activitys
             default :
                 break;
         }
-
+        $count = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])->count('id');
         $get_page_msg = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])
         ->offset($val['pageCount'] * $val['pageNumber'])
         ->limit($val['pageCount'])->get();
-
-        return count($get_page_msg >= 0) ? $get_page_msg : false;
+        
+        return count($get_page_msg )>= 0 ? [$get_page_msg,$count] : false;
     }
 
 
@@ -138,12 +138,16 @@ class zslm_activitys
      * 自动设置推荐活动时获得可以推荐的活动的id数组
      */
     public static function getAutoRecommendActivitys($recomActivityCount = 8) {
-        return DB::table(self::$sTableName)->where([
+    
+        
+        $data =  DB::table(self::$sTableName)->where([
             ['is_delete', '=', 0],
             ['show_state', '=', 0],
             ['recommended_state', '=', 0],
             ['active_status', '<>', 2]
-        ])->orderBy('active_status','desc')->orderBy('show_weight', 'desc')->skip($recomActivityCount)->pluck('id');
+        ])->orderBy('active_status','desc')->orderBy('show_weight', 'desc')->limit($recomActivityCount)->pluck('id');
+       
+        return  $data ;
     }
 
 
@@ -157,7 +161,9 @@ class zslm_activitys
         return DB::table(self::$sTableName)->where('is_delete',0)->whereIn('id',$activity_ids)->get(['active_name']);
     }
 
-
+    public static function getActiveByids(array $id){
+        return DB::table(self::$sTableName)->where('is_delete',0)->whereIn('id',$id)->get(['active_name','id','show_weight','create_time','active_type']);
+    }
 
 
 
