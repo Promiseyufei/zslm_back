@@ -40,15 +40,24 @@
             else
                 $queryWhere = self::$sTableName.'.is_delete = 0 and (file_name like '."'%".
                     $request->fileName."%'".
-                    ' and file_year like '."'%".$request->fileYear."%')";
-    
+                    ' and file_year like'."'%".$request->fileYear."%'".
+                    ' and z_name like '."'%".$request->majorNmae."%')";
+
             $searchData=DB::table(self::$sTableName)
                         ->whereRaw($queryWhere)
                         ->join('zslm_major',self::$sTableName.'.major_id','=','zslm_major.id')
                         ->offset($offsetPostion)
                         ->limit($pageSize)
-                        ->get([self::$sTableName.'.id','show_weight','file_name','file_type','file_year',self::$sTableName.'.is_show',self::$sTableName.'.create_time','z_name','show_weight']);
-            
+                        ->get([self::$sTableName.'.id',
+                            'show_weight',
+                            'file_name',
+                            'file_type',
+                            'file_year',
+                            self::$sTableName.'.is_show',
+                            self::$sTableName.'.create_time',
+                            'z_name',
+                            'show_weight']);
+    
             $count=DB::table(self::$sTableName)
                 ->whereRaw($queryWhere)
                 ->join('zslm_major',self::$sTableName.'.major_id','=','zslm_major.id')
@@ -62,6 +71,20 @@
         public static function getCountData(){
             $countNum = DB::table(self::$sTableName)->where('is_delete',0)->count('id');
             return $countNum;
+        }
+    
+        /**
+         * 获取全部文件数量
+         */
+        public static function getAllFile(){
+            $countNum = DB::table(self::$sTableName)->where('is_delete',0)->count('id');
+        }
+    
+        /**
+         * 获取招生简章文件数量
+         */
+        public static function getZFile(){
+            $countNum = DB::table(self::$sTableName)->where('is_delete',0)->where('file_type',0)->count('id');
         }
         
         public static function uploadFile(Request $request){

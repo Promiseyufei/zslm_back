@@ -78,18 +78,21 @@ class FilesController extends Controller
     public function getUploadFile(Request $request){
         if(!$request->isMethod("get"))
             return responseToJson(1,METHOD_ERROR);
-        
-//        $isset = judgeRequest(1,['page','pageSize']);
-//        if($isset != 'yes')
-//            return responseToJson(1,'The lack of '.$isset);
+        if(!isset($request->page))
+            return responseToJson(1,'no page');
+        if(!isset($request->pageSize))
+            return responseToJson(1,'no pageSize');
         
         if(!is_numeric(intval($request->page)) || !is_numeric(intval($request->pageSize)))
             return responseToJson(1,FORMAT_ERROR);
-//        return $request->pageSize;
+        
         $serachData = MajorFiles::getUploadFile($request);
         return $serachData != null ? responseToJson(0,'success',['data'=>$serachData[0],'dataCount'=>$serachData[1]]) : responseToJson(1,'no data');
     }
     
+    public function info(){
+        $all = MajorFiles::getAllFile();
+    }
     
     /**
      * @api {post} /admin/files/uploadFile 上传文件
@@ -252,11 +255,6 @@ class FilesController extends Controller
     public function updateShowWeight(Request $request){
         if(!$request->isMethod('post'))
             return responseToJson(1,METHOD_ERROR);
-    
-//        $isDataIntegrity = judgeRequest(2,['fileId','weight']);
-//        if($isDataIntegrity != 'yes'){
-//            return responseToJson(1,'The lack of '.$isDataIntegrity);
-//        }
         $result =  MajorFiles::updateShowWeight($request->fileId,$request->weight);
         return $result == 1 ? responseToJson(1,'success') : responseToJson(1,'no data update');
     }

@@ -355,7 +355,6 @@ class OperateIndexController extends Controller
         $appoint_id = isset($request->appointId) && is_numeric($request->appointId) ? $request->appointId : -1;
         if($appoint_id > -1) {
             $is_update = InformationIndexRegion::addRegionInform($appoint_id, $inform_arr);
-            var_dump($is_update);
             return $is_update ? responseToJson(0, '添加成功') : responseToJson(1, '添加失败');
         }
         else 

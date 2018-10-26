@@ -30,6 +30,16 @@ class zslm_coupon
 
         return count($get_page_msg)>= 0 ? $get_page_msg : false; 
     }
+    
+    public static function getCouponByCoachId(Request $request){
+        $handle = DB::table('coach_organize')
+            ->leftJoin(self::$sTableName, 'coach_organize.id', '=', self::$sTableName. '.coach_id')
+            ->where(self::$sTableName. '.coach_id',$request->id)
+            ->where('coach_organize.is_delete', 0)
+            ->get([self::$sTableName.'.id','coach_name','name','is_show','weight']);
+        return $handle;
+    }
+    
 
 
     private static function judgeScreenState($screenState, $title, &$handle) {

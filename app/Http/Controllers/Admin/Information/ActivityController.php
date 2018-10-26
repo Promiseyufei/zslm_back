@@ -84,7 +84,7 @@ class ActivityController extends Controller
      *     }
      */
     public function getActivityPageMessage(Request $request) {
-        if($request->isMethod('post')) return responseToJson(2, '请求方式失败');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式失败');
 
         $rules = [
             'activityNameKeyword'   => 'nullable|string|max:255',
@@ -104,25 +104,33 @@ class ActivityController extends Controller
         ];
         $validator = Validator::make($request->all(), $rules, $message);
 
-        if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
+        if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray());
+        $data =  ZslmActivitys::getActivityPageMsg($request->all());
+        $get_msg =$data[0]->toArray();
 
-        $get_msg = ZslmActivitys::getActivityPageMsg($request->all())->toArray();
-
-        $province = $this->getMajorProvincesAndCities($request);
-
+        $province = getMajorProvincesAndCity()[0];
+       
+       
         foreach($get_msg as $key => $item) {
             $get_msg[$key]->province = strChangeArr($item->province, ',');
-            foreach($province[$item->province[0]]->citys as $value) 
-                if($item->province[1] == $value->id) $get_msg[$key]->province[1] = $value->name;
+            if($item->province[0] != ''){
+                    for($i = 0;$i<sizeof($province);$i++){
+                        if($item->province[0] == $province[$i]->id){
+                            $get_msg[$key]->province[0] = $province[$i]->name;
+                            if(sizeof($item->province)>1)
+                                foreach($province[intval($item->province[0])]->citys as $value)
+                                    if($item->province[1] == $value->id) $get_msg[$key]->province[1] = $value->name;
+                            break;
+                        }
+                    }
+                }
+                
+                $get_msg[$key]->begin_time = date("Y-m-d",$item->begin_time);
+                $get_msg[$key]->end_time = date("Y-m-d",$item->end_time);
+                $get_msg[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
+            }
 
-            $get_msg[$key]->province[0] = $province[$item->province[0]]->name;
-            
-            $get_msg[$key]->begin_time = date("Y-m-d",$item->begin_time);
-            $get_msg[$key]->end_time = date("Y-m-d",$item->end_time);
-            $get_msg[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
-        }
-
-        return $get_msg ? responseToJson(0, '', $get_msg) : responseToJson(1, '查询失败');
+        return $get_msg ? responseToJson(0, '', [$get_msg,$data[1]]) : responseToJson(1, '没有数据');
     }
 
 
@@ -169,6 +177,7 @@ class ActivityController extends Controller
             return responseToJson(1, $e->getMessage());
         }
     }
+    
 
     /**
      * @api {post} admin/information/setActivityState 设置活动的状态(权重，展示状态，推荐状态)
@@ -635,6 +644,7 @@ class ActivityController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
+    
     public function getMajorProvincesAndCities(Request $request) {
         // $region = Dict::dictRegion();
 
@@ -761,12 +771,12 @@ class ActivityController extends Controller
      */
     public function sendActivityDynamic(Request $request) {
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
-        $activity_id = (isset($request->activityId) && is_numberic($request->activityId)) ? $request->activityId : 0;
-        $major_id = (isset($request->majorId) && is_numberic($request->majorId)) ? $request->majorId : 0;
-
+        $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
+     
+        $major_id = (isset($request->majorId) && is_numeric($request->majorId)) ? $request->majorId : 0;
         $new_or_dyna = $request->newOrDyna;
 
-        if($activity_id || $major_id || ($new_or_dyna < 0)) return responseToJson(1, '参数错误');
+        if($activity_id==0 || $major_id==0 || ($new_or_dyna < 0)) return responseToJson(1, '参数错误');
 
         try {
             DB::beginTransaction();
@@ -783,8 +793,7 @@ class ActivityController extends Controller
                 'create_time' => time()
             ]);
 
-            $all_users_id = UserAccounts::getAllUsersId();
-            
+            $all_users_id = UserAccounts::getAllUsersId()->toArray();
             $time = time();
             $data_arr = [];
             if(is_array($all_users_id) && !empty($all_users_id) && $create_news_id > 0) {
@@ -796,6 +805,7 @@ class ActivityController extends Controller
                         'create_time' => $time
                     ]);
                 }
+               
                 $is_create = NewsUsers::createNewsRelationUser($data_arr);
                 if($is_create) 
                     return responseToJson(0, '发送成功');
@@ -886,11 +896,11 @@ class ActivityController extends Controller
      */
     public function setManualRecActivitys(Request $request) {
 
-        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
         $activity_arr = (isset($request->activityArr) && is_array($request->activityArr)) ? $request->activityArr : [];
-
-        if($activity_id == 0 || count($activity_arr) < 1) return responseToJson(0, '参数错误');
+     
+        if($activity_id == 0 || sizeof($activity_arr) < 1) return responseToJson(0, '参数错误');
 
         $recom_activity_count = SystemSetup::getContent('recommend_activity');
 
@@ -938,7 +948,7 @@ class ActivityController extends Controller
      *     }
      */
     public function setAutomaticRecActivitys(Request $request) {
-        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
         if($activity_id == 0) return responseToJson(0, '参数错误');
         $recom_activity_count = SystemSetup::getContent('recommend_activity');
@@ -946,8 +956,14 @@ class ActivityController extends Controller
         $get_activits_id_arr = ZslmActivitys::getAutoRecommendActivitys($recom_activity_count);
 
         if(count($get_activits_id_arr) < 1) return responseToJson(1, '暂无能够设置的活动');
-
-        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'relation_activity', strChangeArr($get_activits_id_arr, ','));
+      
+        $data = '';
+        $lenght = sizeof($get_activits_id_arr);
+        for($i = 0;$i< $lenght;$i++){
+            $data = $data.$get_activits_id_arr[$i].',';
+        }
+        $data = $data.$get_activits_id_arr[$lenght-1];
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'relation_activity',$data);
 
         return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
 
@@ -985,7 +1001,7 @@ class ActivityController extends Controller
      *     }
      */
     public function setManualRecMajors(Request $request) {
-        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
         $major_arr = (isset($request->majorArr) && is_array($request->majorArr)) ? $request->majorArr : [];
 
@@ -1036,7 +1052,7 @@ class ActivityController extends Controller
      *     }
      */
     public function setAutomaticRecMajors(Request $request) {
-        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
         if($activity_id == 0) return responseToJson(0, '参数错误');
         $recom_major_count = SystemSetup::getContent('recommend_major');
@@ -1044,13 +1060,60 @@ class ActivityController extends Controller
         $get_major_id_arr = ZslmMajor::getAutoRecommendMajors($recom_major_count);
 
         if(count($get_major_id_arr) < 1) return responseToJson(1, '暂无能够设置的院校');
+    
+        $data = '';
+        $lenght = sizeof($get_major_id_arr);
+        for($i = 0;$i< $lenght;$i++){
+            $data = $data.$get_major_id_arr[$i].',';
+        }
+        $data = $data.$get_major_id_arr[$lenght-1];
 
-        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'recommend_id', strChangeArr($get_major_id_arr, ','));
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'recommend_id', $data);
 
         return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
-
-
-
+    public function getGuanlianById(Request $request){
+        if(!$request->isMethod('get'))
+            return responseToJson(1,'请求错误');
+        if(!isset($request->id) && !is_numeric($request->id))
+            return responseToJson(1,'no id or id is not number.please try again');
+        
+        $id = $request->id;
+        $data = ActivityRelation::getGuanlianById($id);
+        $active = explode(',',$data->relation_activity);
+        $major = explode(',',$data->recommend_id);
+        $majorObj = ZslmMajor::getMajorByids($major);
+        $activeObj = ZslmActivitys::getActiveByids($active);
+        $province = getMajorProvincesAndCity()[0];
+        
+        $t = ['0'=>'提前面试','1'=>'招生宣讲','2'=>'高精会议','3'=>'讲座论坛'];
+        foreach($activeObj as $key => $item) {
+            $item->create_time = date("Y-m-d H:i:s",$item->create_time);
+            $item->active_type = $t[$item->active_type];
+        }
+        
+        foreach($majorObj as $key => $item) {
+            $majorObj[$key]->province = strChangeArr($item->province, ',');
+            if($item->province[0] != ''){
+                for($i = 0;$i<sizeof($province);$i++){
+                    if($item->province[0] == $province[$i]->id){
+                        $majorObj[$key]->province[0] = $province[$i]->name;
+                        if(sizeof($item->province)>1)
+                            foreach($province[intval($item->province[0])]->citys as $value)
+                                if($item->province[1] == $value->id) $majorObj[$key]->province[1] = $value->name;
+                        $p = '';
+                        for($i = 0;$i<sizeof($majorObj[$key]->province);$i++)
+                            $p.=$majorObj[$key]->province[$i];
+                        $majorObj[$key]->province = $p;
+                        break;
+                    }
+                }
+            }
+            $majorObj[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
+        }
+        return responseToJson(0,'success',[$activeObj,$majorObj]);
+        
+    }
+    
 
 }

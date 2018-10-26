@@ -25,44 +25,35 @@ class CoachCreateRequest extends FormRequest
     {
         $pattern="/(\\w+(-\\w+)*)(\\.(\\w+(-\\w+)*))*(\\?\\S*)?/";
         return [
-            'coachName'         => 'required|string|max:255',
-            'coachType'         => 'required|numeric',
+            'coach_name'         => 'required|string|max:255',
             'provice'           => 'required|string',
             'phone'             => 'required|string|max:20',
             'address'           => 'required|string|max:255',
-            'webUrl'            => ['required',"regex:$pattern"],
-            'CoachForm'         => 'required|numeric',
-            'totalCoachId'      => 'required|numeric',
-            'backMoneyType'     => 'required|numeric',
-            'coverName'         => 'nullable|file',
-            'logoName'          => 'nullable|file',
-            'title'             => 'nullable|string',
-            'keywords'          => 'nullable|string',
-            'description'       => 'nullable|string',
+            'web_url'            => ['required',"regex:$pattern"],
+            'father_id'         => 'required|numeric',
+            'if_back_money'     => 'required|numeric',
+            'cover_name'         => 'nullable|file',
+            'logo_name'          => 'nullable|file',
         ];
     }
 
     public function messages() {
         return [
             '*.required'                =>  '信息不能为空',
-            'coachName.max'             => '名称长度超过限制',
-            'coachType.numeric'         => '值不是数值',
+            'coach_name.max'             => '名称长度超过限制',
             'provice.*'                 => '参数错误',
             'phone.max'                 => '长度超过限制',
             'address.max'               => '长度超过限制',
-            'webUrl.max'                => '长度超过限制',
-            'CoachForm.numeric'         => '值不是数值',
-            'totalCoachId.numeric'      => '值不是数值',
-            'backMoneyType.numeric'     => '值不是数值',
-            'coverName.file'            => '上传的不是一个文件',
-            'logoName.file'             => '上传的不是一个文件',
-            'title.*'                   => '参数错误',
-            'keywords.*'                => '参数错误',
-            'description.*'             => '参数错误',
+            'web_url.max'                => '长度超过限制',
+            'father_id.numeric'         => '值不是数值',
+            'if_back_money.numeric'     => '值不是数值',
+            'cover_name.file'            => '上传的不是一个文件',
+            'logo_name.file'             => '上传的不是一个文件',
         ];
     }
 
     public function failedValidation(\Illuminate\Contracts\Validation\Validator $validator) {
+        print_r( $validator->getMessageBag()->toArray());
         return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
     }
 }
