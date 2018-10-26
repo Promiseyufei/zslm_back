@@ -89,28 +89,49 @@ class zslm_information
 
         $handle = DB::table(self::$sTableName)->where('is_delete', 0);
 
-        $sort_type_arr = [['weight', 'desc'], ['weight', 'asc'], ['update_time', 'desc']];
+        $sort_type_arr = [['weight', 'desc'], ['weight', 'asc'], ['create_time', 'desc']];
 
         switch($selectMsg['screenType'])
         {
             case 0:
-                self::judgeScreenState($selectMsg['screenState'], 'is_show', $handle);
+                $handle = $handle->where('is_show', 0);
                 break;
             case 1:
-                self::judgeScreenState($selectMsg['screenState'], 'is_recommend', $handle);
-                break;
-            case 2:
-                self::judgeInfoType()($selectMsg['infoType'], 'z_type', $handle);
+                $handle = $handle->where('is_show', 1);
                 break;
             default :
                 break;
         }
 
-        $handle = ($selectMsg['infoNameKeyword'] ?? '') ? $handle->where('zx_name', 'like', '%' . $selectMsg['infoNameKeyword'] . '%') : $handle;
+        switch($selectMsg['screenState'])
+        {
+            case 0:
+                $handle = $handle->where('is_recommend', 1);
+                break;
+            case 1:
+                $handle = $handle->where('is_show', 0);
+                break;
+            default :
+                break;
+        }
 
-        return $handel->orderBy(...$sort_type_arr[$selectMsg['sortType']])
-        ->offset($selectMsg['pageCount'] * $selectMsg['pageNumber'])->limit($selectMsg['pageCount'])
-        ->slect('id', 'zx_name', 'weight', 'is_show', 'is_recommend', 'z_type', 'z_from', 'update_time')->get();
+        switch($selectMsg['infoType']) 
+        {
+            case 0:
+                break;
+            default :
+                $handle->where('z_type', $selectMsg['infoType']);
+                break;
+        }
+
+        $handle = ($selectMsg['infoNameKeyword'] ?? '') ? $handle->where('zx_name', 'like', '%' . $selectMsg['infoNameKeyword'] . '%') : $handle;
+        $total = $handle->count();
+
+        $data = $handle->orderBy(...$sort_type_arr[$selectMsg['sortType']])
+        ->offset($selectMsg['pageCount'] * ($selectMsg['pageNumber'] - 1))->limit($selectMsg['pageCount'])
+        ->select('id', 'zx_name', 'weight', 'is_show', 'is_recommend', 'z_type', 'z_from', 'create_time')->get()->toArray();
+
+        return ['total' => $total, 'data' => $data];
         
     }
 
@@ -121,17 +142,17 @@ class zslm_information
     }
 
     public static function setAppiInfoState(array $updateMsg = []) {
-        $handle = DB::table(self::$sTableName)->where('id', $activity['info_id']);
-        switch($activity['type'])
+        $handle = DB::table(self::$sTableName)->where('id', $updateMsg['info_id']);
+        switch($updateMsg['type'])
         {
             case 0:
-                return $handle->update(['weight' => $activity['state'], 'update_time' => time()]);
+                return $handle->update(['weight' => $updateMsg['state'], 'update_time' => time()]);
                 break;
             case 1:
-                return $handle->update(['is_show' => $activity['state'], 'update_time' => time()]);
+                return $handle->update(['is_show' => $updateMsg['state'], 'update_time' => time()]);
                 break;
             case 2:
-                return $handle->update(['is_recommend' => $activity['state'], 'update_time' => time()]);
+                return $handle->update(['is_recommend' => $updateMsg['state'], 'update_time' => time()]);
                 break;
         }
     }
@@ -158,11 +179,22 @@ class zslm_information
 
 
     public static function getAutoRecommendInfos($recomInfoCount = 8) {
-        return DB::table(self::$sTable)->where([
+        $handle = DB::table(self::$sTableName)->where([
             ['is_delete', '=', 0],
             ['is_show', '=', 0],
             ['is_recommend', '=', 0]
-        ])->orderBy('weight', 'desc')->skip($recomInfoCount)->pluck('id');
+        ]);
+        if($handle->count() < $recomInfoCount) {
+            return $handle->orderBy('weight', 'desc')->pluck('id');
+        }
+        else {
+            return $handle->orderBy('weight', 'desc')->skip($recomInfoCount)->pluck('id');
+        }
+        // return DB::table(self::$sTableName)->where([
+        //     ['is_delete', '=', 0],
+        //     ['is_show', '=', 0],
+        //     ['is_recommend', '=', 0]
+        // ])->orderBy('weight', 'desc')->skip($recomInfoCount)->pluck('id');
     }
     
 
@@ -176,6 +208,36 @@ class zslm_information
         ->select('id', 'zx_name')->orderBy('update_time', 'desc')
         ->offset($pageNum * $pageCount)->limit($pageCount)->get();
 
+    }
+
+
+    //获取指定资讯的推荐阅读
+    public static function getAppointInfoReRead(array $infoIdArr = []) {
+        if($infoIdArr == []) return $infoIdArr;
+
+
+        return DB::table(self::$sTableName)->leftJoin('dict_information_type', self::$sTableName . '.z_type', '=', 'dict_information_type.id')
+            ->whereIn(self::$sTableName . '.id', $infoIdArr)->where(self::$sTableName . '.is_delete', 0)
+            ->select(self::$sTableName . '.id', self::$sTableName . '.weight as show_weight', 'dict_information_type.name as info_type', self::$sTableName . '.zx_name', self::$sTableName . '.create_time')
+            ->get()->map(function($item) {
+                $item->create_time = date("Y-m-d H:i", $item->create_time);
+                return $item;
+            });
+
+    }
+
+
+    public static function createOneInfo($infoMsg = [], $type = 0,$infoId = 0) {
+
+        if($type == 0)
+            return DB::table(self::$sTableName)->insertGetId(array_merge($infoMsg, [
+                'create_time' => time()
+            ]));
+        else if($type == 1 && $infoId != 0) {
+            return DB::table(self::$sTableName)->where('id', $infoId)->update(array_merge($infoMsg, [
+                'update_time' => time()
+            ]));
+        }
     }
 
 

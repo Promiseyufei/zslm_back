@@ -247,6 +247,14 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
         Route::post('setAutoInfoRelationCollege','InformationController@setAutoInfoRelationCollege');
 
+        Route::post('getInfoType','InformationController@getInfoType');
+
+        Route::post('updateInfoExtendMsg','InformationController@updateInfoExtendMsg');
+
+        Route::post('updateInfoTextMsg','InformationController@updateInfoTextMsg');
+
+        Route::post('getAppointInfoRecommendRead','InformationController@getAppointInfoRecommendRead');
+
         
 
         
