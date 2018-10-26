@@ -271,23 +271,27 @@ class FilesController extends Controller
     
     
     public function getMajorByRegion(Request $request){
-//        if(!$request->isMethod('get'))
-//            return responseToJson(1,METHOD_ERROR);
-//        if(!isset($request->provice))
-//            return responseToJson(1,'No provice is selected,please try again');
-        $test=['henan'];
-        $provice_id = dictRegion::getProvinceIdByName($test);
+        
+        if(!$request->isMethod('get'))
+            return responseToJson(1,METHOD_ERROR);
+        if(!isset($request->provice))
+            return responseToJson(1,'No provice is selected,please try again');
+        
+        $provice_id = dictRegion::getProvinceIdByName($request->provice);
         if(empty($provice_id))
             return responseToJson(1,'something was wrong ,please try again');
+        
         $provice_id_bash = [];
         $lenght = sizeof($provice_id);
         for($i = 0;$i<$lenght;$i++){
             $provice_id_bash[] = $provice_id[$i]->id.'%';
         }
         $majors = [];
-        for($i = 0;$i < $lenght;$i++)
-            $majors[] = zslmMajor::getMajorByP($provice_id_bash[$i]);
-        dd($majors);
+        for($i = 0;$i < $lenght;$i++){
+            $major = zslmMajor::getMajorByP($provice_id_bash[$i],$request->majorname);
+            $majors[$i] = $major;
+        }
+        return responseToJson('0','success',$majors);
     }
     
     

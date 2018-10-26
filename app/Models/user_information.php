@@ -156,7 +156,7 @@
                 ->get(['user_account_id','phone','head_portrait','user_name',
                     'real_name','sex','user_information.address',
                     'schooling_id','graduate_school','industry',
-                    'worked_year','user_information.create_time']);
+                    'worked_year','user_information.create_time','user_information.update_time']);
             
             return [$result,self::getUserCount($queryString)];
         }

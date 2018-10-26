@@ -47,6 +47,7 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
         Route::post('deletefiles','FilesController@deleteFile');
         Route::any('updateweight','FilesController@updateShowWeight');
         Route::any('test','FilesController@getMajorByRegion');
+        Route::get('getmajorbypro','FilesController@getMajorByRegion');
 //        getMajorByRegion
     });
 
