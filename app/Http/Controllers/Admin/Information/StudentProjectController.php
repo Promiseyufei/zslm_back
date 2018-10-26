@@ -9,7 +9,7 @@ namespace App\Http\Controllers\Admin\Information;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\major_recruit_project as MajorRecruitProject;
-
+use App\Models\dict as Dict;
 use App\Http\Requests\StudentProjectUpdateRequest;
 use App\Http\Requests\StudentProjectCreateRequest;
 use Validator;
@@ -41,7 +41,9 @@ class StudentProjectController extends Controller
      *              "name":"xxxxxxxxxxxx",
      *              "weight":"xxxxxxxxxxxx",
      *              "is_show":"xxxx"
-     *              "update_time":"xx"
+     *              "update_time":"xx",
+     *              "z_name":"xxx",
+     *              ""
      *          }
      *   }
      * }
@@ -62,14 +64,17 @@ class StudentProjectController extends Controller
      *     }
      */
     public function getAllProject(Request $request) {
-        if(!$request->isMethod('get')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $major_id = (isset($request->majorId) && is_numeric($request->majorId)) ? $request->majorId : 0;
         $page_num = (isset($request->pageNum) && is_numeric($request->pageNum)) ? $request->pageNum : 0;
 
         if(!empty($major_id)) {
             $app_proect = MajorRecruitProject::getAppointProject($major_id, $page_num);
-
-            return is_array($app_proect) ? responseToJson(0, '', $app_proect) : responseToJson(1, '查询失败');
+        
+        foreach($app_proect['data'] as $key => $item) 
+            $app_proect['data'][$key]->is_show = ($item->is_show == 0 ? true : false);
+        
+        return is_array($app_proect['data']) ? responseToJson(0, '', $app_proect) : responseToJson(1, '查询失败');
         }
         else 
             return responseToJson(1, '参数错误');
@@ -183,8 +188,9 @@ class StudentProjectController extends Controller
      */
     public function deleteAppointProject(Request $request) {
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
-        $pro_id = (isset($request->projectId) && is_numeric($request->projectId)) ? $request->projectId : 0;
-
+        $pro_id = isset($request->projectId) ? $request->projectId : 0;
+        if((is_numeric($pro_id) && intval($pro_id) < 1) || (is_array($pro_id) && count($pro_id) < 1)) 
+            return responseToJson(1, '参数错误');
         if($pro_id) {
             $is_del = MajorRecruitProject::delAppProject($pro_id);
             return $is_del ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
@@ -231,7 +237,7 @@ class StudentProjectController extends Controller
             if($pro_id > 0 && $type != -1 && $state != -1) {
                 if($type > 0 && $state > 1) return responseToJson(1, '状态值错误');
                 $is_update = MajorRecruitProject::setAppiProjectState([
-                    'pro_id' => $major_id,
+                    'pro_id' => $pro_id,
                     'type'     => $type,
                     'state'    => $state
                 ]);
@@ -244,12 +250,35 @@ class StudentProjectController extends Controller
     }
 
 
+    /**
+     * @api {post} admin/information/getAppointIdProject 获得指定id的招生项目信息
+     */
+    public function getAppointIdProject(Request $request) {
+
+        $pro_id = (isset($request->proId) && is_numeric($request->proId)) ?$request->proId : 0;
+        if($pro_id == 0) return responseToJson(1, '参数错误');
+
+        $pro_msg = MajorRecruitProject::getAppointIdProMsg($pro_id);
+        if(empty($pro_msg)) return responseToJson(1, '查询错误');
+        $pro_msg->professional_direction = strChangeArr($pro_msg->professional_direction, ',');
+
+        foreach(Dict::dictMajorDirection()->toArray() as $key => $item) {
+            foreach($pro_msg->professional_direction as $key2 => $value) {
+                if($value == strval($item->id)) $pro_msg->professional_direction[$key2] = $item;
+            }
+        }
+
+        return responseToJson(0, '', $pro_msg);
+
+
+    }
 
 
     /**
      * @api {post} admin/information/createProject 新创建招生项目
      * @apiGroup information
      *
+     * @apiParam {int} majorId 关联专业id
      * @apiParam {String} projectName 招生项目名称
      * @apiParam {Float} minCost 招生项目最小费用
      * @apiParam {Float} maxCost 招生项目最大费用
@@ -264,7 +293,8 @@ class StudentProjectController extends Controller
      * @apiParam {Number} recruitmentPattern 统招模式
      * @apiParam {Number} enrollmentMode 招生模式
      * @apiParam {Number} professionalDirection 专业方向
-     *
+     * @apiParam {String} scoreType 分数线类型
+
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
      * {
@@ -289,8 +319,12 @@ class StudentProjectController extends Controller
      */  
     public function createProject(StudentProjectCreateRequest $request) {
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        // var_dump($request->all());
+
+
         try {
             $createMsg = [
+                'major_id'                => $request->majorId,
                 'project_name'           => $request->projectName,
                 'min_cost'               => $request->minCost,
                 'max_cost'               => $request->maxCost,
@@ -304,12 +338,13 @@ class StudentProjectController extends Controller
                 'graduation_certificate' => $request->graduationCertificate,
                 'recruitment_pattern'    => $request->recruitmentPattern,
                 'enrollment_mode'        => $request->enrollmentMode,
-                'professional_direction' => $request->professionalDirection,
+                'professional_direction' => implode(',', $request->professionalDirection),
+                'score_type'             => $request->scoreType,
                 'create_time'            => time()
             ];
     
             $is_create = MajorRecruitProject::createAppointProjectMsg($createMsg);
-            if($is_update) return responseToJson(0, '添加成功');
+            if($is_create) return responseToJson(0, '添加成功', $is_create);
             throw new \Exception('添加失败');
         } catch(\Exception $e)  {
             return responseToJson(1, $e->getMessage());
@@ -434,15 +469,6 @@ class StudentProjectController extends Controller
     public function getUnifiedRecruitPattern(Request $request) {
         
         return responseToJson(0, '', Dict::dictRecruitmentPattern());
-    }
-
-
-    private function createDirImg() {
-
-    }
-
-    private function updateDirImgName() {
-
     }
 
 }

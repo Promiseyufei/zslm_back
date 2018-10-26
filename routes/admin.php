@@ -80,6 +80,8 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
         Route::post('updateMajorMsg','MajorController@updateMajorMsg');
 
+        Route::post('updateMajorExtendMsg','MajorController@updateMajorExtendMsg');
+
         Route::post('deleteMajor','MajorController@deleteMajor');
 
         Route::post('updateMajorInformationTime','MajorController@updateMajorInformationTime');
@@ -117,7 +119,7 @@ Route::group(['prefix' => 'admin','namespace' => 'Admin'],function() {
 
         Route::post('getUnifiedRecruitPattern','StudentProjectController@getUnifiedRecruitPattern');
 
-        Route::post('getUnifiedRecruitPattern','StudentProjectController@getUnifiedRecruitPattern');
+        Route::post('getAppointIdProject','StudentProjectController@getAppointIdProject');
         
 
 

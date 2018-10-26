@@ -234,6 +234,25 @@ class MajorController extends Controller
         $major_id = (isset($request->majorId) && is_numeric($request->majorId)) ? $request->majorId : 0;
         if($major_id != 0) {
             $major = ZslmMajor::getAppointMajorMsg($major_id);
+            if(isset($major->province)) {
+                $major->province = Dict::getAppoinDictRegion(strChangeArr($major->province, ',')[1]);
+            }
+            
+            if($major->school_id !== '')
+                $major->school_id = Dict::getAppointSchoolName($major->school_id);
+
+            if($major->z_type != 0)
+                $major->z_type = Dict::getAppointDictMajorType($major->z_type);
+
+            $major->wc_image = strChangeArr($major->wc_image, ',');
+            $major->wb_image = strChangeArr($major->wb_image, ',');
+            $major->magor_logo_name = 'http://localhost:81/zslm_back/storage/app/admin/info/' . $major->magor_logo_name;
+            $major->major_cover_name = 'http://localhost:81/zslm_back/storage/app/admin/info/' . $major->major_cover_name;
+            foreach($major->wb_image as $key => $val)
+                $major->wb_image[$key] = 'http://localhost:81/zslm_back/storage/app/admin/info/' . $val;
+            foreach($major->wc_image as $key => $val)
+                $major->wc_image[$key] = 'http://localhost:81/zslm_back/storage/app/admin/info/' . $val;
+                
             return is_object($major) ? responseToJson(0, '', $major) : responseToJson(1, '获取信息失败');
         }
     }
@@ -268,7 +287,31 @@ class MajorController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
-    public function updateMajorMsg(MajorPostRequest $request) {
+    public function updateMajorMsg(Request $request) {
+        var_dump($request->wc_image);
+    }
+
+
+    /**
+     * admin/information/updateMajorExtendMsg 更新院校专业的扩展信息
+     */
+    public function updateMajorExtendMsg(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $major_id = isset($request->majorId) && is_numeric($request->majorId) ? $request->majorId : 0;
+        $title = (isset($request->title) && mb_strlen($request->title, 'utf-8') < 255) ? $request->title : '';
+        $keywords = (isset($request->keywords) && mb_strlen($request->keywords, 'utf-8') < 255) ? $request->keywords : '';
+        $descciption = isset($request->descciption) ? $request->descciption : '';
+
+        if($major_id == 0 || $title == '' || $keywords == '' || $descciption == '') return responseToJson(1, '参数错误');
+
+        $major_extend_msg_arr = [
+            'title' => $title,
+            'keywords' => $keywords,
+            'descciption' => $descciption
+        ];
+        $is_update = ZslmMajor::createOneMajor($major_extend_msg_arr, 1, $major_id);
+
+        return $is_update ? responseToJson(0, '更新成功') : responseToJson(1, '更新失败');
 
     }
 
@@ -373,7 +416,8 @@ class MajorController extends Controller
      * @apiParam {Number} schoolId 院校关联
      * @apiParam {String} majorName 专业名称
      * @apiParam {Number} majorType 专业类型
-     * @apiParam {FileData} magorLogo 院校专业封面图
+     * @apiParam {FileData} majorLogo 院校专业logo图
+     * @apiParam {FileData} majorCover 院校专业封面图
      * 
      * @apiParam {String} title 页面优化
      * @apiParam {String} keywords 页面优化
@@ -403,25 +447,87 @@ class MajorController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */  
-    public function createMajor(MajorPostRequest $request) {
-        if($request->isMethod('post'))  return responseToJson(2, '请求方式错误');
-
+    public function createMajor(Request $request) {
+        if(!$request->isMethod('post'))  return responseToJson(2, '请求方式错误');
+        // var_dump($request->all());
         try {
             DB::beginTransaction();
-            $is_create = ZslmMajor::createOneMajor($request->all());
-            //文件上传
+            $wx_img_name_arr = [];
+            $wb_img_name_arr = [];
+            $major_logo_name = getFileName('info', $request->file('majorLogo')->getClientOriginalExtension());
+            // var_dump($major_logo_name);
+            $major_cover_name = getFileName('info', $request->file('majorCover')->getClientOriginalExtension());
+            foreach($request->wcImage as $key => $wximg) {
+                
+                $wx_img_name_arr[getFileName('info', $wximg->getClientOriginalExtension())] = $wximg;
+            }
+            // var_dump($request->wcImage);
+            foreach($request->wbImage as $key => $wbimg) {
+                $wb_img_name_arr[getFileName('info', $wbimg->getClientOriginalExtension())] = $wbimg;
+            }
+            unset($request->wcImage);
+            unset($request->wbImage);
+            
+            $major_msg = [
+                'z_name' => $request->majorName,
+                'z_type' => $request->majorType,
+                'access_year' => $request->approval,
+                'major_follow_id' => $request->majorNature,
+                'index_web' => $request->indexWeb,
+                'province' => $request->majorProvince,
+                'address' => $request->majorAddress,
+                'phone' => $request->phone,
+                'admissions_web' => $request->admissionsWeb,
+                'school_id' => $request->schoolId,
+                'major_cover_name' => $major_cover_name,
+                'magor_logo_name'=> $major_cover_name,
+                'major_confirm_id' => $request->majorAuth,
+                'wc_image' => strChangeArr(array_keys($wx_img_name_arr), ','),
+                'wb_image' => strChangeArr(array_keys($wb_img_name_arr), ',')
+            ];
+            
+            $is_create = ZslmMajor::createOneMajor($major_msg);
+            
 
-            //回滚
-            if(true) {
-                DB::commit();
-                return responseToJson(0, '上传成功'); 
+            //文件上传
+            if($is_create) {
+                $is_upload_major_logo = createDirImg($major_logo_name, $request->file('majorLogo'), 'info');
+                if($is_upload_major_logo === true)
+                    $is_upload_major_cover = createDirImg($major_cover_name, $request->file('majorCover'), 'info');
+                else throw new \Exception($is_upload_major_logo[1]); 
+                
+                if($is_upload_major_cover === true) {
+                    $is_no_wx_upload = false;
+                    foreach($wx_img_name_arr as $key => $wximage) {
+                        $is_upload = createDirImg($key, $wximage, 'info');
+                        if(is_array($is_upload) && $is_upload[0] == 1) {
+                            $is_no_wx_upload = true;
+                            break;
+                        }
+                    }
+                    if($is_no_wx_upload == false) {
+                        $is_no_wb_upload = false;
+                        foreach($wb_img_name_arr as $key => $wbimage) {
+                            $is_upload2 = createDirImg($key, $wbimage, 'info');
+                            if(is_array($is_upload2) && $is_upload2[0] == 1) {
+                                $is_no_wb_upload = true;
+                                break;
+                            }
+                        }
+                        if($is_no_wb_upload == false) {
+                            DB::commit();
+                            return responseToJson(0, '创建成功', $is_create); 
+                        }
+                        else throw new \Exception($is_upload2[1]);
+                    }
+                    else throw new \Exception($is_upload[1]);
+                }
+                else throw new \Exception($is_upload_major_cover[1]);
             }
-            else if(true) {
-                throw new \Exception($is_create_img[1]);
-            }
-            return $is_create ? responseToJson(0, '新建成功') : responseToJson(1,'新建失败');
+            else return responseToJson(1, '新建失败');
         } catch(\Exception $e) {
             DB::rollback();//事务回滚
+            return responseToJson(1, $e->getMessage());
         }
         
     }

@@ -51,7 +51,7 @@
         
 
         public static function getAppointMajorMsg($majorId){
-            return DB::table(self::$sTableName)->where('id',$majorId)->get();
+            return DB::table(self::$sTableName)->where('id',$majorId)->first();
         }
 
         public static function getAllDictMajor() {
@@ -166,8 +166,24 @@
             ])->orderBy('weight','desc')->limit($recomMajorCount)->pluck('id');
         }
 
+
         public static function getMajorByids(array $id){
             $data =  DB::table(self::$sTableName)->where('is_delete',0)->whereIn('id',$id)->get(['z_name','id','weight','update_time','province']);
             return $data;
         }
+
+
+        public static function createOneMajor($majorMsg = [], $type = 0,$majorId = 0) {
+
+            if($type == 0)
+                return DB::table(self::$sTableName)->insertGetId(array_merge($majorMsg, [
+                    'create_time' => time()
+                ]));
+            else if($type == 1 && $majorId != 0) {
+                return DB::table(self::$sTableName)->where('id', $majorId)->update(array_merge($majorMsg, [
+                    'update_time' => time()
+                ]));
+            }
+        }
+
     }

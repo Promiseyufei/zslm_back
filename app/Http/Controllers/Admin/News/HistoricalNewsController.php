@@ -17,10 +17,6 @@ class HistoricalNewsController extends Controller
 {
 
 
-
-
-
-
     /**
      * @api {post} admin/news/getScreenNews 获得筛选的消息(注意分页)
      * 

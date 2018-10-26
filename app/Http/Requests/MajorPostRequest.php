@@ -38,10 +38,7 @@ class MajorPostRequest extends FormRequest
             'schoolId'      => 'required|numeric',
             'majorName'     => 'required|string|max:45',
             'majorType'     => 'nullable|numeric',
-            'magorLogo'     => 'required|file',
-            'title'         => 'nullable|string',
-            'keywords'      => 'nullable|string',
-            'description'   => 'nullable|string',
+            'magorLogo'     => 'nullable|file'
         ];
     }
 
@@ -63,14 +60,12 @@ class MajorPostRequest extends FormRequest
             'majorName.string'     => '专业名称必须是字符串',
             'majorName.max'     => '文本超过长度',
             'majorType.*'     => '参数错误',
-            'magorLogo.file'     => '这不是一个文件',
-            'title.*'         => '参数错误',
-            'keywords.*'      => '参数错误',
-            'description.*'   => '参数错误',
+            'magorLogo.file'     => '这不是一个文件'
         ];
     }
 
     public function failedValidation(\Illuminate\Contracts\Validation\Validator $validator) {
-        return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
+        // var_dump(array_values($validator->getMessageBag()->toArray())[0][0]);
+        return responseToJson(1, array_values($validator->getMessageBag()->toArray())[0][0]);
     }
 }

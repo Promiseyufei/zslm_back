@@ -37,6 +37,14 @@ class dict
     }
 
 
+    /**
+     * 获取指定的专业类型名称
+     */
+    public static function getAppointDictMajorType($typeId) {
+        return DB::table('dict_major_type')->where('id', $typeId)->value('name');
+    }
+
+
 
     /**
      * 地区字典表
@@ -50,6 +58,13 @@ class dict
         ->toArray();
     }
 
+    /**
+     * 获取指定地区的名称
+     */
+    public static function getAppoinDictRegion($regionId) {
+        return DB::table('dict_region')->where('id', $regionId)->value('name');
+    }
+
 
 
     /**
@@ -58,6 +73,13 @@ class dict
     public static function getSchoolName() 
     {
         return DB::table('college')->select('id', 'name', 'logo_name')->get();
+    }
+
+    /**
+     * 获取指定的学校名称
+     */
+    public static function getAppointSchoolName($schoolId) {
+        return DB::table('college')->where('id', $schoolId)->value('name');
     }
 
 
