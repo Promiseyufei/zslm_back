@@ -56,9 +56,16 @@
             return DB::table(self::$sTableName)->where('id',$majorId)->first();
         }
 
-        public static function getAllDictMajor() {
-            return DB::table(self::$sTableName)->where('is_delete', 0)->select('id', 'z_name', 'magor_logo_name');
+        public static function getAllDictMajor($type = 0, array $majorIdArr = []) {
+            if($type == 0)
+                return DB::table(self::$sTableName)->where('is_delete', 0)->select('id', 'z_name', 'magor_logo_name')->get();
+            else if($type == 1 && count($majorIdArr) > 0)
+                return DB::table(self::$sTableName)->whereIn('id', $majorIdArr)->where('is_delete', 0)->select('id', 'z_name', 'magor_logo_name')->get();
         }
+
+        // public static function getAppointInfoRelevant() {
+        //     return DB::table()
+        // }
 
 
         public static function getMajorAppiCount(array $condition = []) {
@@ -178,6 +185,13 @@
         public static function getMajorByids(array $id){
             $data =  DB::table(self::$sTableName)->where('is_delete',0)->whereIn('id',$id)->get(['z_name','id','weight','update_time','province']);
             return $data;
+        }
+
+        public static function getAppointInfoReMajor(array $majorIdArr) {
+            return DB::table(self::$sTableName)->whereIn('id', $majorIdArr)->where('is_delete', 0)->select('id', 'z_name', 'weight as show_weight', 'create_time', 'province')->get()->map(function($item) {
+                $item->create_time = date("Y-m-d H:i", $item->create_time);
+                return $item;
+            });
         }
 
 

@@ -39,16 +39,18 @@ class information_relation
     }
     
 
-    public static function delAppointInfoReRead($id, $infoId = null) {
-        // dd(strChangeArr(DB::table(self::$sTableName)->where('zx_id', $id)->value('tj_yd_id'), ','));
+    public static function delAppointInfoReRead($id, $infoId = null, $type) {
+        $name = '';
+        if($type == 0) $name = 'tj_yd_id';
+        else if($type == 1) $name = 'tj_sc_id';
         if($infoId !== null) {
             if(is_numeric($infoId)) 
-                return DB::table(self::$sTableName)->where('zx_id', $id)->update(['tj_yd_id' => strChangeArr(deleteArrValue(strChangeArr(DB::table(self::$sTableName)->where('zx_id', $id)->value('tj_yd_id'), ','), $infoId), ',')]);
+                return DB::table(self::$sTableName)->where('zx_id', $id)->update(["$name" => strChangeArr(deleteArrValue(strChangeArr(DB::table(self::$sTableName)->where('zx_id', $id)->value("$name"), ','), $infoId), ',')]);
             else if(is_array($infoId))
-                return DB::table(self::$sTableName)->where('zx_id', $id)->update(['tj_yd_id' => strChangeArr(array_diff(strChangeArr(DB::table(self::$sTableName)->where('zx_id', $id)->value('tj_yd_id'), ','), $infoId))]);
+                return DB::table(self::$sTableName)->where('zx_id', $id)->update(["$name" => strChangeArr(array_diff(strChangeArr(DB::table(self::$sTableName)->where('zx_id', $id)->value("$name"), ','), $infoId))]);
         }
         else 
-            return DB::table(self::$sTableName)->where('zx_id', $id)->update(['tj_yd_id' => '']);
+            return DB::table(self::$sTableName)->where('zx_id', $id)->update(["$name" => '']);
 
     }
 }   
