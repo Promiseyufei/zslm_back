@@ -95,6 +95,7 @@
                     'file_alt'=>$request->fileDescribe,
                     'file_year'=>$request->fileYear,
                     'is_show'=>$request->isShow,
+                    'major_id'=>$request->majorId,
                     'create_time'=>time(),
                     'update_time'=>time()]);
             return $insertResult;

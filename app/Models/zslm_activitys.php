@@ -22,6 +22,10 @@ class zslm_activitys
                 break;
         }
     }
+    
+    public static function getNameById($id){
+        return DB::table(self::$sTableName)->where('id',$id)->first(['active_name']);
+    }
 
     private static function judgeActivityState($activiState, $title, &$handle) {
         switch($activiState)
@@ -40,31 +44,115 @@ class zslm_activitys
     }
 
     public static function getActivityPageMsg(array $val = []) {
-
-        $handle = DB::table(self::$sTableName);
+        
+        $handle_c =  $handle = DB::table(self::$sTableName)->where(self::$sTableName.'.is_delete',0);
+        $handle = DB::table(self::$sTableName)
+            ->leftJoin('activity_relation',  self::$sTableName.'.id' , '=','activity_relation.activity_id')
+            ->leftJoin('zslm_major', 'zslm_major.id', '=','activity_relation.host_major_id')
+            ->leftJoin('dict_activity_type',  self::$sTableName.'.active_type', '=','dict_activity_type.id')
+                ->where(self::$sTableName.'.is_delete',0);
         $sort_type = [0=>['show_weight','desc'], 1=>['show_weight','asc'], 2=>['update_time','desc']];
         if(isset($val['activityNameKeyword'])) $handle = $handle->where('active_name', 'like', '%' . $val['activityNameKeyword'] . '%');
-
-        switch($val['screenType'])
-        {
-            case 0:
-                self::judgeScreenState($val['screenState'], 'show_state', $handle);
-                break;
-            case 1:
-                self::judgeScreenState($val['screenState'], 'recommended_state', $handle);
-                break;
-            case 2:
-                self::judgeActivityState($val['activityState'], 'active_status', $handle);
-                break;
-            default :
-                break;
+        if($val['showType'] != 2){
+            self::judgeScreenState($val['showType'], 'show_state', $handle);
+            self::judgeScreenState($val['showType'], 'show_state', $handle_c);
+        }
+        if($val['recommendedState'] != 2){
+            self::judgeScreenState($val['recommendedState'], 'recommended_state', $handle);
+            self::judgeScreenState($val['recommendedState'], 'recommended_state', $handle_c);
+        }
+        if($val['activityState'] != 2){
+            self::judgeScreenState($val['activityState'], 'active_status', $handle);
+            self::judgeScreenState($val['activityState'], 'active_status', $handle_c);
+        }
+        $count = $handle_c->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])->count('id');
+    
+ 
+        $get_page_msg = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])
+        ->offset($val['pageCount'] * ($val['pageNumber']-1))
+        ->limit($val['pageCount'])->get([self::$sTableName.'.id','active_name','active_type',
+                self::$sTableName.'.province','z_name','sign_up_state', self::$sTableName.'.create_time',
+                self::$sTableName.'.show_weight',self::$sTableName.'.show_state',self::$sTableName.'.recommended_state',
+                'dict_activity_type.name']);
+        return count($get_page_msg )>= 0 ? [$get_page_msg,$count] : false;
+    }
+    
+    public static function getActivityAll(array $val = []) {
+        
+        $handle_c =  $handle = DB::table(self::$sTableName)->where(self::$sTableName.'.is_delete',0);
+        $handle = DB::table(self::$sTableName)
+            ->leftJoin('activity_relation',  self::$sTableName.'.id' , '=','activity_relation.activity_id')
+            ->leftJoin('zslm_major', 'zslm_major.id', '=','activity_relation.host_major_id')
+            ->leftJoin('dict_activity_type',  self::$sTableName.'.active_type', '=','dict_activity_type.id')
+            ->where(self::$sTableName.'.is_delete',0);
+        $sort_type = [0=>['show_weight','desc'], 1=>['show_weight','asc'], 2=>['update_time','desc']];
+        if(isset($val['activityNameKeyword'])) $handle = $handle->where('active_name', 'like', '%' . $val['activityNameKeyword'] . '%');
+        if($val['showType'] != 2){
+            self::judgeScreenState($val['showType'], 'show_state', $handle);
+            self::judgeScreenState($val['showType'], 'show_state', $handle_c);
+        }
+        if($val['recommendedState'] != 2){
+            self::judgeScreenState($val['recommendedState'], 'recommended_state', $handle);
+            self::judgeScreenState($val['recommendedState'], 'recommended_state', $handle_c);
+        }
+        if($val['activityState'] != 2){
+            self::judgeScreenState($val['activityState'], 'active_status', $handle);
+            self::judgeScreenState($val['activityState'], 'active_status', $handle_c);
+        }
+        if($val['activityState'] != -1){
+            self::judgeScreenState($val['activityType'], 'active_type', $handle);
+            self::judgeScreenState($val['activityType'], 'active_type', $handle_c);
+        }
+        $handle->where(self::$sTableName.'.province','like',$val['provice'].'%');
+        $handle_c->where(self::$sTableName.'.province','like',$val['provice'].'%');
+        $count = $handle_c->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])->count('id');
+        
+        
+        $get_page_msg = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])
+            ->offset($val['pageCount'] * ($val['pageNumber']-1))
+            ->limit($val['pageCount'])->get([self::$sTableName.'.id','active_name','active_type',
+                self::$sTableName.'.province','z_name','sign_up_state', self::$sTableName.'.create_time',
+                self::$sTableName.'.show_weight',self::$sTableName.'.show_state',self::$sTableName.'.recommended_state',
+                'dict_activity_type.name']);
+        return count($get_page_msg )>= 0 ? [$get_page_msg,$count] : false;
+    }
+    
+    public static function getActivityMsg(array $val = []) {
+        
+        $handle = DB::table(self::$sTableName)
+            ->where(self::$sTableName.'.is_delete',0);
+        $sort_type = [0=>['show_weight','desc'], 1=>['show_weight','asc'], 2=>['update_time','desc']];
+        if(isset($val['activityNameKeyword'])) $handle = $handle->where('active_name', 'like', '%' . $val['activityNameKeyword'] . '%');
+        if($val['screenState'] != 2){
+            self::judgeScreenState($val['activityState'], 'active_status', $handle);
+            self::judgeScreenState($val['activityState'], 'active_status', $handle_c);
         }
         $count = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])->count('id');
-        $get_page_msg = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])
-        ->offset($val['pageCount'] * $val['pageNumber'])
-        ->limit($val['pageCount'])->get();
         
+        
+        $get_page_msg = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])
+            ->offset($val['pageCount'] * ($val['pageNumber']-1))
+            ->limit($val['pageCount'])->get([self::$sTableName.'.id','active_name','title','update_time']);
         return count($get_page_msg )>= 0 ? [$get_page_msg,$count] : false;
+    }
+    
+    public static function getOneActivity($val) {
+        
+        $handle = DB::table(self::$sTableName)
+            ->leftJoin('activity_relation',  self::$sTableName.'.id' , '=','activity_relation.activity_id')
+            ->leftJoin('zslm_major', 'zslm_major.id', '=','activity_relation.host_major_id')
+            ->leftJoin('dict_activity_type',  self::$sTableName.'.active_type', '=','dict_activity_type.id','sign_up_state')
+            ->where(self::$sTableName.'.is_delete',0)
+            ->where(self::$sTableName.'.id',$val);
+       
+        
+        
+        $get_page_msg = $handle->get([self::$sTableName.'.id','active_name','active_type','major_type',
+                self::$sTableName.'.province','z_name','sign_up_state', self::$sTableName.'.create_time',
+                self::$sTableName.'.show_weight',self::$sTableName.'.show_state',self::$sTableName.'.recommended_state',
+                'dict_activity_type.name','end_time','begin_time',self::$sTableName.'.address',  self::$sTableName.'.title',
+                self::$sTableName.'.keywords',  self::$sTableName.'.description',  self::$sTableName.'.introduce','activity_relation.host_major_id']);
+        return count($get_page_msg )>= 0 ? $get_page_msg : false;
     }
 
 
@@ -92,6 +180,23 @@ class zslm_activitys
         }
     }
     
+    public static function setWeight ($id,$weight){
+        return DB::table(self::$sTableName)
+            ->where('id', $id)
+            ->update(['show_weight'=>$weight]);
+    }
+    
+    public static function setShow ($id,$weight){
+        return DB::table(self::$sTableName)
+            ->where('id', $id)
+            ->update(['show_state'=>$weight]);
+    }
+    
+    public static function setRec ($id,$rec){
+        return DB::table(self::$sTableName)
+            ->where('id', $id)
+            ->update(['recommended_state'=>$rec]);
+    }
     /**
      * setTKDByid
      *
@@ -118,7 +223,7 @@ class zslm_activitys
     }
 
     public static function delAppointActivity($activityId = 0) {
-        return DB::table(self::$sTableName)->where('id', $activityId)->update(['is_delete' => 1, 'update_time' => time()]);
+        return DB::table(self::$sTableName)->whereIn('id', $activityId)->update(['is_delete' => 1, 'update_time' => time()]);
     }
 
     public static function updateActivityTime($activityId = 0) {
@@ -155,6 +260,11 @@ class zslm_activitys
         
         return DB::table(self::$sTableName)->insertGetId($createActivityMsg);
 
+    }
+    
+    public static function updateMsg($id,array $createActivityMsg = []) {
+        return DB::table(self::$sTableName)->where('id',$id)->update($createActivityMsg);
+        
     }
     
     public static function getUserActivitys($activity_ids){

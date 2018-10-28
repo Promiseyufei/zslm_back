@@ -15,7 +15,7 @@ class refund_apply
         ->leftJoin('user_accounts', self::$sTableName . '.account_id', '=', 'user_accounts.id')
         ->leftJoin('coach_organize', self::$sTableName . '.f_id', '=', 'coach_organize.id');
         if(isset($val['keyWord']))
-            $handle = $handle->where('name', 'like', '%' . $val['keyWord'] . '%')->orWhere('phone', 'like', '%' . $val['keyWord'] . '%');
+            $handle = $handle->where(self::$sTableName.'.name', 'like', '%' . $val['keyWord'] . '%')->orWhere(self::$sTableName.'.phone', 'like', '%' . $val['phone'] . '%');
 
         switch($val['screenState'])
         {
@@ -27,38 +27,67 @@ class refund_apply
             default :
                 break;
         }
-
-        return $handle->select(
+        
+        if($val['type2']<2)
+            $handle = $handle->where('process_status', $val['type2']);
+        
+        $count = $handle->count();
+        
+        return [$handle->select(
             self::$sTableName . '.id', 
             'coach_organize.coach_name',
             self::$sTableName . '.name',
             self::$sTableName . '.card',
             self::$sTableName . '.bank',
-            self::$sTableName . '.phone', 
+            self::$sTableName . '.phone',
+            self::$sTableName.'.account_id',
             self::$sTableName . '.coupon_id',
-            self::$sTableName . '.create_time', 
+            self::$sTableName . '.create_time',
+            self::$sTableName . '.update_time',
+            self::$sTableName . '.approve_status',
+            self::$sTableName . '.process_status',
+            self::$sTableName . '.approve_context',
+            
             'user_accounts.phone as user_account',
             self::$sTableName . '.alipay_account',
             self::$sTableName . '.apply_refund_money',
             self::$sTableName . '.registration_deadline'
-            )->offset($val['pageCount'] * $val['pageNumber'])
-            ->limit($val['pageCount'])->orderBy('create_time', 'desc')->get()->toArray()->map(function($item) {
-                $coupon_key = DB::table('user_coupon')->where([
-                    ['user_id', '=', $item->account_id],
-                    ['coupon_id', '=', $item->coupon_id]
-                ])->value('key');
-
-                empty($coupon_key) ? $item->coupon_key = '未使用' : $item->coupon_key = $coupon_key;
-                
-                $item->create_time = date('Y-m-d h:i:s', $item->create_time);
-                $item->registration_deadline = date('Y-m-d h:i:s', $item->registration_deadline);
-
-                return $item;
-            });
+            )->offset($val['pageCount'] * ($val['pageNumber']-1))
+            ->limit($val['pageCount'])->orderBy('create_time', 'desc')->get(),$count];
 
     }
-
-
+    
+    public static function getOne($id) {
+        
+        $handle = DB::table(self::$sTableName)
+            ->leftJoin('user_accounts', self::$sTableName . '.account_id', '=', 'user_accounts.id')
+            ->leftJoin('coach_organize', self::$sTableName . '.f_id', '=', 'coach_organize.id')
+            ->where( self::$sTableName . '.id',$id);
+        
+        
+        return $handle->select(
+            self::$sTableName . '.id',
+            'coach_organize.coach_name',
+            self::$sTableName . '.name',
+            self::$sTableName . '.card',
+            self::$sTableName . '.bank',
+            self::$sTableName . '.phone',
+            self::$sTableName.'.account_id',
+            self::$sTableName . '.coupon_id',
+            self::$sTableName . '.create_time',
+            self::$sTableName . '.update_time',
+            self::$sTableName . '.approve_status',
+            self::$sTableName . '.process_status',
+            self::$sTableName . '.approve_context',
+            self::$sTableName . '.imgs',
+            
+            'user_accounts.phone as user_account',
+            self::$sTableName . '.alipay_account',
+            self::$sTableName . '.apply_refund_money',
+            self::$sTableName . '.registration_deadline'
+        )->get();
+        
+    }
 
     public static function selectAppealMsg($refundId = 0) {
         return DB::table(self::$sTableName)
@@ -73,12 +102,13 @@ class refund_apply
             )->first();
     }
 
-    public static function setAppointRefundApproveStatus($refundId, $approveStatus, $approveContext = '') {
+    public static function setAppointRefundApproveStatus($refundId, $approveStatus, $approveContext = '',$stat) {
         return DB::table(self::$sTableName)
         ->where('id', $refundId)
         ->update([
             'approve_status' => $approveStatus, 
-            'approve_context' => $approveContext, 
+            'approve_context' => $approveContext,
+            'process_status'=>$stat,
             'update_time' => time()
             ]);
 
