@@ -34,9 +34,23 @@ class information_relation
     public static function setRecommendInfos($infoId = 0, $name = '', $infoStr = '') {
         
         if(self::judgeInfoRelationExistence($infoId)) {
-            // dd($name);
             return DB::table(self::$sTableName)->where('zx_id', $infoId)->update(["$name" => $infoStr]);
         }
     }
     
+
+    public static function delAppointInfoReRead($id, $infoId = null, $type) {
+        $name = '';
+        if($type == 0) $name = 'tj_yd_id';
+        else if($type == 1) $name = 'tj_sc_id';
+        if($infoId !== null) {
+            if(is_numeric($infoId)) 
+                return DB::table(self::$sTableName)->where('zx_id', $id)->update(["$name" => strChangeArr(deleteArrValue(strChangeArr(DB::table(self::$sTableName)->where('zx_id', $id)->value("$name"), ','), $infoId), ',')]);
+            else if(is_array($infoId))
+                return DB::table(self::$sTableName)->where('zx_id', $id)->update(["$name" => strChangeArr(array_diff(strChangeArr(DB::table(self::$sTableName)->where('zx_id', $id)->value("$name"), ','), $infoId))]);
+        }
+        else 
+            return DB::table(self::$sTableName)->where('zx_id', $id)->update(["$name" => '']);
+
+    }
 }   

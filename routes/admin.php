@@ -30,9 +30,56 @@
         /**
          * 退款订单管理模块
          */
+
         Route::group(['prefix' => 'refund', 'namespace' => 'Refund'], function () {
-            
+    
             Route::get('export', 'ExportExcelController@export');
+    
+    
+            Route::post('getInfoPageMsg', 'InformationController@getInfoPageMsg');
+    
+            Route::post('getInfoPageCount', 'InformationController@getInfoPageCount');
+    
+            Route::post('setAppointInfoState', 'InformationController@setAppointInfoState');
+    
+            Route::post('selectInfoReception', 'InformationController@selectInfoReception');
+    
+            Route::post('updateAppointInfoMsg', 'InformationController@updateAppointInfoMsg');
+    
+            Route::post('deleteAppointInfo', 'InformationController@deleteAppointInfo');
+    
+            Route::post('createInfo', 'InformationController@createInfo');
+    
+            Route::post('setAppointRelationCollege', 'InformationController@setAppointRelationCollege');
+    
+            Route::post('getAllCollege', 'InformationController@getAllCollege');
+    
+            Route::post('sendInfoDynamic', 'InformationController@sendInfoDynamic');
+    
+            Route::post('setManualRecInfos', 'InformationController@setManualRecInfos');
+    
+            Route::post('setAutomaticRecInfos', 'InformationController@setAutomaticRecInfos');
+    
+            Route::post('getAllInfo', 'InformationController@getAllInfo');
+    
+            Route::post('setManualInfoRelationCollege', 'InformationController@setManualInfoRelationCollege');
+    
+            Route::post('setAutoInfoRelationCollege', 'InformationController@setAutoInfoRelationCollege');
+    
+            Route::post('getInfoType', 'InformationController@getInfoType');
+    
+            Route::post('updateInfoExtendMsg', 'InformationController@updateInfoExtendMsg');
+    
+            Route::post('updateInfoTextMsg', 'InformationController@updateInfoTextMsg');
+    
+            Route::post('getAppointInfoRecommendRead', 'InformationController@getAppointInfoRecommendRead');
+    
+            Route::post('delAppointInfoRecommendRead', 'InformationController@delAppointInfoRecommendRead');
+    
+            Route::post('getAppointInfoRecommendMajor', 'InformationController@getAppointInfoRecommendMajor');
+    
+            Route::post('getAppointInfoRelevantMajor', 'InformationController@getAppointInfoRelevantMajor');
+    
         });
         
         

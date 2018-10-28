@@ -18,7 +18,7 @@ class information_major
                 'xg_sc_id' => $major_id
             ]);
         
-        return DB::table(self::$sTableName)->insertGetId($msg_arr);
+        return DB::table(self::$sTableName)->insert($msg_arr);
     }
 
     public static function selectAppointRelation($infoId) {

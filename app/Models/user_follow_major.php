@@ -12,7 +12,7 @@ class user_follow_major
 
     public static function getAppointMajorRelevantUser(array $selectMajorArr = []) {
 
-        return DB::table(self::$sTableName)->whereIn('major_id', $selectMajorArr)->where('is_focus')->pluck('user_id');
+        return DB::table(self::$sTableName)->whereIn('major_id', $selectMajorArr)->where('is_focus', 0)->pluck('user_id');
     }
     
     public static function getMajorId($id){

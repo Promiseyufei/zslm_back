@@ -214,8 +214,7 @@ class zslm_information
     //获取指定资讯的推荐阅读
     public static function getAppointInfoReRead(array $infoIdArr = []) {
         if($infoIdArr == []) return $infoIdArr;
-
-
+        
         return DB::table(self::$sTableName)->leftJoin('dict_information_type', self::$sTableName . '.z_type', '=', 'dict_information_type.id')
             ->whereIn(self::$sTableName . '.id', $infoIdArr)->where(self::$sTableName . '.is_delete', 0)
             ->select(self::$sTableName . '.id', self::$sTableName . '.weight as show_weight', 'dict_information_type.name as info_type', self::$sTableName . '.zx_name', self::$sTableName . '.create_time')

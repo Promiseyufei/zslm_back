@@ -56,9 +56,16 @@
             return DB::table(self::$sTableName)->where('id',$majorId)->first();
         }
 
-        public static function getAllDictMajor() {
-            return DB::table(self::$sTableName)->where('is_delete', 0)->select('id', 'z_name', 'magor_logo_name');
+        public static function getAllDictMajor($type = 0, array $majorIdArr = []) {
+            if($type == 0)
+                return DB::table(self::$sTableName)->where('is_delete', 0)->select('id', 'z_name', 'magor_logo_name')->get();
+            else if($type == 1 && count($majorIdArr) > 0)
+                return DB::table(self::$sTableName)->whereIn('id', $majorIdArr)->where('is_delete', 0)->select('id', 'z_name', 'magor_logo_name')->get();
         }
+
+        // public static function getAppointInfoRelevant() {
+        //     return DB::table()
+        // }
 
 
         public static function getMajorAppiCount(array $condition = []) {
@@ -161,11 +168,17 @@
         }
         
         public static function getAutoRecommendMajors($recomMajorCount = 8) {
-            return DB::table(self::$sTableName)->where([
+            $handle = DB::table(self::$sTableName)->where([
                 ['is_delete', '=', 0],
                 ['is_show', '=', 0],
                 ['if_recommended', '=', 0]
-            ])->orderBy('weight','desc')->limit($recomMajorCount)->pluck('id');
+            ]);
+            if($handle->count() < $recomMajorCount) {
+                return $handle->orderBy('weight','desc')->pluck('id');
+            }
+            else {
+                return $handle->orderBy('weight','desc')->skip($recomMajorCount)->pluck('id');
+            }
         }
 
 
@@ -178,6 +191,13 @@
            
             $data =  DB::table(self::$sTableName)->where('is_delete',0)->where('id',$id)->first(['magor_logo_name','z_name']);
             return $data;
+        }
+
+        public static function getAppointInfoReMajor(array $majorIdArr) {
+            return DB::table(self::$sTableName)->whereIn('id', $majorIdArr)->where('is_delete', 0)->select('id', 'z_name', 'weight as show_weight', 'create_time', 'province')->get()->map(function($item) {
+                $item->create_time = date("Y-m-d H:i", $item->create_time);
+                return $item;
+            });
         }
 
 

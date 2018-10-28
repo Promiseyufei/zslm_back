@@ -493,7 +493,7 @@ class InformationController extends Controller
 
         if(empty($info_id) || empty($major_id_arr)) return responseToJson(1, '请求参数错误');
 
-        $re_info_arr = InformationMajor::selectAppointRelation($info_id);
+        $re_info_arr = InformationMajor::selectAppointRelation($info_id)->toArray();
 
         $major_id_arr = array_diff($major_id_arr, $re_info_arr);  //返回差集
         
@@ -501,9 +501,36 @@ class InformationController extends Controller
         $relevan_id = InformationMajor::setAppointRelevantMajor($info_id, $major_id_arr);
 
         return $relevan_id ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');  
-        
 
     }
+
+
+
+    /**
+     * @api {post} admin/information/getAppointInfoRelevantMajor 获得指定资讯的相关院校专业logo名称等基本信息
+     * @apiGroup information
+     * @apiParam {Number} infoId 活动的id
+     */
+    public function getAppointInfoRelevantMajor(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $info_id = $request->infoId ?? 0;
+
+        if($info_id == 0) return responseToJson(1, '参数错误');
+
+        $re_major_arr = InformationMajor::selectAppointRelation($info_id)->toArray();
+
+        $major_arr = ZslmMajor::getAllDictMajor(1, $re_major_arr)->toArray();
+
+        foreach($major_arr as $key => $item) {
+            $major_arr[$key]->magor_logo_name = 'http://localhost:81/zslm_back/storage/app/admin/info/' . $item->magor_logo_name;
+        }
+
+        return is_array($major_arr) ? responseToJson(0, '', $major_arr) : responseToJson(1, '未查询到相关院校专业信息');
+    }
+
+    // public function delAppointInfoRelevantMajor(Request $request) {
+    //     if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+    // }
 
 
 
@@ -555,7 +582,8 @@ class InformationController extends Controller
         
         if($type == 1) return responseToJson(0, '', ZslmMajor::getAllDictMajor());
         else {
-            $re_info_arr = InformationMajor::selectAppointRelation($info_id);
+            $re_info_arr = InformationMajor::selectAppointRelation($info_id)->toArray();
+            // var_dump($re_info_arr);
             $all_major_arr = ZslmMajor::getAllDictMajor()->toArray();
             foreach($all_major_arr as $key => $major) 
                 if(in_array($major->id, $re_info_arr)) array_splice($all_major_arr, $key, 1);
@@ -570,11 +598,10 @@ class InformationController extends Controller
 
 
     /**
-     * @api {post} admin/information/sendInfoDynamic 设置指定资讯作为院校动态更新推送给关注了主办院校的用户（插入消息表，并和用户进行关联，推送到个人中心－院校动态中）/资讯作为新消息内容发送给关注了主办院校的用户（插入消息表，并和用户关联，推送到消息中心中）
+     * @api {post} admin/information/sendInfoDynamic 设置指定资讯作为院校动态更新推送给关注了相关院校的用户（插入消息表，并和用户进行关联，推送到个人中心－院校动态中）/资讯作为新消息内容发送给关注了主办院校的用户（插入消息表，并和用户关联，推送到消息中心中）
      * @apiGroup information
      *
      * @apiParam {Number} infoId 活动的id
-     * @apiParam {Number} majorIdArr 相关院校院校id数组
      * @apiParam {Number} newOrDyna 设置类别(0作为院校动态；1作为新消息)
      *
      * @apiSuccessExample　{json} Success-Response:
@@ -604,17 +631,22 @@ class InformationController extends Controller
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
 
         $info_id = (($request->infoId ?? false) && is_numeric($request->infoId)) ? $request->infoId : 0;
-        $new_or_dyna = (($request->newOrDyna ?? false) && is_numeric($request->newOrDyna)) ? $request->newOrDyna : -1;
+        $new_or_dyna = is_numeric($request->newOrDyna) ? $request->newOrDyna : -1;
 
         if(empty($info_id) || $new_or_dyna < 0) return responseToJson(1, '参数错误');
 
-        $appoint_major_arr = InformationMajor::selectAppointRelation($info_id);
-
+        $appoint_major_arr = InformationMajor::selectAppointRelation($info_id)->toArray();
+        
         //插入news表->指定资讯的关联院校->查询用户-专业表->获得关注学生->去重->插入消息-用户关联表
         $info_msg = ZslmInformation::getAppointInfoMsg($info_id, ['id', 'zx_name', 'z_text', 'z_from']);
-
+        
+        $app_users = UserFollowMajor::getAppointMajorRelevantUser($appoint_major_arr)->toArray();
+        
+        if(count($app_users) < 1) return responseToJson(1, '暂无指定的用户');
+        
         //通过院校专业id获得所有的用户id，然后进行去重
-        $users_id_arr = array_unique(UserFollowMajor::getAppointMajorRelevantUser($appoint_major_arr));
+        $users_id_arr = array_unique($app_users);
+        // dd($users_id_arr);
 
         try {
             DB::beginTransaction();
@@ -624,12 +656,14 @@ class InformationController extends Controller
             $create_news_id = News::createNews([
                 'carrier'     => 1,
                 'news_title'  => $info_msg->zx_name,
-                'context'     => (mb_strlen($info_msg->z_text, 'utf-8') > 20) ? (mb_substr($info_msg->z_text, 0, 20, 'gb2312') . '...') : $info_msg->z_text,
+                'context'     => (mb_strlen($info_msg->z_text, 'utf-8') > 20) ? (mb_substr($info_msg->z_text, 0, 40, 'gb2312') . '...') : $info_msg->z_text,
                 'type'        => $type,
                 'create_time' => time()
             ]);
 
-            if(is_array($users_id_arr) && !empty($users_id_arr) && $create_info_id > 0) {
+            // dd($create_news_id);
+
+            if(is_array($users_id_arr) && !empty($users_id_arr) && $create_news_id > 0) {
                 $now_time = time();
                 $data_arr = [];
                 foreach($users_id_arr as $key => $user_id)
@@ -637,12 +671,15 @@ class InformationController extends Controller
                         'news_id' => $create_news_id, 
                         'user_id' => $user_id, 
                         'status' => 0, 
-                        'create_time' => $time
+                        'create_time' => $now_time
                     ]);
 
                 $is_create = NewsUsers::createNewsRelationUser($data_arr);
 
-                if($is_create) return responseToJson(0, '发送成功');
+                if($is_create) {
+                    DB::commit();
+                    return responseToJson(0, '发送成功');
+                }
                 else throw new \Exception('发送失败');
             }
             else throw new \Exception('获得参数失败');
@@ -651,8 +688,23 @@ class InformationController extends Controller
             DB::rollback();//事务回滚
             return responseToJson(1, $e->getMessage());
         }
-
     }
+
+
+    // /**
+    //  * @api {post} admin/information/getAppointInfoXgMajor 获得指定资讯的相关专业id数组
+    //  * @apiGroup information
+    //  * @apiParam {Number} infoId 活动的id
+    //  */
+    // public function getAppointInfoXgMajor(Request $request) {
+    //     if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+    //     $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
+    //     if($info_id == 0) return responseToJson(1, '参数错误');
+
+    //     $get_major_id_arr = InformationMajor::selectAppointRelation($info_id)->toArray();
+
+    //     return is_array($get_major_id_arr) ? responseToJson(0, '', $get_major_id_arr) : responseToJson(1, '没有获取到相关专业信息');
+    // }
 
 
 
@@ -720,18 +772,78 @@ class InformationController extends Controller
         if($info_id == 0) return responseToJson(1, '参数错误');
         $get_recommend_read_id_arr = strChangeArr(InfomationRelation::getAppointInfoContent($info_id, 'tj_yd_id'), ',');
 
-
         $get_re_read = ZslmInformation::getAppointInfoReRead($get_recommend_read_id_arr)->toArray();
 
-        // dd($get_re_read);
-
         return is_array($get_re_read) ? responseToJson(0, '', $get_re_read) : responseToJson(1, '没有获得推荐阅读信息');
+    }
 
+
+    /**
+     * @api {post} admin/information/getAppointInfoRecommendMajor 在手动设置咨询的时候获得指定资讯的推荐院校专业信息(手动设置)
+     * @apiGroup information
+     * @apiParam {Number} infoId 活动的id
+     */
+    public function getAppointInfoRecommendMajor(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? intval($request->infoId) : 0;
+
+        if($info_id == 0) return responseToJson(1, '参数错误');
+        $get_recommend_major_id_arr = strChangeArr(InfomationRelation::getAppointInfoContent($info_id, 'tj_sc_id'), ',');
+
+        $get_re_major = ZslmMajor::getAppointInfoReMajor($get_recommend_major_id_arr)->toArray();
+
+        foreach($get_re_major as $key => $item)
+            if(isset($item->province))
+                $get_re_major[$key]->province = Dict::getAppoinDictRegion(strChangeArr($item->province, ',')[1]);
+
+        return is_array($get_re_major) ? responseToJson(0, '', $get_re_major) : responseToJson(1, '没有获得推荐院校专业信息');
+    }
+
+
+    /**
+     * @api {post} admin/information/delAppointInfoRecommendRead 在手动设置咨询的时候删除或清空推荐阅读(手动设置)
+     * @apiGroup information
+     * @apiParam {Number} id 资讯id
+     * @apiParam {Number} tyoe 为0时操作的是推荐阅读、为1时操作的是推荐院校专业
+     * @apiParam {Number} infoId 待取消推荐阅读资讯id(当为数组时删除多个，当为数字时删除指定的推荐阅读, 当为null时清空)
+     */
+    public function delAppointInfoRecommendRead(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+
+        $id = (isset($request->id) && is_numeric($request->id)) ? intval($request->id) : 0;
+
+        if(isset($request->infoId) && is_numeric($request->infoId)) 
+            $info_id = intval($request->infoId);
+        else if(isset($request->infoId) && is_array($request->infoId)) 
+            $info_id = $request->infoId;
+        else $info_id = null;
+        
+        $is_del = InfomationRelation::delAppointInfoReRead($id, $info_id, $request->type);
+
+        return $is_del ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
 
     }
 
-    // private function judgeInfoRelationExistence($infoId) {
-    //     if($infoId < 1) return 0;
+    // /**
+    //  * @api {post} admin/information/delAppointInfoRecommendRead 在手动设置咨询的时候删除或清空推荐阅读(手动设置)
+    //  * @apiGroup information
+    //  * @apiParam {Number} id 资讯id
+    //  * @apiParam {Number} infoId 待取消推荐阅读资讯id(当为数组时删除多个，当为数字时删除指定的推荐阅读, 当为null时清空)
+    //  */
+    // public function delAppointInfoRecommendRead(Request $request) {
+    //     if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+
+    //     $id = (isset($request->id) && is_numeric($request->id)) ? intval($request->id) : 0;
+
+    //     if(isset($request->infoId) && is_numeric($request->infoId)) 
+    //         $info_id = intval($request->infoId);
+    //     else if(isset($request->infoId) && is_array($request->infoId)) 
+    //         $info_id = $request->infoId;
+    //     else $info_id = null;
+        
+    //     $is_del = InfomationRelation::delAppointInfoReRead($id, $info_id);
+
+    //     return $is_del ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
 
     // }
 
@@ -869,7 +981,7 @@ class InformationController extends Controller
      *     }
      */
     public function setManualInfoRelationCollege(Request $request) {
-        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
         $major_arr = (isset($request->majorArr) && is_array($request->majorArr)) ? $request->majorArr : [];
 
@@ -878,7 +990,8 @@ class InformationController extends Controller
         $recom_info_count = SystemSetup::getContent('recommend_info_major');
 
         $relation_info_arr = strChangeArr(InfomationRelation::getAppointInfoContent($info_id, 'tj_sc_id'), ',');
-        $merge_arr = mergeRepeatArray($info_arr, $relation_info_arr);
+        // var_dump($relation_info_arr);
+        $merge_arr = mergeRepeatArray($major_arr, $relation_info_arr);
         if(count($merge_arr) > $recom_info_count) return responseToJson(1, '关联院校专业条数超过最大限制');
 
         $rela_info_str = strChangeArr($merge_arr, ',');
@@ -923,12 +1036,13 @@ class InformationController extends Controller
      *     }
      */ 
     public function setAutoInfoRelationCollege(Request $request) {
-        if($request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
         if($info_id == 0) return responseToJson(0, '参数错误');
         $recom_info_major_count = SystemSetup::getContent('recommend_info_major');
 
-        $get_major_id_arr = ZslmMajor::getAutoRecommendMajors($recom_info_major_count);
+        $get_major_id_arr = ZslmMajor::getAutoRecommendMajors($recom_info_major_count)->toArray();
+        // dd($get_major_id_arr);
 
         if(count($get_major_id_arr) < 1) return responseToJson(1, '暂无能够设置的活动');
 
@@ -937,6 +1051,9 @@ class InformationController extends Controller
 
         return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
+
+
+
 
 
     private function createDirImg($imgName, &$imgHandle) {
