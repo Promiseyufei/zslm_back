@@ -186,6 +186,12 @@
             $data =  DB::table(self::$sTableName)->where('is_delete',0)->whereIn('id',$id)->get(['z_name','id','weight','update_time','province']);
             return $data;
         }
+        
+        public static function getImg($id){
+           
+            $data =  DB::table(self::$sTableName)->where('is_delete',0)->where('id',$id)->first(['magor_logo_name','z_name']);
+            return $data;
+        }
 
         public static function getAppointInfoReMajor(array $majorIdArr) {
             return DB::table(self::$sTableName)->whereIn('id', $majorIdArr)->where('is_delete', 0)->select('id', 'z_name', 'weight as show_weight', 'create_time', 'province')->get()->map(function($item) {

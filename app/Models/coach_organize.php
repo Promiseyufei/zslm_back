@@ -83,8 +83,8 @@ class coach_organize
     }
 
 
-    public static function delAppointCoach($coachId = 0) {
-        return DB::table(self::$sTableName)->where('id', $coachId)->update(['is_delete' => 1, 'update_time' => time()]);
+    public static function delAppointCoach(array $coachId) {
+        return DB::table(self::$sTableName)->whereIn('id', $coachId)->update(['is_delete' => 1, 'update_time' => time()]);
     }
 
     public static function getBranchCoachMsg($totleId = 0, $pageNum = 0, $pageCount = 10) {
@@ -101,6 +101,14 @@ class coach_organize
         return DB::table(self::$sTableName)->insertGetId($createCoachMsg);
     }
     
+    
+    public static function updateCoach(array $createCoachMsg = []) {
+        
+        return DB::table(self::$sTableName)->update($createCoachMsg);
+    }
+    
+    
+    
     public static function createKTD(Request $request){
         return DB::table(self::$sTableName)
             ->where('id',$request->id)
@@ -116,16 +124,30 @@ class coach_organize
             ->update([
                 'describe'=>$request->describe]);
     }
-
-    public static function setCouponsState($coachId = 0, $state = -1) {
-        return DB::table(sself::$sTableName)->where('id', $coachId)->update(['if_coupons' => $state, 'update_time' => time()]);
+    
+    public static function setCouponsRec($coachId = 0, $state = -1) {
+        return DB::table(self::$sTableName)->where('id', $coachId)->update(['is_recommend' => $state, 'update_time' => time()]);
     }
     
+    public static function setCouponsState($coachId = 0, $state = -1) {
+        return DB::table(self::$sTableName)->where('id', $coachId)->update(['if_coupons' => $state, 'update_time' => time()]);
+    }
+    
+    public static function setback($coachId = 0, $state = -1) {
+        return DB::table(self::$sTableName)->where('id', $coachId)->update(['if_back_money' => $state, 'update_time' => time()]);
+    }
+    
+    
     public static function setWeight(Request $request){
+        
         return DB::table(self::$sTableName)->where('id', $request->id)->update(['weight' => intval($request->weight), 'update_time' => time()]);
+        
     }
     public static function setShow(Request $request){
         return DB::table(self::$sTableName)->where('id', $request->id)->update(['is_show' => $request->state, 'update_time' => time()]);
     }
-
+    
+    public static function getOne($id){
+        return DB::table(self::$sTableName)->where('id', $id)->first();
+    }
 }

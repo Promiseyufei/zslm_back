@@ -362,11 +362,12 @@ class CoachOrganizeController extends Controller
      *     }
      */
     public function deleteAppointCoach(Request $request) {
-        if(!$request->isMethod('get')) return responseToJson(2, '请求方式错误');
-        $coach_id = (isset($request->coachId) && is_numeric($request->coachId)) ? $request->coachId : 0;
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+           if(!isset($request->coachId) && !is_array($request->coachId))
+               return responseToJson(1,'no id or id is not array');
 
-        if($coach_id > 0) {
-            $is_del = CoachOrganize::delAppointCoach($coach_id);
+        if(sizeof($request->coachId) > 0) {
+            $is_del = CoachOrganize::delAppointCoach($request->coachId);
             return $is_del ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
         }
         else 
@@ -511,6 +512,7 @@ class CoachOrganizeController extends Controller
             'father_id'     => $request->father_id,
             'if_coupons'    => $request->if_coupons,
             'if_back_money' => $request->if_back_money,
+            'coach_type'    => $request->coach_type,
             'cover_name'    => $cover_name,
             'logo_name'     => $logo_name
         ];
@@ -534,6 +536,18 @@ class CoachOrganizeController extends Controller
             DB::rollback();//事务回滚
             return responseToJson(1, $e->getMessage());
         }
+    }
+    
+    public function getOneCoach(Request $request){
+        if(!$request->isMethod('get'))
+            return responseToJson(1,'request error');
+        if(!isset($request->id) && !is_numeric($request->id))
+            return responseToJson('1','no id or id is not number');
+        
+        $one = CoachOrganize::getOne($request->id);
+        
+        return sizeof($one) == 1 ? responseToJson(0,'success',$one) : responseToJson(1,'no date');
+        
     }
     
     public function setNewKTD(Request $request){
@@ -608,6 +622,77 @@ class CoachOrganizeController extends Controller
             responseToJson(1,'update error please try again');
     }
     
+    public function  updateCoachWeight(Request $request){
+        if(!$request->isMethod('post'))
+            return responseToJson(1, '请求方式错误');
+        if(!isset($request->id))
+            return responseToJson(1, 'no id');
+        if(!isset($request->weight))
+            return responseToJson(1, 'no weight');
+        $result = CoachOrganize::setWeight($request);
+        if($result == 1)
+            return responseToJson(0,'success');
+        else
+            responseToJson(1,'update error please try again');
+    }
+    
+    public function  updateCoachShow(Request $request){
+        if(!$request->isMethod('post'))
+            return responseToJson(1, '请求方式错误');
+        if(!isset($request->id))
+            return responseToJson(1, 'no id');
+        if(!isset($request->state))
+            return responseToJson(1, 'no weight');
+        $result = CoachOrganize::setShow($request);
+        if($result == 1)
+            return responseToJson(0,'success');
+        else
+            responseToJson(1,'update error please try again');
+    }
+    
+    public function  updateCoachRec(Request $request){
+        if(!$request->isMethod('post'))
+            return responseToJson(1, '请求方式错误');
+        if(!isset($request->id))
+            return responseToJson(1, 'no id');
+        if(!isset($request->state))
+            return responseToJson(1, 'no weight');
+        $result = CoachOrganize::setCouponsRec($request->id,$request->state);
+        if($result == 1)
+            return responseToJson(0,'success');
+        else
+            responseToJson(1,'update error please try again');
+    }
+
+
+    public function updateCoachCon(Request $request){
+        if(!$request->isMethod('post'))
+            return responseToJson(1, '请求方式错误');
+        if(!isset($request->id))
+            return responseToJson(1, 'no id');
+        if(!isset($request->state))
+            return responseToJson(1, 'no state');
+        $result = CoachOrganize::setCouponsState($request->id,$request->state);
+        if($result == 1)
+            return responseToJson(0,'success');
+        else
+            responseToJson(1,'update error please try again');
+    }
+    
+    public function updateCoachTui(Request $request){
+        if(!$request->isMethod('post'))
+            return responseToJson(1, '请求方式错误');
+        if(!isset($request->id))
+            return responseToJson(1, 'no id');
+        if(!isset($request->state))
+            return responseToJson(1, 'no state');
+        $result = CoachOrganize::setback($request->id,$request->state);
+        if($result == 1)
+            return responseToJson(0,'success');
+        else
+            responseToJson(1,'update error please try again');
+    }
+    
     public function updateShow(Request $request){
         if(!$request->isMethod('post'))
             return responseToJson(1, '请求方式错误');
@@ -620,6 +705,52 @@ class CoachOrganizeController extends Controller
             return responseToJson(0,'success',$request->all());
         else
             responseToJson(1,'update error please try again');
+    }
+    
+    public function updateCoach(Request $request){
+    
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+    
+        if(!isset($request->id)) return responseToJson(1, 'no id');
+        
+        $cover_handle = $request->file('coachCover');
+        $logo_handle  = $request->file('coachLogo');
+        $cover_name = getFileName('coach', $cover_handle->getClientOriginalExtension());
+        $logo_name = getFileName('coach', $logo_handle->getClientOriginalExtension());
+        $msg = [
+            'coach_name'    => trim($request->coach_name),
+            'province'      => $request->provice,
+            'phone'         => trim($request->phone),
+            'address'       => trim($request->address),
+            'web_url'       => trim($request->web_url),
+            'father_id'     => $request->father_id,
+            'if_coupons'    => $request->if_coupons,
+            'if_back_money' => $request->if_back_money,
+            'coach_type'    => $request->coach_type,
+            'cover_name'    => $cover_name,
+            'logo_name'     => $logo_name
+        ];
+    
+        try {
+            DB::beginTransaction();
+        
+            $is_create = CoachOrganize::updateCoach($msg);
+            $is_create_cover = $this->createDirImg($cover_name, $cover_handle);
+            $is_create_logo = $this->createDirImg($logo_name, $logo_handle);
+            
+            if($is_create > 0 && $is_create_cover == true && $is_create_logo == true) {
+                DB::commit();
+                return responseToJson(0, '新建成功',$is_create);
+            }
+            else if(is_array($is_create_cover) && $is_create_cover[0] == 1)
+                throw new \Exception($is_create_cover[1]);
+            else if(is_array($is_create_logo) && $is_create_logo[0] == 1)
+                throw new \Exception('上传失败');
+        }catch(\Exception $e) {
+            DB::rollback();//事务回滚
+            return responseToJson(1, $e->getMessage());
+        }
+        
     }
 
 }

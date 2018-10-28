@@ -33,10 +33,10 @@ class zslm_coupon
     
     public static function getCouponByCoachId(Request $request){
         $handle = DB::table('coach_organize')
-            ->leftJoin(self::$sTableName, 'coach_organize.id', '=', self::$sTableName. '.coach_id')
+            ->join(self::$sTableName, 'coach_organize.id', '=', self::$sTableName. '.coach_id')
             ->where(self::$sTableName. '.coach_id',$request->id)
             ->where('coach_organize.is_delete', 0)
-            ->get([self::$sTableName.'.id','coach_name','name','is_show','weight']);
+            ->get([self::$sTableName.'.id','coach_name','name','is_show','coach_organize.weight']);
         return $handle;
     }
     
@@ -92,6 +92,13 @@ class zslm_coupon
             'zslm_couponcol' => $updateMsg['couponcol'],
             'update_time'    => time()
             ]);
+    }
+    
+    public static function getCouponByCoach(Request $request){
+        return DB::table(self::$sTableName)
+            ->leftjoin('coach_name','coach_id','=','coach_name.id')
+            ->where('coach_id',$request->id)
+            ->get(['weight','is_show',self::$sTableName.'.id','coach_name','name']);
     }
     
     public static function getCouponName($coupon_id){

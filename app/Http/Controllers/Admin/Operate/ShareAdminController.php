@@ -69,21 +69,21 @@ class ShareAdminController extends Controller
         $content_type = is_numeric($request->contentType) ? $request->contentType : 3;
 
         $title_keyword = isset($request->titleKeyword) ? trim($request->titleKeyword) : '';
-        var_dump('aaa');die;
+//        return 1;
         $page_data = Share::getAppointToAllShareMsg([
-            'page_num'      => $page_num, 
-            'page_count'    => $page_count, 
-            'sort_type'     => $sort_type, 
+            'page_num'      => $page_num,
+            'page_count'    => $page_count,
+            'sort_type'     => $sort_type,
             'rise_or_drop'  => $rise_or_drop,
             'content_type'  => $content_type,
-            'title_keyword' => $title_keyword 
+            'title_keyword' => $title_keyword
         ]);
         // ->toArray()->map(function($item) {
         //     $item->total_count = $item->wx_count + $item->wb_count;
         //     $item->total_browse = $item->wx_browse + $item->wb_browse;
         //     return $item;
         // });
-
+      
         return isset($page_data) ? responseToJson(0, '', $page_data) : responseToJson(1, '请求失败', $page_count);
 
     }

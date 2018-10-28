@@ -69,31 +69,36 @@ class RefundController extends Controller
     public function getRefundPageMsg(Request $request) {
 
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
-
-        $rules = [
-            'keyWord'       =>'nullable|string|max:255',
-            'screenState'   => 'required｜numeric',
-            'pageCount'     => 'required｜numeric',
-            'pageNumber'    => 'required｜numeric'
-        ];
-
-        $message = [
-            'soachNameKeyword.max'    =>'搜索关键字超过最大长度',
-            'screenType.*'            =>'参数错误',
-            'screenState.*'           =>'参数错误',
-            'pageCount.*'             => '参数错误',
-            'pageNumber.*'            => '参数错误'
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $message);
-
-        if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
-
+        
+        $data = [];
+        $data['keyWord'] = $request->name;
+        $data['screenState'] = $request->type;
+        $data['phone'] = $request->phone;
+        $data['keyWord'] = $request->name;
+        $data['pageCount'] = $request->pageCount;
+        $data['pageNumber'] = $request->pageNumber;
+        $data['type2'] = $request->type2;
         $get_refund_msg = RefundApply::getPageRefundMsg($request->all());
 
         return (is_array($get_refund_msg) && count($get_refund_msg) >= 0) ? responseToJson(0, '', $get_refund_msg) : responseToJson(1, '查询失败');
 
 
+    }
+    
+    public function getOne(Request $request){
+    
+        
+        if(!$request->isMethod('get'))
+            return responseToJson(1,'request error');
+        
+        if(!isset($request->id) && !is_numeric($request->id))
+            return responseToJson(1,'no id or id is not number');
+        $data = RefundApply::getOne($request->id);
+        if(sizeof($data) == 1){
+            return responseToJson(0,'success',$data);
+        }else{
+            return responseToJson(1,'no data');
+        }
     }
 
 
@@ -185,18 +190,15 @@ class RefundController extends Controller
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
 
         $refund_id = (isset($request->refundId) && is_numeric($request->refundId)) ? $request->refundId : 0;
-        $approve_status = ($request->approveStatus ?? false && is_numeric($request->approveStatus)) ? $request->approveStatus : -1;
-
+        $approve_status = (isset($request->approveStatus) && is_numeric($request->approveStatus)) ? $request->approveStatus : -1;
+        $stat = (isset($request->stat) && is_numeric($request->stat)) ? $request->stat : -1;
         $approve_context = '';
-        if(intval($approve_status) == 2) 
-            if(trim($request->approveContext) ?? false) 
                 $approve_context = trim($request->approveContext);
-            else 
-                return responseToJson(1, '请填写驳回理由');
-        
+            
+  
         if($refund_id == 0 || intval($approve_status) < 0 || intval($approve_status) > 3) return responseToJson(1, '参数错误');
-
-        $is_update = RefundApply::setAppointRefundApproveStatus($refund_id, $approve_status, $approve_context);
+        
+        $is_update = RefundApply::setAppointRefundApproveStatus($refund_id, $approve_status, $approve_context,$stat);
 
         return $is_update ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
 

@@ -424,6 +424,17 @@ class CouponController extends Controller
 
         return $is_update ? responseToJson(0, '修改成功') : responseToJson(1, '修改失败');
     }
+    
+    public function getCouByCoach(Request $request){
+        if(!$request->isMethod('get')) return responseToJson(2, 'request error');
+        if(!isset($request->id) && !is_numeric($request->id))
+            return responseToJson(1, 'no id or id is not number');
+        $c = ZslmCoupon::getCouponByCoachId($request);
+        if(sizeof($c)>0)
+            return responseToJson(0,'success',$c);
+        else
+            return responseToJson(1,'no data');
+    }
 
 
 }
