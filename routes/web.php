@@ -18,6 +18,9 @@ Route::get('/', function () {
 });
 
 
+//测试验证码
+
+
 Route::get('/smsSend', function() {
     SmsController::sendSms('15837587256', ['name'=>'李闪磊'], '测试', '');
 });
@@ -30,6 +33,6 @@ Route::get('/smsBatchSend', function() {
 Route::group(['middleware' => 'cors'], function() {
     include('admin.php');
     include('front.php');
-
+    include('login.php');
 });
 

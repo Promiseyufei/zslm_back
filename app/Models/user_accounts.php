@@ -123,7 +123,7 @@ class user_accounts
             case 1:
                 $users_id = DB::table('user_follow_major')
                 ->join('user_activitys', 'user_follow_major.user_id', '=', 'user_activitys.user_id')
-                ->whereExists(function($query) {
+                ->whereExists(function($query) use ($parameter) {
                     $query->whereIn('user_follow_major.major_id', $parameter['major_arr'])
                     ->orWhere(function($item) {
                         $item->whereIn('user_activitys.activity_id', $parameter['activity_arr']);

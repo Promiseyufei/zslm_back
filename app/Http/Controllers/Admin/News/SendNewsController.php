@@ -160,19 +160,27 @@ class SendNewsController extends Controller
      */
     public function batchScreenAccounts(Request $request) {
 
-        $major_arr = (isset($request->majorIdArr) && is_array($request->majorIdArr)) ? $request->majorIdArr : [];
+        $major_arr = is_array($request->majorIdArr) ? $request->majorIdArr : [];
 
-        $activity_arr = (isset($request->activityIdArr) && is_array($request->activityIdArr)) ? $request->activityIdArr : [];
+        $activity_arr = is_array($request->activityIdArr) ? $request->activityIdArr : [];
         
-        $condition  = (isset($request->condition) && is_numeric($request->condition)) ? $request->condition : -1;
+        $condition  = is_numeric($request->condition) ? $request->condition : -1;
         
         $page_count = ($request->pageCount ?? false) ? $request->pageCount : 10;
         
         $page_num = ($request->pageNumber ?? false) ? $request->pageNumber : 0;
-        if(count($major_arr) && count($activity_arr)) return responseToJson(1, '请选择数据');
+        // dd($activity_arr);
+        if(count($major_arr) < 1 && count($activity_arr) < 1) return responseToJson(1, '请选择数据');
         
         if(isset($major_arr) && isset($activity_arr) && $condition < 0) return responseToJson(1, '请选择专业和活动的关系');
 
+        var_dump([
+            'page_num'      => $page_num,
+            'condition'     => $condition,
+            'major_arr'     => $major_arr,
+            'page_count'    => $page_count,
+            'activity_arr'  => $activity_arr
+        ]);
         $get_users_msg = UserAccounts::getBatchAccounts([
             'page_num'      => $page_num,
             'condition'     => $condition,
