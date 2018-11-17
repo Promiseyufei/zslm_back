@@ -111,28 +111,37 @@
         }
         
         protected function resultObjToArray($data,$datas,$provice,$schooling,$insutrys){
-    
             for($i = 0;$i<sizeof($data);$i++){
                 $j = 0;
                 foreach ($data[$i] as $key => $value){
+//                    print_r($key);
                     if($key == 'address'){
                         $addressArr = strChangeArr($data[$i]->address,EXPLODE_STR);
                         $proviceName = $this->findAddress(intval($addressArr[0]),$provice);
                         $cityName = $this->findAddress(intval($addressArr[1]),$provice);
                         $datas[$i+1][$j] = $proviceName.$cityName;
                     }else if($key == 'industry'){
+                        
                         $insutry = strChangeArr($data[$i]->industry,EXPLODE_STR);
                         $return_ins = '';
-                        for($i = 0;$i<sizeof($insutry);$i++){
-                            $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
+                        
+                        for($z = 0;$z<sizeof($insutry);$z++){
+                            $return_ins.= $this->findIndustry(intval($insutry[$z]),$insutrys);
                         }
-                        $datas[$i+1][$j] =$return_ins;
-                    }else if($key = 'schooling_id'){
+                        
+                        $datas[$i+1][$j] = $return_ins;
+                       
+                    }else if($key == 'schooling_id'){
                         $schoolingName = $this->findSchooling(intval($data[$i]->schooling_id),$schooling);
                         $datas[$i+1][$j] = $schoolingName;
-                    }else{
+                       
+                    }else if($key == 'create_time'){
+                        $datas[$i+1][$j] = date("Y-m-d",$data[$i]->create_time) ;
+                    }
+                    else{
                         $datas[$i+1][$j] = $value;
                     }
+                    
                     $j++;
                 }
                 

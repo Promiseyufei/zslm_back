@@ -51,7 +51,7 @@ class zslm_activitys
             ->leftJoin('zslm_major', 'zslm_major.id', '=','activity_relation.host_major_id')
             ->leftJoin('dict_activity_type',  self::$sTableName.'.active_type', '=','dict_activity_type.id')
                 ->where(self::$sTableName.'.is_delete',0);
-        $sort_type = [0=>['show_weight','desc'], 1=>['show_weight','asc'], 2=>['update_time','desc']];
+        $sort_type = [0=>['id','desc'], 1=>['show_weight','asc'], 2=>['update_time','desc']];
         if(isset($val['activityNameKeyword'])) $handle = $handle->where('active_name', 'like', '%' . $val['activityNameKeyword'] . '%');
         if($val['showType'] != 2){
             self::judgeScreenState($val['showType'], 'show_state', $handle);

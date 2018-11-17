@@ -18,9 +18,13 @@
         public static function getInformation($name = '',$phone = '',$realname='',$page,$pageSize,$type){
             $name = $name != ''? '%'.$name.'%' : '%%';
             if($type == 2){
-//                print_r($phone);
-                $phone[0] = $phone[0] != '' ? '%'.$phone[0].'%' : '%%';
-                $phone[1] = $phone[1] != '' ? '%'.$phone[1].'%' : '%%';
+                if($phone != ''){
+                    $phone[0] = $phone[0] != '' ? '%'.$phone[0].'%' : '%%';
+                    $phone[1] = $phone[1] != '' ? '%'.$phone[1].'%' : '%%';
+                }else{
+                    $phone[0] = '%%';
+                    $phone[1] = '%%';
+                }
             }else{
                 $phone = $phone != '' ? '%'.$phone.'%' : '%%';
             }
