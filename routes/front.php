@@ -5,6 +5,8 @@
  */
 Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
 
+
+
     /**
      * 找活动
      */

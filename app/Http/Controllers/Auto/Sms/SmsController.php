@@ -70,7 +70,6 @@ class SmsController extends Controller
         // 初始化SendSmsRequest实例用于设置发送短信的参数
         $request = new SendSmsRequest;
 
-
         //可选-启用https协议
         //$request->setProtocol("https");
 
@@ -83,7 +82,6 @@ class SmsController extends Controller
         // 必填，设置模板CODE，应严格按"模板CODE"填写
         $request->setTemplateCode(config("sms.templateCode.$templateName"));
 
-
         // 可选，设置模板参数, 假如模板中存在变量需要替换则为必填项
         $request->setTemplateParam(json_encode($signMseeage, JSON_UNESCAPED_UNICODE));
 
@@ -93,7 +91,6 @@ class SmsController extends Controller
         // 发起访问请求
         $acsResponse = static::getAcsClient()->getAcsResponse($request);
 
-        dd($acsResponse);
         return $acsResponse;
 
     }
@@ -131,7 +128,6 @@ class SmsController extends Controller
 
         $acsResponse = static::getAcsClient()->getAcsResponse($request);
 
-        dd($acsResponse);
         return $acsResponse;
 
     }

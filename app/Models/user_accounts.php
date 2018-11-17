@@ -20,6 +20,8 @@ class user_accounts
     public static $sTableName = 'user_accounts';
 
 
+
+
     public static function getAllUsersId() {
         
         return DB::table(self::$sTableName)->pluck('id');
@@ -164,6 +166,21 @@ class user_accounts
     }
 
 
+    /**
+     * 以用户手机号获得指定用户
+     */
+    public static function getAppointUser($userPhone) {
+        return DB::table(self::$sTableName)->where('phone', $userPhone)->where('is_delete', 0)->first();
+    }
 
+    public static function insertUserAccount($userPhone = '') {
+        if(!DB::table(self::$sTableName)->where('phone', $userPhone)->count()) {
+            return DB::table(self::$sTableName)->insertGetId([
+                'phone'         => $userPhone,
+                'password'      => encryptPassword(mb_substr($userPhone, -1, 6)),
+                'create_time'   => time()
+            ]);
+        }
+    }
 
 }
