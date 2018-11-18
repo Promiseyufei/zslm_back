@@ -106,7 +106,6 @@ class user_accounts
 
     public static function getBatchAccounts(array $parameter = []) {
 
-
         switch($parameter['condition'])
         {
             case 0:
@@ -144,7 +143,6 @@ class user_accounts
                 $user_info = self::getAppointUserInfo($users_id, $parameter);
                 break;
         }
-
         return self::setDeepArray($user_info);
     }
 
@@ -181,6 +179,13 @@ class user_accounts
                 'create_time'   => time()
             ]);
         }
+    }
+
+    public static function updateUserPassword($userPhone, $password) {
+        return DB::table(self::$sTableName)->where('phone', $userPhone)->update([
+            'password' => encryptPassword($password),
+            'update_time' => time()
+        ]);
     }
 
 }
