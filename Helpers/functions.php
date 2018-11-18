@@ -193,7 +193,7 @@ function timeDiff($big,$little){
  * str 字符串
  * num 位数
  * */
-function strRand($num,$str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'){
+function strRand($num = 10,$str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'){
     $key = '';
     for ( $i = 0; $i < $num; $i++ )
     {
@@ -202,6 +202,10 @@ function strRand($num,$str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwx
     return $key;
 }
 
+
+function generateCode($length = 6) {
+    return rand(pow(10,($length-1)), pow(10,$length)-1);
+}
 
 /*
  * 把秒转换成天数，小时数，分钟
@@ -407,4 +411,22 @@ function getByteToMb($bytes) {
         }
         else 
             return false;
+    }
+
+
+
+    /**
+     * 获得存储在redis中的用户的标示
+     * @param $userPhone 用户手机号
+     * @param $type 类型 0获得用户会话控制　1获得用户短信验证码　2获得用户图形验证码
+     */
+    function getUserStatusString($userPhone = '', $type = 0) {
+        switch($type) {
+            case 0:
+                return $userPhone . '-state';
+            case 1: 
+                return $userPhone . '-smsCode';
+            case 2: 
+                return $userPhone . '-code';
+        }
     }

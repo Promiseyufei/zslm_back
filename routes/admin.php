@@ -5,7 +5,7 @@
      * 后台管理员
      */
     
-    Route::get('/test', 'Admin\Login\LoginController@login');
+    Route::get('/test', 'TestController@showProfile');
     
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         

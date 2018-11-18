@@ -66,7 +66,8 @@ return array(
      */
     'templateCode' => array(
 
-        '测试' => 'SMS_144451921'
+        '测试' => 'SMS_144451921',
+        'MBA小助手短信验证' => 'SMS_149325185',
     )
 
 
