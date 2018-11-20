@@ -228,7 +228,7 @@
         }
         
         // font
-        public static function getMajorBySelect($z_type, $z_name, $provice, $page, $page_size, $order = 0)
+        public static function getMajorBySelect($z_type, $z_name, $provice, $page, $page_size,$felds, $order = 0)
         {
             $query = DB::table(self::$sTableName)->where("is_show",0)->where('is_delete',0);
             if($z_type != 0)
@@ -237,12 +237,12 @@
                 $query = $query->where('z_name', 'like', '%' . $z_name . '%');
             if ($provice != '')
                 $query = $query->where('province', 'like', $provice . '%');
-            $desc = $order == 1 ? 'asc' : "desc";
+            $desc = $order == 0 ? 'desc' : "asc";
             $query = $query->orderBy('weight',$desc)
                 ->offset(($page-1)  * $page_size)
                 ->limit($page_size);
             
-            $result = $query->get(['id', 'province', 'magor_logo_name', 'z_name', 'create_time']);
+            $result = $query->get($felds);
             
             return sizeof($result) > 0 ? $result : null;
         }
