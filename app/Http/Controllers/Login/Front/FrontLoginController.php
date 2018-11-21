@@ -16,6 +16,7 @@ class FrontLoginController extends Controller{
      * 用户登录
      * @param $userPhone 用户手机号
      * @param $userPassword 密码
+     * @param $smsCode 手机验证码
      * @param $type 登录类型 0是账号密码登录; 1是短信验证码登录
      * @param $agree 是否同意注册　0不同意;1同意
      */
@@ -59,7 +60,7 @@ class FrontLoginController extends Controller{
      */
     private function judgeAgree($request, $userPhone) {
         if(isset($request->agree) && $request->agree == 0) {
-            return responseToJson(1, '退出');
+            return responseToJson(3, '您没有注册，确定注册吗？');
         }
         else if(isset($request->agree) && $request->agree == 1) {
             $insert_id = UserAccounts::insertUserAccount($userPhone);
