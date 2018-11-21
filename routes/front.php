@@ -19,13 +19,15 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
      * 搜辅导
      */
     Route::group(['prefix' => 'coach', 'namespace' => 'Coach'],function() {
-    
+        Route::get("getcoach","CoachController@getSelectCoach");
     });
 
     /**
      * 选院校
      */
     Route::group(['prefix' => 'colleges', 'namespace' => 'Colleges'],function() {
+    
+        Route::get("getmajor","MajorController@getMajor");
     
     });
 

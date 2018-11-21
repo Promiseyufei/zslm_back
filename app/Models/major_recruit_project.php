@@ -72,6 +72,24 @@ class major_recruit_project
     public static function getAppointIdProMsg($proId) {
         return DB::table(self::$sTableName)->where('id', $proId)->first();
     }
+    
+    
+    
+    //front
+    public static function getProjectByMid($id,$min,$max,$order = 0,$sorce_type,$enrollment_mode,$size = 3){
+        $query =  DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->where('major_id',$id);
+        if($min != 0 && $max != 0)
+            $query = $query->where('min_cost'>$min)->where('max_cost','<',$max);
+        if($sorce_type != 0){
+            $query = $query->where('score_type',$sorce_type);
+        }
+        if($enrollment_mode != 0){
+            $query = $query->where('enrollment_mode',$enrollment_mode);
+        }
+        $desc = $order == 0 ? 'desc':'asc';
+        $result = $query->orderBy("min_cost",$desc)->limit($size)->get(['project_name','cost','language','class_situation']);
+        return $result;
+    }
 
 
 
