@@ -276,5 +276,30 @@ class zslm_activitys
     }
 
 
+    /**
+     * 前台搜索页面获得活动搜索结果
+     */
+    public static function getSearchActivitys($keyword = '', $pageNumber = 0, $pageCount = 9) {
+        return DB::table(self::$sTableName)
+            ->leftJoin('activity_relation', self::$sTableName . '.id', '=', 'activity_relation.activity_id')
+            ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
+            ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
+            ->where(self::$sTableName . '.active_name', 'like', '%' . $keyword . '%')
+            ->orWhere(self::$sTableName . '.introduce', 'like', '%' . $keyword. '%')
+            ->offset($pageCount * ($pageNumber - 1))
+            ->limit($pageCount)
+            ->select(
+                self::$sTableName . '.id', 
+                self::$sTableName . '.active_name', 
+                self::$sTableName . '.province', 
+                self::$sTableName . '.begin_time', 
+                self::$sTableName . '.end_time', 
+                self::$sTableName . '.active_img', 
+                'dict_activity_type.name', 
+                'zslm_major.z_name'
+            )->get();
+    }
+
+
 
 }

@@ -11,6 +11,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
      * 找活动
      */
     Route::group(['prefix' => 'activity', 'namespace' => 'Activity'],function() {
+
+        Route::get('getSearchActivity', 'ActivityController@getSearchActivity');
     
     });
 
@@ -60,6 +62,15 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
      */
     Route::group(['prefix' => 'consult', 'namespace' => 'Consult'],function() {
     
+        Route::get('getSearchConsult', 'ConsultController@getSearchConsult');
+
+        Route::get('getRecommendRead', 'ConsultController@getRecommendRead');
+
+        Route::get('getConsultType', 'ConsultController@getConsultType');
+
+        Route::get('getConsultListBroadcast', 'ConsultController@getConsultListBroadcast');
+
+        Route::get('getConsultListInfo', 'ConsultController@getConsultListInfo');
     });
 
 
