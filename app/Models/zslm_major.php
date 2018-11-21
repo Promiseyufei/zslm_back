@@ -247,4 +247,16 @@
             return sizeof($result) > 0 ? $result : null;
         }
         
+        public static function getMajorBySelectCount($z_type, $z_name, $provice){
+            $query = DB::table(self::$sTableName)->where("is_show",0)->where('is_delete',0);
+            if($z_type != 0)
+                $query = $query->where('z_type', $z_type);
+            if ($z_name != '' && !empty($z_name))
+                $query = $query->where('z_name', 'like', '%' . $z_name . '%');
+            if ($provice != '')
+                $query = $query->where('province', 'like', $provice . '%');
+            $result = $query->count('id');
+            return $result;
+        }
+        
     }

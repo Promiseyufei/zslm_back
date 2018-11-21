@@ -76,7 +76,7 @@ class major_recruit_project
     
     
     //front
-    public static function getProjectByMid($id,$min,$max,$order = 0,$sorce_type,$enrollment_mode){
+    public static function getProjectByMid($id,$min,$max,$order = 0,$sorce_type,$enrollment_mode,$size = 3){
         $query =  DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->where('major_id',$id);
         if($min != 0 && $max != 0)
             $query = $query->where('min_cost'>$min)->where('max_cost','<',$max);
@@ -87,7 +87,7 @@ class major_recruit_project
             $query = $query->where('enrollment_mode',$enrollment_mode);
         }
         $desc = $order == 0 ? 'desc':'asc';
-        $result = $query->orderBy("min_cost",$desc)->limit(3)->get(['project_name','cost','language','class_situation']);
+        $result = $query->orderBy("min_cost",$desc)->limit($size)->get(['project_name','cost','language','class_situation']);
         return $result;
     }
 

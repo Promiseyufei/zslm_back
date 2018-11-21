@@ -45,12 +45,13 @@
                 
                 $majors[$i]->product = majorRecruitProject::getProjectByMid($majors[$i]->id,
                     $request->min, $request->max, $request->money_ordre,
-                    $request->score_type, $request->enrollment_mode);
+                    $request->score_type, $request->enrollment_mode,$request->project_count);
                 
                 $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
                 $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
             }
-//            dd($majors);
+            $count = zslmMajor::getMajorBySelectCount($request->z_type, $request->z_name, $provice);
+            $majors->count = $count;
             return responseToJson(0, 'success', $majors);
         }
     }
