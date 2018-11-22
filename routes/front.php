@@ -15,6 +15,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get('getSearchActivity', 'ActivityController@getSearchActivity');
 
         Route::get('getActivity', 'ActivityController@getActivity');
+
+        Route::get('getActivityType', 'ActivityController@getActivityType');
     
     });
 
@@ -32,6 +34,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     Route::group(['prefix' => 'colleges', 'namespace' => 'Colleges'],function() {
     
         Route::get("getmajor","MajorController@getMajor");
+
+        Route::get("getCollegesType","CollegesController@getCollegesType");
     
     });
 

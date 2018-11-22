@@ -88,21 +88,25 @@ class ActivityController extends Controller{
             // dd($request);
             $provice_id_arr = [];
             $keyword = defined($request->keyword) ? trim($request->keyword) : '';
+            $pageCount = defined($request->pageCount) ? $request->pageCount : 12;
+            $pageNumber = defined($request->pageNumber) ? $request->pageNumber : 1;
             if(isset($request->province) && is_array($request->province) && count($request->province)) {
                 $provice_id_arr = DictRegion::getProvinceIdByName($request->province);
             }
     
     
             $get_activitys = ZslmActivitys::getFrontActiListInfo($keyword, $request->majorType, $provice_id_arr, $request->activityType, 
-                $request->activityState, $request->activityDate, $request->pageCount, $request->pageNumber);
+                $request->activityState, $request->activityDate, $pageCount, $pageNumber);  
+
+            $get_activitys['info'] = $get_activitys['info']->toArray();
     
-            foreach ($get_activitys as $key => $item) {
+            foreach ($get_activitys['info'] as $key => $item) {
                 $now_time = time();
-                $get_activitys[$key]->startState = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
-                $get_activitys[$key]->begin_time = date("m-d",$item->begin_time);
-                $get_activitys[$key]->end_time = date("m-d", $item->end_time);
+                $get_activitys['info'][$key]->start_state = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
+                $get_activitys['info'][$key]->begin_time = date("m-d",$item->begin_time);
+                $get_activitys['info'][$key]->end_time = date("m-d", $item->end_time);
                 if($item->province !== '')
-                    $get_activitys[$key]->province = getProCity($item->province);
+                    $get_activitys['info'][$key]->province = getProCity($item->province);
             }
             return responseToJson(0, 'success', $get_activitys);
 

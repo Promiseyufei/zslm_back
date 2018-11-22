@@ -323,18 +323,21 @@ class zslm_activitys
         
         if(!empty($activityState) && count($activityState)) 
             $handel = $handel->whereIn('active_status', $activityState);
+
+        $count = $handel->count();
         
-        
-        return $handel->orderBy('show_weight', 'desc')->offset($pageCount * ($pageNumber - 1))->limit($pageCount)->select(
+        $get_info = $handel->orderBy('show_weight', 'desc')->offset($pageCount * ($pageNumber - 1))->limit($pageCount)->select(
             self::$sTableName . '.id', 
             self::$sTableName . '.active_name', 
             self::$sTableName . '.province', 
             self::$sTableName . '.begin_time', 
             self::$sTableName . '.end_time', 
             self::$sTableName . '.active_img', 
-            'dict_activity_type.name', 
+            'dict_activity_type.name as activity_type', 
             'zslm_major.z_name'
         )->get();
+
+        return ['count'=> $count, 'info' => $get_info];
         
         
     }
