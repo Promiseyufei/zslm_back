@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use DB;
+use App\Models\system_setup as SystemSetup;
 use Illuminate\Http\Request;
 
 class zslm_information
@@ -237,6 +238,62 @@ class zslm_information
                 'update_time' => time()
             ]));
         }
+    }
+
+
+    /**
+     * 前台搜索页面的搜索资讯信息
+     */
+    public static function getSearchConsults($keyword = '', $pageNumber = 0, $pageCount = 8) {
+        return DB::table(self::$sTableName)
+            ->where('zx_name', 'like', '%' . $keyword . '%')
+            ->orWhere('z_text', '%' . $keyword . '%')
+            ->offset($pageCount * ($pageNumber - 1))
+            ->limit($pageCount)
+            ->select('id', 'zx_name', 'create_time', 'z_text', 'z_image')->get();
+    }
+
+
+    /**
+     * 页面左侧推荐阅读模块后端接口
+     */
+    public static function getRecommendReads($pageNumber = 0) {
+        $rem_count = SystemSetup::getContent('front_recommend_read');
+        return DB::table(self::$sTableName)
+            ->where('is_delete', 0)
+            ->orderBy('weight', 'desc')
+            ->orderBy('create_time', 'desc')
+            ->offset($rem_count * $pageNumber)
+            ->limit($rem_count)
+            ->select('id', 'zx_name', 'create_time', 'z_image')->get();
+    }
+
+
+    /**
+     * 获得看资讯列表页首部轮播信息
+     */
+    public static function getConsultListBroadcasts() {
+        $count = SystemSetup::getContent('front_consult_list_broadcast_count');
+        $handel = DB::table(self::$sTableName)->where('is_delete', 0)->orderBy('weight', 'desc')->orderBy('create_time', 'desc');
+        if($handel->count() > $count) 
+            $handel = $handel->skip($count);
+
+        return $handel->select('id', 'zx_name', 'z_image')->get();
+    }
+
+
+    public static function getConsultListInfos($consultTypeId = 0, $pageCount = 9, $pageNumber = 1) {
+        $handel = DB::table(self::$sTableName);
+        if($consultTypeId != 0) 
+            $handel = $handel->where('z_type', $consultTypeId);
+
+        return $handel->where('is_delete', 0)
+            ->orderBy('weight', 'desc')
+            ->orderBy('create_time', 'desc')
+            ->offset($pageCount * ($pageNumber -1))
+            ->limit($pageCount)
+            ->select('id', 'zx_name', 'brief_introduction', 'create_time', 'z_image')->get();
+
     }
 
 

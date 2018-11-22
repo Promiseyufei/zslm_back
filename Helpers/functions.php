@@ -1,6 +1,7 @@
  <?php
 
 use App\Models\dict as Dict;
+use App\Models\dict_region as dictRegion;
 
 /**
  * 公共方法
@@ -429,4 +430,28 @@ function getByteToMb($bytes) {
             case 2: 
                 return $userPhone . '-code';
         }
+    }
+
+
+    /**
+     * 根据省市拼接id字符串获得所在省市
+     * @param $proStr 省市拼接字符串
+     * @return @pro 返回所在省市所在的数组　$pro['province']:所在省名称　$pro['city']:所在市名称
+     */
+    function getProCity($proStr = '') {
+        $pro = [];
+        $addressArr = strChangeArr($proStr, EXPLODE_STR);
+        $pro['province'] = dictRegion::getOneArea($addressArr[0])[0]->name;
+        $pro['city'] = '';
+        if (sizeof($addressArr) > 1)
+            $pro['city'] = dictRegion::getOneArea($addressArr[1])[0]->name;
+        return $pro;
+    }
+
+    /**
+     * 字符串超出部分以指定字符串代替
+     * 
+     */
+    function changeString($str = '', $start = 0, $length, $replace = '...', $codeType = 'utf-8') {
+        return mb_strlen($str, $codeType) < ($start + $length) ? $str : mb_substr($str, $start, $length, $codeType) . $replace;
     }
