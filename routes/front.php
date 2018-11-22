@@ -13,6 +13,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     Route::group(['prefix' => 'activity', 'namespace' => 'Activity'],function() {
 
         Route::get('getSearchActivity', 'ActivityController@getSearchActivity');
+
+        Route::get('getActivity', 'ActivityController@getActivity');
     
     });
 
