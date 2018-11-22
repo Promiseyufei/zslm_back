@@ -8,6 +8,11 @@
     
     namespace App\Http\Controllers\Front\Colleges;
     
+    use App\Models\dict_fraction_type;
+    use App\Models\dict_major_direction;
+    use App\Models\dict_major_follow;
+    use App\Models\dict_major_type;
+    use App\Models\dict_recruitment_pattern;
     use Illuminate\Http\Request;
     use App\Http\Controllers\Controller;
     
@@ -21,6 +26,9 @@
     {
         public function getMajor(Request $request)
         {
+            if(!$request->method('get')){
+                return responseToJson(1,'请求方式错误');
+            }
             $provice = '';
             if (!empty($request->provice) && $request->provice != '')
                 $provice = dictRegion::getProvinceIdByName($request->provice);
@@ -28,7 +36,7 @@
                 'z_name', 'update_time', 'major_confirm_id', 'major_follow_id'];
             
             $majors = zslmMajor::getMajorBySelect($request->z_type, $request->z_name,
-                $provice, $request->page, $request->page_size, $felds, $request->major_order);
+                $provice,$request->professional_direction, $request->page, $request->page_size, $felds, $request->major_order);
             
             if (empty($majors))
                 return responseToJson(1, "暂无数据");
@@ -53,5 +61,17 @@
             $count = zslmMajor::getMajorBySelectCount($request->z_type, $request->z_name, $provice);
             $majors->count = $count;
             return responseToJson(0, 'success', $majors);
+        }
+        
+        public function getInfo(Request $request){
+            if(!$request->method('get')){
+                return responseToJson(1,'请求方式错误');
+            }
+            $major_type = dict_major_type::getAllMajor();
+            $major_fangxiang = dict_major_direction::getAllDirection();
+            $socre_type = dict_fraction_type::getAllType();
+            $tongzhao_type =dict_recruitment_pattern::getAllPattern();
+            dd(['type'=>$major_type,'direction'=>$major_fangxiang,'socre'=>$socre_type,'pattern'=>$tongzhao_type]);
+            return responseToJson(0,'success',['type'=>$major_type,'direction'=>$major_fangxiang,'socre'=>$socre_type,'pattern'=>$tongzhao_type]);
         }
     }

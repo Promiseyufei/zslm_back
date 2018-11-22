@@ -28,6 +28,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     Route::group(['prefix' => 'colleges', 'namespace' => 'Colleges'],function() {
     
         Route::get("getmajor","MajorController@getMajor");
+        Route::get("info","MajorController@getInfo");
     
     });
 
