@@ -294,12 +294,16 @@ class zslm_information
         if($consultTypeId != 0) 
             $handel = $handel->where('z_type', $consultTypeId);
 
-        return $handel->where('is_delete', 0)
+
+        $handel = $handel->where('is_delete', 0)
             ->orderBy('weight', 'desc')
-            ->orderBy('create_time', 'desc')
-            ->offset($pageCount * ($pageNumber -1))
+            ->orderBy('create_time', 'desc');
+        $count = $handel->count();
+
+        $info = $handel->offset($pageCount * ($pageNumber -1))
             ->limit($pageCount)
-            ->select('id', 'zx_name', 'brief_introduction', 'create_time', 'z_image')->get();
+            ->select('id', 'zx_name', 'brief_introduction', 'create_time', 'z_image')->get()->toArray();
+        return ['count' => $count, 'info'=> $info];
 
     }
     
