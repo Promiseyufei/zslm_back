@@ -40,7 +40,7 @@
             $addr = getProCity($user[0]->address);
             unset($user[0]->address);
             $user[0]->provice = $addr['province'];
-            if(sizeof($addr>1))
+            if(sizeof($addr)>1)
                 $user[0]->city = $addr['city'];
             $majorCount = userFollowMajor::getCountUserMajor($request->id);
             $activeCount = userActivitys::getCountUserActivity($request->id);
