@@ -51,7 +51,7 @@ class zslm_activitys
             ->leftJoin('zslm_major', 'zslm_major.id', '=','activity_relation.host_major_id')
             ->leftJoin('dict_activity_type',  self::$sTableName.'.active_type', '=','dict_activity_type.id')
                 ->where(self::$sTableName.'.is_delete',0);
-        $sort_type = [0=>['show_weight','desc'], 1=>['show_weight','asc'], 2=>['update_time','desc']];
+        $sort_type = [0=>['id','desc'], 1=>['show_weight','asc'], 2=>['update_time','desc']];
         if(isset($val['activityNameKeyword'])) $handle = $handle->where('active_name', 'like', '%' . $val['activityNameKeyword'] . '%');
         if($val['showType'] != 2){
             self::judgeScreenState($val['showType'], 'show_state', $handle);
@@ -273,6 +273,73 @@ class zslm_activitys
 
     public static function getActiveByids(array $id){
         return DB::table(self::$sTableName)->where('is_delete',0)->whereIn('id',$id)->get(['active_name','id','show_weight','create_time','active_type']);
+    }
+
+
+    /**
+     * 前台搜索页面获得活动搜索结果
+     */
+    public static function getSearchActivitys($keyword = '', $pageNumber = 0, $pageCount = 9) {
+        return DB::table(self::$sTableName)
+            ->leftJoin('activity_relation', self::$sTableName . '.id', '=', 'activity_relation.activity_id')
+            ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
+            ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
+            ->where(self::$sTableName . '.active_name', 'like', '%' . $keyword . '%')
+            ->orWhere(self::$sTableName . '.introduce', 'like', '%' . $keyword. '%')
+            ->offset($pageCount * ($pageNumber - 1))
+            ->limit($pageCount)
+            ->select(
+                self::$sTableName . '.id', 
+                self::$sTableName . '.active_name', 
+                self::$sTableName . '.province', 
+                self::$sTableName . '.begin_time', 
+                self::$sTableName . '.end_time', 
+                self::$sTableName . '.active_img', 
+                'dict_activity_type.name', 
+                'zslm_major.z_name'
+            )->get();
+    }
+
+
+
+    /**
+     * 前台找活动页面获得筛选结果
+     */
+    public static function getFrontActiListInfo($keyword, $majorType, $provinceIdArr, $activityType, $activityState, $activityDate, $pageCount, $pageNumber) {
+
+        $handel = DB::table(self::$sTableName)
+            ->leftJoin('activity_relation', self::$sTableName . '.id', '=', 'activity_relation.activity_id')
+            ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
+            ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
+            ->where(self::$sTableName . '.show_state', 0)->where(self::$sTableName . '.is_delete', 0)
+            ->where('active_name', 'like', '%' . $keyword . '%');
+
+        if(!empty($majorType) && count($majorType) > 0) 
+            $handel = $handel->whereIn('major_type', $majorType);
+
+        
+        if(!empty($activityType) && count($activityType))
+            $handel = $handel->whereIn('active_type', $activityType);
+        
+        if(!empty($activityState) && count($activityState)) 
+            $handel = $handel->whereIn('active_status', $activityState);
+
+        $count = $handel->count();
+        
+        $get_info = $handel->orderBy('show_weight', 'desc')->offset($pageCount * ($pageNumber - 1))->limit($pageCount)->select(
+            self::$sTableName . '.id', 
+            self::$sTableName . '.active_name', 
+            self::$sTableName . '.province', 
+            self::$sTableName . '.begin_time', 
+            self::$sTableName . '.end_time', 
+            self::$sTableName . '.active_img', 
+            'dict_activity_type.name as activity_type', 
+            'zslm_major.z_name'
+        )->get();
+
+        return ['count'=> $count, 'info' => $get_info];
+        
+        
     }
 
 

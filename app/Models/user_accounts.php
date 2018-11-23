@@ -20,6 +20,8 @@ class user_accounts
     public static $sTableName = 'user_accounts';
 
 
+
+
     public static function getAllUsersId() {
         
         return DB::table(self::$sTableName)->pluck('id');
@@ -104,7 +106,6 @@ class user_accounts
 
     public static function getBatchAccounts(array $parameter = []) {
 
-
         switch($parameter['condition'])
         {
             case 0:
@@ -142,7 +143,6 @@ class user_accounts
                 $user_info = self::getAppointUserInfo($users_id, $parameter);
                 break;
         }
-
         return self::setDeepArray($user_info);
     }
 
@@ -164,6 +164,28 @@ class user_accounts
     }
 
 
+    /**
+     * 以用户手机号获得指定用户
+     */
+    public static function getAppointUser($userPhone) {
+        return DB::table(self::$sTableName)->where('phone', $userPhone)->where('is_delete', 0)->first();
+    }
 
+    public static function insertUserAccount($userPhone = '') {
+        if(!DB::table(self::$sTableName)->where('phone', $userPhone)->count()) {
+            return DB::table(self::$sTableName)->insertGetId([
+                'phone'         => $userPhone,
+                'password'      => encryptPassword(mb_substr($userPhone, -1, 6)),
+                'create_time'   => time()
+            ]);
+        }
+    }
+
+    public static function updateUserPassword($userPhone, $password) {
+        return DB::table(self::$sTableName)->where('phone', $userPhone)->update([
+            'password' => encryptPassword($password),
+            'update_time' => time()
+        ]);
+    }
 
 }

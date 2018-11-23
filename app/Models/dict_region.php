@@ -24,11 +24,19 @@
             $provice =  DB::table(self::$sTableName)->where('father_id',0)->get(['id','name']);
             return $provice;
         }
+        
     
         public static function getCity(){
             $provice =  DB::table(self::$sTableName)->where('father_id','!=',0)->get(['id','name']);
             return $provice;
         }
+        
+        public static function getOneArea($id){
+            $result = DB::table(self::$sTableName)->where('id',$id)->limit(1)->get(['name']);
+            return $result;
+        }
+        
+        
         
         public static function getAllArea(){
             $provice =  DB::table(self::$sTableName)->get(['id','name']);

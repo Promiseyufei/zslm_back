@@ -1,6 +1,7 @@
  <?php
 
 use App\Models\dict as Dict;
+use App\Models\dict_region as dictRegion;
 
 /**
  * 公共方法
@@ -193,7 +194,7 @@ function timeDiff($big,$little){
  * str 字符串
  * num 位数
  * */
-function strRand($num,$str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'){
+function strRand($num = 10,$str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'){
     $key = '';
     for ( $i = 0; $i < $num; $i++ )
     {
@@ -202,6 +203,10 @@ function strRand($num,$str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwx
     return $key;
 }
 
+
+function generateCode($length = 6) {
+    return rand(pow(10,($length-1)), pow(10,$length)-1);
+}
 
 /*
  * 把秒转换成天数，小时数，分钟
@@ -407,4 +412,46 @@ function getByteToMb($bytes) {
         }
         else 
             return false;
+    }
+
+
+
+    /**
+     * 获得存储在redis中的用户的标示
+     * @param $userPhone 用户手机号
+     * @param $type 类型 0获得用户会话控制　1获得用户短信验证码　2获得用户图形验证码
+     */
+    function getUserStatusString($userPhone = '', $type = 0) {
+        switch($type) {
+            case 0:
+                return $userPhone . '-state';
+            case 1: 
+                return $userPhone . '-smsCode';
+            case 2: 
+                return $userPhone . '-code';
+        }
+    }
+
+
+    /**
+     * 根据省市拼接id字符串获得所在省市
+     * @param $proStr 省市拼接字符串
+     * @return @pro 返回所在省市所在的数组　$pro['province']:所在省名称　$pro['city']:所在市名称
+     */
+    function getProCity($proStr = '') {
+        $pro = [];
+        $addressArr = strChangeArr($proStr, EXPLODE_STR);
+        $pro['province'] = dictRegion::getOneArea($addressArr[0])[0]->name;
+        $pro['city'] = '';
+        if (sizeof($addressArr) > 1)
+            $pro['city'] = dictRegion::getOneArea($addressArr[1])[0]->name;
+        return $pro;
+    }
+
+    /**
+     * 字符串超出部分以指定字符串代替
+     * 
+     */
+    function changeString($str = '', $start = 0, $length, $replace = '...', $codeType = 'utf-8') {
+        return mb_strlen($str, $codeType) < ($start + $length) ? $str : mb_substr($str, $start, $length, $codeType) . $replace;
     }

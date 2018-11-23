@@ -5,7 +5,7 @@
      * 后台管理员
      */
     
-    Route::get('/test', 'Admin\Login\LoginController@login');
+    Route::get('/test', 'TestController@showProfile');
     
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         
@@ -16,6 +16,10 @@
             
             Route::get('getmajoruser', 'AccountsController@getMajorUser');
             Route::get('createmajorexcel', 'AccountsController@createMajorExcel');
+            Route::get('createCouponExcel', 'AccountsController@createCouponExcel');
+            Route::get('createUserExcel', 'AccountsController@createUserExcel');
+            Route::get('createActivityExcel', 'AccountsController@createActivityExcel');
+            
             Route::get('getmajorone', 'AccountsController@getMajorOneUser');
             Route::get('getuser', 'AccountsController@getUser');
             Route::get('getoneuser', 'AccountsController@getOneUser');
@@ -87,6 +91,7 @@
          * Files模块
          */
         Route::group(['prefix' => 'files', 'namespace' => 'Files'], function () {
+            
             Route::get('getuploadfile', 'FilesController@getUploadFile');
             Route::post('upload', 'FilesController@uploadFile');
             Route::post('deletefiles', 'FilesController@deleteFile');

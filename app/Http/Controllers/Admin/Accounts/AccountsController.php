@@ -238,7 +238,7 @@ class AccountsController extends AccountControllerBase
         $provice = DictRegion::getAllArea();
         $schooling = DictSchooling::getAllSchooling();
         $insutrys = DictInsutry::getAllIndustry();
-        $data = $result = UserInformation::getInformation('',$request->page,$request->pageSize,'',0);
+        $data = $result = UserInformation::getInformation('','','',1,MAX_INTEGER,0)[0];
         
         $datas = [['活动id','活动名称','账户id',
                     '电话号码','头像','用户名',
@@ -256,8 +256,8 @@ class AccountsController extends AccountControllerBase
         $provice = DictRegion::getAllArea();
         $schooling = DictSchooling::getAllSchooling();
         $insutrys = DictInsutry::getAllIndustry();
-        $data = $result = UserInformation::getInformation('','','',0,MAX_INTEGER,'',1);
-        
+        $data = $result = UserInformation::getInformation('','','',1,MAX_INTEGER,'',1)[0];
+//        dd($data);
         $datas = [['院校专业id','院校专业名称','账户id',
             '电话号码','头像','用户名',
             '真实姓名','性别','地址',
@@ -269,13 +269,13 @@ class AccountsController extends AccountControllerBase
     }
     
     public function createCouponExcel(Request $request){
-        if(!$request->isMethod('post'))
+        if(!$request->isMethod('get'))
             return responseToJson(1,METHOD_ERROR);
         
         $provice = DictRegion::getAllArea();
         $schooling = DictSchooling::getAllSchooling();
         $insutrys = DictInsutry::getAllIndustry();
-        $data = $result = UserInformation::getInformation('',$request->page,$request->pageSize,'',2);
+        $data = $result = UserInformation::getInformation('','','',1,MAX_INTEGER,2)[0];
         
         $datas = [['优惠券id','优惠券名称','账户id',
             '电话号码','头像','用户名',
@@ -294,7 +294,7 @@ class AccountsController extends AccountControllerBase
         $provice = DictRegion::getAllArea();
         $schooling = DictSchooling::getAllSchooling();
         $insutrys = DictInsutry::getAllIndustry();
-        $data = $result = UserInformation::getInformation('',$request->page,$request->pageSize,'',3);
+        $data = $result = UserInformation::getInformation('','','',1,MAX_INTEGER,3)[0];
         
         $datas = [['账户id',
             '电话号码','头像','用户名',

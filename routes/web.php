@@ -22,7 +22,8 @@ Route::get('/', function () {
 
 
 Route::get('/smsSend', function() {
-    SmsController::sendSms('15837587256', ['name'=>'李闪磊'], '测试', '');
+    $a = SmsController::sendSms('15837587256', ['name'=>'李闪磊'], '测试', '');
+    dd($a);
 });
 
 Route::get('/smsBatchSend', function() {

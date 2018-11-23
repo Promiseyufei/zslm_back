@@ -180,6 +180,9 @@ return [
         //Maatwebsite/excel  lishanlei
         Maatwebsite\Excel\ExcelServiceProvider::class,
 
+        //第三方登录插件weixin/weibo
+        SocialiteProviders\Manager\ServiceProvider::class,
+
     ],
 
     /*
@@ -232,6 +235,9 @@ return [
 
         //Maatwebsite/excel  lishanlei
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+
+        //第三方登录－－weixin/weibo
+        'Socialite' => Laravel\Socialite\Facades\Socialite::class, 
 
     ],
 
