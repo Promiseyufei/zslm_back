@@ -257,15 +257,22 @@ class zslm_information
     /**
      * 页面左侧推荐阅读模块后端接口
      */
-    public static function getRecommendReads($pageNumber = 0) {
+    public static function getRecommendReads($pageNumber = 0, $type) {
         $rem_count = SystemSetup::getContent('front_recommend_read');
-        return DB::table(self::$sTableName)
+        $handel = DB::table(self::$sTableName)
             ->where('is_delete', 0)
+            // ->where('is_recommend', 1)
             ->orderBy('weight', 'desc')
-            ->orderBy('create_time', 'desc')
-            ->offset($rem_count * $pageNumber)
-            ->limit($rem_count)
-            ->select('id', 'zx_name', 'create_time', 'z_image')->get();
+            ->orderBy('create_time', 'desc');
+
+        if(isset($type) && $type == 1)
+            $handel = $handel->where('z_type', 1);
+
+        $count = $handel->count();
+        $info = $handel->offset($rem_count * $pageNumber)
+        ->limit($rem_count)
+        ->select('id', 'zx_name', 'create_time', 'z_image')->get()->toArray();
+        return ['count' => $count, 'info' => $info];
     }
 
 

@@ -39,12 +39,14 @@ class ConsultController extends Controller{
     /**
      * 推荐阅读模块组件的后端接口
      * @param $pageNumber 页面下标
+     * @param $type 1获得行业列表咨询推荐模块数据
      */
     public function getRecommendRead(Request $request) {
         if($request->isMethod('get')) {
-            $get_recommend_read = ZslmInformation::getRecommendReads($request->pageNumber)->toArray();
-            foreach ($get_recommend_read as $key => $item) {
-                $get_recommend_read[$key]->create_time = date("Y.m.d", $item->create_time);
+            // if(isset($request->type) && $request->type == 1)
+            $get_recommend_read = ZslmInformation::getRecommendReads($request->pageNumber, $request->type);
+            foreach ($get_recommend_read['info'] as $key => $item) {
+                $get_recommend_read['info'][$key]->create_time = date("Y.m.d", $item->create_time);
             }
             return responseToJson(0, 'success', $get_recommend_read);
         }
