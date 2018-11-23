@@ -17,4 +17,8 @@
             
            return DB::table(self::$sTableName)->where('user_id',$userId)->where('status',0)->get(['activity_id']);
         }
+        
+        public static function getCountUserActivity($id,$status = 0){
+            return DB::table(self::$sTableName)->where('user_id',$id)->where('status',$status)->count('activity_id');
+        }
     }

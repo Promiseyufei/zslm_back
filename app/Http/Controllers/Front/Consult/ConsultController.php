@@ -101,6 +101,15 @@ class ConsultController extends Controller{
         else return responseToJson(2, 'error');
     }
 
+    public function getIndexConsult($page,$page_size){
+        $get_consult_info_list = ZslmInformation::getConsultListInfos(0, $page_size, $page)->toArray();
+        foreach ($get_consult_info_list as $key => $item) {
+            $get_consult_info_list[$key]->publisher = '专硕联盟';
+            $get_consult_info_list[$key]->create_time = date("Y.m.d", $item->create_time);
+            $get_consult_info_list[$key]->brief_introduction = changeString($item->brief_introduction, 0, 90, '...');
+        }
+        return $get_consult_info_list;
+    }
 
     
 }

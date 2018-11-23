@@ -78,16 +78,25 @@ class major_recruit_project
     //front
     public static function getProjectByMid($id,$min,$max,$order = 0,$sorce_type,$enrollment_mode,$size = 3){
         $query =  DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->where('major_id',$id);
-        if($min != 0 && $max != 0)
+        if($min != 0 && $max != 0 && !empty($min) && !empty(!max))
             $query = $query->where('min_cost'>$min)->where('max_cost','<',$max);
-        if($sorce_type != 0){
-            $query = $query->where('score_type',$sorce_type);
+        if($sorce_type != '' && !empty($sorce_type)){
+            $types = strChangeArr($sorce_type, EXPLODE_STR);
+            $query = $query->whereIn('score_type',$types);
         }
-        if($enrollment_mode != 0){
-            $query = $query->where('enrollment_mode',$enrollment_mode);
+        if($enrollment_mode != '' && !empty($enrollment_mode)){
+            $enrollment_modes = strChangeArr($enrollment_mode, EXPLODE_STR);
+            $query = $query->where('enrollment_mode',$enrollment_modes);
         }
         $desc = $order == 0 ? 'desc':'asc';
-        $result = $query->orderBy("min_cost",$desc)->limit($size)->get(['project_name','cost','language','class_situation']);
+        $result = $query->orderBy("min_cost",$desc)->limit($size)->get(['project_name','cost','language','class_situation','student_count']);
+        return $result;
+    }
+    
+    public static function getProjectByMidNoMoney($id,$size = 3){
+        $query =  DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->where('major_id',$id);
+    
+        $result = $query->orderBy("min_cost",'desc')->limit($size)->get(['project_name','cost','language','class_situation','student_count']);
         return $result;
     }
 

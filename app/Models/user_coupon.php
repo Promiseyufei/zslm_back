@@ -20,4 +20,8 @@
                 ->where('user_id',$user_id)
                 ->get(['coupon_id']);
         }
+        
+        public static function getCountUserCoupon($id,$status){
+            return DB::table(self::$sTableName)->where('user_id',$id)->where('is_use',$status)->count('id');
+        }
     }

@@ -22,7 +22,6 @@
     use App\Models\zslm_coupon as ZslmCoupon;
     
     define('METHOD_ERROR','The request type error');
-    define('EXPLODE_STR',',');
     define('EXCEL_NAME','活动账户导出表');
     define('MAX_INTEGER',2147483647);
     class AccountControllerBase extends Controller

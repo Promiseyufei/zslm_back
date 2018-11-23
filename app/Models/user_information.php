@@ -193,7 +193,7 @@
         
         //front
         public static function getUserFrontMsg($id,$field){
-            return DB::tabel(self::$sTableName)->where('user_account_id',$id)->where('is_delete',0)->limit(1)->get($field);
+            return DB::table(self::$sTableName)->where('user_account_id',$id)->where('is_delete',0)->limit(1)->get($field);
         }
         
     }
