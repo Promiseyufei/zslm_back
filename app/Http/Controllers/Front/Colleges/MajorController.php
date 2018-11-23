@@ -34,8 +34,8 @@
             if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
                 return responseToJson(1, '没有页码、页面大小或者页码、也买你大小不是数字');
             $provice = '';
-            if (!empty($request->provice) && $request->provice != '')
-                $provice = dictRegion::getProvinceIdByName($request->provice);
+            // if (!empty($request->provice) && $request->provice != '')
+            //     $provice = dictRegion::getProvinceIdByName($request->provice);
             $felds = ['id', 'province', 'magor_logo_name',
                 'z_name', 'update_time', 'major_confirm_id', 'major_follow_id'];
             
