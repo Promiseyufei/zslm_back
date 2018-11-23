@@ -12,4 +12,8 @@ class news_users
     {
         return DB::table(self::$sTableName)->insert($create_data);
     }
+    
+    public static function getCountUserNews($id,$status){
+        return DB::table(self::$sTableName)->where('user_id',$id)->where('status',$status)->count('id');
+    }
 }

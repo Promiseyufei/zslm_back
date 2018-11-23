@@ -302,6 +302,21 @@ class zslm_information
             ->select('id', 'zx_name', 'brief_introduction', 'create_time', 'z_image')->get();
 
     }
+    
+    public static function getIndexConsult(){
+    
+        $handel = DB::table(self::$sTableName);
+        
+    
+        return $handel->where('is_delete', 0)
+            ->orderBy('weight', 'desc')
+            ->orderBy('create_time', 'desc')
+            ->offset(6 * (1 -1))
+            ->limit(6)
+            ->get(['id', 'zx_name','z_text' ,'z_from', 'create_time', 'z_image']);
+    }
+    
+    
 
 
 

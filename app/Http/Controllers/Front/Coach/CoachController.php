@@ -14,10 +14,15 @@
     
     use App\Models\coach_organize as coachOrganize;
     
+    
     class CoachController extends Controller
     {
         public function getSelectCoach(Request $request)
         {
+            if(!$request->method('get'))
+                return responseToJson(1,'请求方式错误');
+            if(!isset($request->page) || !isset($request->page_size) || !is_numeric($request->page) || !is_numeric($request->page_size))
+                return responseToJson(1,'没有页码、页面大小或者页码、也买你大小不是数字');
             $provice = '';
             if (!empty($request->provice) && $request->provice != '')
                 $provice = dictRegion::getProvinceIdByName($request->provice);
@@ -38,5 +43,26 @@
                 $request->coach_name, $request->if_back, $request->if_coupon);
             $coachs->count = $count;
             return responseToJson(0,'success',$coachs);
+        }
+        
+        public function getCoachByName(Request $request){
+            if(!$request->isMethod('get'))
+                return responseToJson('1','请求错误');
+    
+            if(!isset($request->page) || !isset($request->page_size) || !is_numeric($request->page) || !is_numeric($request->page_size))
+                return responseToJson(1,'没有页码、页面大小或者页码、也买你大小不是数字');
+            
+            $coachs = $this->getIndexInfo($request->name,$request->page,$request->page_size);
+            if(sizeof($coachs) == 0)
+                return responseToJson(1,'没有数据');
+            return responseToJson(0,'success',$coachs);
+        }
+        
+        public function getIndexInfo($name,$page = 1,$page_size = 3){
+            $fields = ['id', 'coach_name', 'if_coupons', 'if_back_money', 'cover_name', 'cover_alt', 'logo_name', 'logo_alt'];
+            $coachs = coachOrganize::getSelectCoach('', null,
+                $name, $page, $page_size,
+                null,null, $fields);
+            return $coachs;
         }
     }

@@ -176,13 +176,15 @@
             $query = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)->where('father_id', 0);
             if ($provice != '')
                 $query = $query->where('province', 'like', $provice . '%');
-            if ($type != 3)
-                $query = $query->where("coach_type", $type);
-            if ($name != '')
+            if ($type != '' && !empty($type)){
+                $types = strChangeArr($type, EXPLODE_STR);
+                $query = $query->whereIn("coach_type", $types);
+            }
+            if ($name != '' && !empty($name))
                 $query = $query->where('coach_name', 'like', '%' . $name . '%');
-            if ($if_back != 2)
+            if ($if_back != 2 && !empty($if_back))
                 $query = $query->where("if_back_money", $if_back);
-            if ($if_coupon != 2)
+            if ($if_coupon != 2 && !empty($if_coupon))
                 $query = $query->where("if_coupons", $if_coupon);
             return $query;
         }
@@ -199,7 +201,7 @@
         public static function getSonCoach($f_id)
         {
             $result = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)
-                ->where('father_id', $f_id)->get(['coach_name']);
+                ->where('father_id', $f_id)->get(['id','coach_name']);
             return $result;
         }
         

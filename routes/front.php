@@ -10,6 +10,10 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     /**
      * 找活动
      */
+    
+    
+      Route::get('indexinfo', 'indexController@getIndexInfo');
+    
     Route::group(['prefix' => 'activity', 'namespace' => 'Activity'],function() {
 
         Route::get('getSearchActivity', 'ActivityController@getSearchActivity');
@@ -26,6 +30,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
      */
     Route::group(['prefix' => 'coach', 'namespace' => 'Coach'],function() {
         Route::get("getcoach","CoachController@getSelectCoach");
+        Route::get("getcoachbyname","CoachController@getCoachByName");
     });
 
     /**
@@ -35,7 +40,10 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     
         Route::get("getmajor","MajorController@getMajor");
 
+        Route::get("info","MajorController@getInfo");
         Route::get("getCollegesType","CollegesController@getCollegesType");
+        Route::get("getcollegebyname","MajorController@getMajorByName");
+
     
     });
 
@@ -59,7 +67,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
      * 用户个人中心
      */
     Route::group(['prefix' => 'usercore', 'namespace' => 'UserCore'],function() {
-    
+        Route::get("getuserinfo","userController@getUserInfo");
+        Route::get("getusermajor","userController@getUserMajor");
     });
 
 

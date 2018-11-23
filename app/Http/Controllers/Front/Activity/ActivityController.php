@@ -113,5 +113,34 @@ class ActivityController extends Controller{
         }
         else return responseToJson(2, 'error');
     }
+    
+    public function  getIndexActivity(Request $request,$page,$page_size){
+        if($request->isMethod('get')) {
+            // dd($request);
+            $provice_id_arr = [];
+            $keyword = defined($request->keyword) ? trim($request->keyword) : '';
+            if(isset($request->province) && is_array($request->province) && count($request->province)) {
+                $provice_id_arr = DictRegion::getProvinceIdByName($request->province);
+            }
+        
+        
+            $get_activitys = ZslmActivitys::getFrontActiListInfo('', $request->majorType, $provice_id_arr, $request->activityType,
+                $request->activityState, $request->activityDate, $page_size, $page);
+        
+            $get_activitys['info'] = $get_activitys['info']->toArray();
+        
+            foreach ($get_activitys['info'] as $key => $item) {
+                $now_time = time();
+                $get_activitys['info'][$key]->start_state = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
+                $get_activitys['info'][$key]->begin_time = date("m-d",$item->begin_time);
+                $get_activitys['info'][$key]->end_time = date("m-d", $item->end_time);
+                if($item->province !== '')
+                    $get_activitys['info'][$key]->province = getProCity($item->province);
+            }
+            return$get_activitys;
+        
+        }
+        else return null;
+    }
 
 }
