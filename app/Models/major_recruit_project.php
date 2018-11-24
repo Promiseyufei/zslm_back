@@ -89,7 +89,13 @@ class major_recruit_project
             $query = $query->where('enrollment_mode',$enrollment_modes);
         }
         $desc = $order == 0 ? 'desc':'asc';
-        $result = $query->orderBy("min_cost",$desc)->limit($size)->get(['project_name','cost','language','class_situation','student_count']);
+        
+        $query = $query->orderBy("min_cost",$desc);
+        if($size !=0){
+          $query =  $query->limit($size);
+        }
+        $result = $query->get(['project_name','cost','language','class_situation','student_count']);
+        
         return $result;
     }
     
