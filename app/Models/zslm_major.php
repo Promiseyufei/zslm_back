@@ -244,7 +244,7 @@
             //     $query = $query->where('province', 'like', $provice . '%');
             
             if ($professional_direction != '' && !empty($professional_direction)) {
-                $professional_directions = strChangeArr($z_type, EXPLODE_STR);
+                $professional_directions = strChangeArr($professional_direction, EXPLODE_STR);
                 $query = $query->whereIn('professional_direction', $professional_directions);
             }
             $desc = $order == 0 ? 'desc' : "asc";
