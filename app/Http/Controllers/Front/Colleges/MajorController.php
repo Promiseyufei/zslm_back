@@ -104,8 +104,8 @@
             $major_follows = majorFollow::getAllMajorFollow();
             
             $majors = zslmMajor::getMajorBySelect($zero, $name,
-                '', '', $page, $page_size, $felds, 0);
-            
+                '', null, $page, $page_size, $felds, 0);
+
             for ($i = 0; $i < sizeof($majors); $i++) {
                 $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
                 $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
