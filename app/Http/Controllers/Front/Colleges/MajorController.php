@@ -32,10 +32,11 @@
                 return responseToJson(1, '请求方式错误');
             }
             if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
-                return responseToJson(1, '没有页码、页面大小或者页码、也买你大小不是数字');
+                return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
             $provice = '';
             // if (!empty($request->provice) && $request->provice != '')
-            //     $provice = dictRegion::getProvinceIdByName($request->provice);
+            //     $provice = dictRegion::getProvinceIdByName($request->provice)
+            //;
             $felds = ['id', 'province', 'magor_logo_name',
                 'z_name', 'update_time', 'major_confirm_id', 'major_follow_id'];
             
@@ -76,7 +77,6 @@
             $major_fangxiang = dict_major_direction::getAllDirection();
             $socre_type = dict_fraction_type::getAllType();
             $tongzhao_type = dict_recruitment_pattern::getAllPattern();
-            dd(['type' => $major_type, 'direction' => $major_fangxiang, 'socre' => $socre_type, 'pattern' => $tongzhao_type]);
             return responseToJson(0, 'success', ['type' => $major_type, 'direction' => $major_fangxiang, 'socre' => $socre_type, 'pattern' => $tongzhao_type]);
         }
         
