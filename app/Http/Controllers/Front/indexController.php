@@ -34,7 +34,7 @@
             $acitve = new ActivityController();
           
             $actives = $acitve->getIndexActivity($request,1,3);
-            dd($actives);
+         
                 return responseToJson(0,'success',['major'=>$majors,'coach'=>$coachs,'consult'=>$consults,'actives'=>$actives]);
         }
         
