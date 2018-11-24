@@ -30,7 +30,7 @@ class ActivityController extends Controller{
     public function getSearchActivity(Request $request) {
 
         if($request->isMethod('get')) {
-            $keyword = defined($request->keyword) ? trim($request->keyword) : '';
+            $keyword = !empty($request->keyword) ? trim($request->keyword) : '';
             // if(!defined($request->pageCount) || !isset($requesst->pageNumber)) return responseToJson(1, '参数错误');
             $get_activity_info = ZslmActivitys::getSearchActivitys($keyword, $request->pageNumber, $request->pageCount)->toArray();
             // dd($get_activity_info);
@@ -42,6 +42,7 @@ class ActivityController extends Controller{
                 if($item->province !== '')
                     $get_activity_info[$key]->province = getProCity($item->province);
             }
+            if(empty($get_activity_info)) return responseToJson(1,'没有查询到数据');
             return responseToJson(0, 'success', $get_activity_info);
         }
         else return responseToJson(2, '请求方式错误');
@@ -118,7 +119,7 @@ class ActivityController extends Controller{
         if($request->isMethod('get')) {
             // dd($request);
             $provice_id_arr = [];
-            $keyword = defined($request->keyword) ? trim($request->keyword) : '';
+            $keyword = !empty($request->keyword) ? trim($request->keyword) : '';
             if(isset($request->province) && is_array($request->province) && count($request->province)) {
                 $provice_id_arr = DictRegion::getProvinceIdByName($request->province);
             }
@@ -137,7 +138,7 @@ class ActivityController extends Controller{
                 if($item->province !== '')
                     $get_activitys['info'][$key]->province = getProCity($item->province);
             }
-            return$get_activitys;
+            return $get_activitys;
         
         }
         else return null;

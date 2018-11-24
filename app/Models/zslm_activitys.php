@@ -285,7 +285,7 @@ class zslm_activitys
             ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
             ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
             ->where(self::$sTableName . '.active_name', 'like', '%' . $keyword . '%')
-            ->orWhere(self::$sTableName . '.introduce', 'like', '%' . $keyword. '%')
+            // ->orWhere(self::$sTableName . '.introduce', 'like', '%' . $keyword. '%')
             ->offset($pageCount * ($pageNumber - 1))
             ->limit($pageCount)
             ->select(
@@ -295,7 +295,7 @@ class zslm_activitys
                 self::$sTableName . '.begin_time', 
                 self::$sTableName . '.end_time', 
                 self::$sTableName . '.active_img', 
-                'dict_activity_type.name', 
+                'dict_activity_type.name as activity_type', 
                 'zslm_major.z_name'
             )->get();
     }

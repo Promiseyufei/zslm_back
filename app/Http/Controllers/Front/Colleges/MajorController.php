@@ -116,8 +116,6 @@
                     $majors[$i]->province = getProCity($majors[$i]->province);
             }
 
-            
-
             return $majors;
             
         }

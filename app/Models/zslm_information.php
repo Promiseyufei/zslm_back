@@ -247,7 +247,7 @@ class zslm_information
     public static function getSearchConsults($keyword = '', $pageNumber = 0, $pageCount = 8) {
         return DB::table(self::$sTableName)
             ->where('zx_name', 'like', '%' . $keyword . '%')
-            ->orWhere('z_text', '%' . $keyword . '%')
+            ->orWhere('z_text', 'like', '%' . $keyword . '%')
             ->offset($pageCount * ($pageNumber - 1))
             ->limit($pageCount)
             ->select('id', 'zx_name as title', 'create_time as time', 'z_text as content', 'z_image as img')->get();
