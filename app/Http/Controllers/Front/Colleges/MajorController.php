@@ -107,6 +107,7 @@
                 '', null, $page, $page_size, $felds, 0);
 //            if(sizeof($majors) == 0)
 //                return [];
+            dd($majors);
             for ($i = 0; $i < sizeof($majors); $i++) {
                 $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
                 $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
