@@ -65,7 +65,7 @@
             }
             $count = zslmMajor::getMajorBySelectCount($request->z_type, $request->z_name, $provice);
             $majors->count = $count;
-            return responseToJson(0, 'success', $majors);
+            return responseToJson(0, 'success', [$majors,0]);
         }
         
         public function getInfo(Request $request)
@@ -105,8 +105,10 @@
             $major_follows = majorFollow::getAllMajorFollow();
             
             $majors = zslmMajor::getMajorBySelect($zero, $name,
-                '', '', $page, $page_size, $felds, 0);
-            
+                '', null, $page, $page_size, $felds, 0);
+            if(empty($majors))
+                return [];
+          
             for ($i = 0; $i < sizeof($majors); $i++) {
                 $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
                 $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
