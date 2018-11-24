@@ -105,7 +105,7 @@
             
             $majors = zslmMajor::getMajorBySelect($zero, $name,
                 '', null, $page, $page_size, $felds, 0);
-            if(!empty($majors))
+            if(empty($majors))
                 return [];
           
             for ($i = 0; $i < sizeof($majors); $i++) {
