@@ -92,11 +92,11 @@ class ConsultController extends Controller{
             // dd($request->infoTypeId);
             $pageCount = isset($request->pageCount) ? $request->pageCount : 9;
             $pageNumber = isset($request->pageNumber) ? $request->pageNumber : 1;
-            $get_consult_info_list = ZslmInformation::getConsultListInfos($request->infoTypeId, $pageCount, $pageNumber)->toArray();
-            foreach ($get_consult_info_list as $key => $item) {
-                $get_consult_info_list[$key]->publisher = '专硕联盟';
-                $get_consult_info_list[$key]->create_time = date("Y.m.d", $item->create_time);
-                $get_consult_info_list[$key]->brief_introduction = changeString($item->brief_introduction, 0, 90, '...');
+            $get_consult_info_list = ZslmInformation::getConsultListInfos($request->infoTypeId, $pageCount, $pageNumber);
+            foreach ($get_consult_info_list['info'] as $key => $item) {
+                $get_consult_info_list['info'][$key]->publisher = '专硕联盟';
+                $get_consult_info_list['info'][$key]->create_time = date("Y.m.d", $item->create_time);
+                $get_consult_info_list['info'][$key]->brief_introduction = changeString($item->brief_introduction, 0, 90, '...');
             }
             return responseToJson(0, 'success', $get_consult_info_list);
         }
@@ -104,11 +104,11 @@ class ConsultController extends Controller{
     }
 
     public function getIndexConsult($page,$page_size){
-        $get_consult_info_list = ZslmInformation::getConsultListInfos(0, $page_size, $page)->toArray();
-        foreach ($get_consult_info_list as $key => $item) {
-            $get_consult_info_list[$key]->publisher = '专硕联盟';
-            $get_consult_info_list[$key]->create_time = date("Y.m.d", $item->create_time);
-            $get_consult_info_list[$key]->brief_introduction = changeString($item->brief_introduction, 0, 90, '...');
+        $get_consult_info_list = ZslmInformation::getConsultListInfos(0, $page_size, $page);
+        foreach ($get_consult_info_list['info'] as $key => $item) {
+            $get_consult_info_list['info'][$key]->publisher = '专硕联盟';
+            $get_consult_info_list['info'][$key]->create_time = date("Y.m.d", $item->create_time);
+            $get_consult_info_list['info'][$key]->brief_introduction = changeString($item->brief_introduction, 0, 90, '...');
         }
         return $get_consult_info_list;
     }

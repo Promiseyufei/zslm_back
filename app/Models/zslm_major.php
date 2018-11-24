@@ -240,8 +240,8 @@
             if ($z_name != '' && !empty($z_name))
                 $query = $query->where('z_name', 'like', '%' . $z_name . '%');
             
-            if ($provice != '')
-                $query = $query->where('province', 'like', $provice . '%');
+            // if ($provice != '')
+            //     $query = $query->where('province', 'like', $provice . '%');
             
             if ($professional_direction != '' && !empty($professional_direction)) {
                 $professional_directions = strChangeArr($z_type, EXPLODE_STR);
