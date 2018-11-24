@@ -94,7 +94,6 @@ class ActivityController extends Controller{
                 $provice_id_arr = DictRegion::getProvinceIdByName($request->province);
             }
     
-    
             $get_activitys = ZslmActivitys::getFrontActiListInfo($keyword, $request->majorType, $provice_id_arr, $request->activityType, 
                 $request->activityState, $request->activityDate, $pageCount, $pageNumber);  
 

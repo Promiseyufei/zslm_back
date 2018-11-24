@@ -27,8 +27,8 @@ class ConsultController extends Controller{
             $keyword = defined($request->keyword) ? trim($request->keyword) : '';
             $get_consult_info = ZslmInformation::getSearchConsults($keyword, $request->pageNumber, $request->pageCount)->toArray();
             foreach ($get_consult_info as $key => $item) {
-                $get_consult_info[$key]->create_time = date("Y.m.d",$item->create_time);
-                $get_consult_info[$key]->z_text = changeString(strip_tags($item->z_text), 0, 100, '...');
+                $get_consult_info[$key]->time = date("Y.m.d",$item->time);
+                $get_consult_info[$key]->content = changeString(strip_tags($item->content), 0, 100, '...');
                 $get_consult_info[$key]->publisher = '专硕联盟';
             }
             return responseToJson(0, 'success', $get_consult_info);

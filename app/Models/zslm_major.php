@@ -237,9 +237,9 @@
                 $query = $query->whereIn('z_type', $types);
                 
             }
+            
             if ($z_name != '' && !empty($z_name))
                 $query = $query->where('z_name', 'like', '%' . $z_name . '%');
-            
             // if ($provice != '')
             //     $query = $query->where('province', 'like', $provice . '%');
             
@@ -247,6 +247,7 @@
                 $professional_directions = strChangeArr($professional_direction, EXPLODE_STR);
                 $query = $query->whereIn('professional_direction', $professional_directions);
             }
+            
             $desc = $order == 0 ? 'desc' : "asc";
             $query = $query->orderBy('weight', $desc)
                 ->offset(($page - 1) * $page_size)

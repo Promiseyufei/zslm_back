@@ -250,7 +250,7 @@ class zslm_information
             ->orWhere('z_text', '%' . $keyword . '%')
             ->offset($pageCount * ($pageNumber - 1))
             ->limit($pageCount)
-            ->select('id', 'zx_name', 'create_time', 'z_text', 'z_image')->get();
+            ->select('id', 'zx_name as title', 'create_time as time', 'z_text as content', 'z_image as img')->get();
     }
 
 
