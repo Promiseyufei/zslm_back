@@ -86,10 +86,11 @@ class ActivityController extends Controller{
 
         if($request->isMethod('get')) {
             // dd($request);
+          
             $provice_id_arr = [];
-            $keyword = defined($request->keyword) ? trim($request->keyword) : '';
-            $pageCount = defined($request->pageCount) ? $request->pageCount : 12;
-            $pageNumber = defined($request->pageNumber) ? $request->pageNumber : 1;
+            $keyword = !empty($request->keyword) ? trim($request->keyword) : '';
+            $pageCount = !empty($request->pageCount) ? $request->pageCount : 12;
+            $pageNumber = !empty($request->pageNumber) ? $request->pageNumber : 1;
             if(isset($request->province) && is_array($request->province) && count($request->province)) {
                 $provice_id_arr = DictRegion::getProvinceIdByName($request->province);
             }
