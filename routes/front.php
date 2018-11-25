@@ -21,6 +21,14 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get('getActivity', 'ActivityController@getActivity');
 
         Route::get('getActivityType', 'ActivityController@getActivityType');
+
+        Route::get('getAppointAcInfo', 'ActivityController@getAppointAcInfo');
+
+        Route::get('getAcHostMajor', 'ActivityController@getAcHostMajor');
+
+        Route::get('getPopularAcInfo', 'ActivityController@getPopularAcInfo');
+
+        Route::post('activitySign', 'ActivityController@activitySign');
     
     });
 
@@ -86,6 +94,12 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get('getConsultListBroadcast', 'ConsultController@getConsultListBroadcast');
 
         Route::get('getConsultListInfo', 'ConsultController@getConsultListInfo');
+
+        Route::get('getAppointRead', 'ConsultController@getAppointRead');
+
+        Route::get('getConsultDeyail', 'ConsultController@getConsultDeyail');
+
+        Route::get('getBt', 'ConsultController@getBt');
     });
 
 

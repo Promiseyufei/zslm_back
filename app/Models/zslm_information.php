@@ -308,16 +308,28 @@ class zslm_information
     }
     
     public static function getIndexConsult(){
-    
         $handel = DB::table(self::$sTableName);
-        
-    
         return $handel->where('is_delete', 0)
             ->orderBy('weight', 'desc')
             ->orderBy('create_time', 'desc')
             ->offset(6 * (1 -1))
             ->limit(6)
             ->get(['id', 'zx_name','z_text' ,'z_from', 'create_time', 'z_image']);
+    }
+
+
+    /**
+     * 资讯详情页获得该资讯的推荐阅读
+     */
+    public static function getFrontAppointRead($infoIdArr = [], $pageNumber = 0) {
+        $pageCount = 4;
+        $handel = DB::table(self::$sTableName)->whereIn('id', $infoIdArr)->where('is_delete', 0);
+            
+        $count = $handel->count();
+        $info = $handel
+            ->offset($pageCount * $pageNumber)->limit($pageCount)
+            ->select('id', 'zx_name', 'create_time', 'z_image')->get();
+        return ['count' => $count, 'info' => $info];
     }
     
     

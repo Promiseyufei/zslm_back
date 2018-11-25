@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use DB;
+use App\Models\urls_bt as UrlsBt;
 use Illuminate\Http\Request;
 
 class banner_ad
@@ -71,6 +72,19 @@ class banner_ad
         ]));
 
         return (isset($create_id) && $create_id > 0) ? true : false;
+    }
+
+
+    /**
+     * 获得指定页面的广告
+     */
+    public static function getFrontConBt($url) {
+        $url_id = UrlsBt::getUrlId($url);
+        return DB::table(self::$sTableName)->where([
+            ['url_id','=', $url_id],
+            ['is_delete','=', 0],
+            ['type', '=', 1]
+        ])->select('id', 'img', 'img_alt', 're_url', 're_alt')->get();
     }
 
 }

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Front\Consult;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\dict as Dict;
+use App\Models\banner_ad as BannerAd;
 use App\Models\zslm_information as ZslmInformation;
+use App\Models\information_relation as InfomationRelation;
 
 class ConsultController extends Controller{
 
@@ -113,6 +115,65 @@ class ConsultController extends Controller{
         }
         return $get_consult_info_list;
     }
+
+
+    /**
+     * 资讯详情页获取资讯详情信息
+     */
+    public function getConsultDeyail(Request $request) {
+        if($request->isMethod('get')) {
+            $consult_id = !empty($request->consultId) ? $request->consultId : 0;
+            if($consult_id == 0) return responseToJson(1, '参数错误');
+            $consult_info = ZslmInformation::getAppointInfoMsg($consult_id, ['id', 'zx_name', 'z_text','create_time', 'z_image', 'z_alt', 'is_delete']);
+            if(empty($consult_info) || $consult_info->is_delete == 1) return responseToJson(1, '不存在该咨询');
+            $consult_info->publisher = '专硕联盟';
+            $consult_info->create_time = date("Y.m.d", $consult_info->create_time);
+            return responseToJson(0, 'success', $consult_info);
+        }
+        else return responseToJson(2, '请求方式错误');
+    }
+
+    /**
+     * 获得指定页面的广告信息
+     * @param $url 指定页面的路由
+     */
+    public function getBt(Request $request) {
+        if($request->isMethod('get')) {
+            $url = !empty($request->url) ? $request->url : '';
+            if($url == '') return responseToJson(1, '参数错误');
+            $get_bt = BannerAd::getFrontConBt($url)->toArray();
+            return responseToJson(0, 'success', $get_bt);
+        }
+        else return responseToJson(2, '请求方式错误');
+    }
+
+    /**
+     * 活动详情页获得热门(推荐)活动数据列表
+     */
+    public function getAppointRead(Request $request) {
+        if($request->isMethod('get')) {
+            $consult_id = !empty($request->consultId) ? $request->consultId : 0;
+            $page_number = !empty($request->pageNumber) ? $request->pageNumber : 0;
+    
+            if($consult_id == 0) return responseToJson(1, '参数错误');
+
+            $info_read = InfomationRelation::getAppointInfoContent($consult_id, 'tj_yd_id');
+            $info_read_arr = !empty($info_read) ? strChangeArr($info_read, ',') : [];
+
+            
+            $get_read_info = ZslmInformation::getFrontAppointRead($info_read_arr, $page_number);
+            if(count($get_read_info['info']))
+                foreach ($get_read_info['info'] as $key => $item) {
+                    $get_read_info['info'][$key]->create_time = date("Y.m.d", $item->create_time);
+                }
+            return responseToJson(0, 'success', $get_read_info);
+
+        }
+        else return responseToJson(2, '请求方式错误');
+    }
+
+
+
 
     
 }

@@ -272,5 +272,10 @@
             $result = $query->count('id');
             return $result;
         }
+
+        //获得指定院校专业的指定信息
+        public static function getMjorInfo($majorId, $fieldArr = []) {
+            return DB::table(self::$sTableName)->where('id', $majorId)->where('is_delete', 0)->select(...$fieldArr)->first();
+        }
         
     }
