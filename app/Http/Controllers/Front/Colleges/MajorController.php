@@ -88,7 +88,8 @@
             }
             if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
                 return responseToJson(1, '没有页码、页面大小或者页码、也买你大小不是数字');
-            $majors = $this->getMajorToIndex($request->name, $request->page, $request->page_size);
+            $name = defined($request->name) ? trim($request->name) : '';
+            $majors = $this->getMajorToIndex($name, $request->page, $request->page_size);
             if (sizeof($majors) == 0)
                 return responseToJson(1, '没有数据');
             return responseToJson(0, 'success', $majors);
@@ -111,7 +112,10 @@
             for ($i = 0; $i < sizeof($majors); $i++) {
                 $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
                 $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
+                if($majors[$i]->province !== '')
+                    $majors[$i]->province = getProCity($majors[$i]->province);
             }
+
             return $majors;
             
         }

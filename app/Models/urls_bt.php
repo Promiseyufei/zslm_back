@@ -24,5 +24,9 @@ class urls_bt
         else return false;
     }
 
+    public static function getUrlId($url) {
+        return DB::table(self::$sTableName)->where('url', 'like', '%' . $url . '%')->value('id');
+    }
+
 
 }
