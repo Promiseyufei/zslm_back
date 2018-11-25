@@ -22,13 +22,13 @@ class FrontLoginController extends Controller{
      */
     public function login(Request $request) {
         $user_phone = $request->userPhone;
-
+        
         if($request->type == 0) {
             $user = UserAccounts::getAppointUser($user_phone);
             if($user) {
                 if($user->password == encryptPassword($request->userPassword)) {
                     $this->loginSuccess($request, $user_phone);
-                    return responseToJson(0, 'success');
+                    return responseToJson(0, 'success', $user->id);
                 }
                 else {
                     return responseToJson(1, '账号或密码错误');
@@ -40,8 +40,8 @@ class FrontLoginController extends Controller{
         }
         else if($request->type == 1) {
             if($request->smsCode == Redis::get(getUserStatusString($user_phone, 1))) {
-                if(UserAccounts::getAppointUser($user_phone)) {
-                    return responseToJson(0, 'success');
+                if($user = UserAccounts::getAppointUser($user_phone)) {
+                    return responseToJson(0, 'success', $user->id);
                 }
                 else {
                     return $this->judgeAgree($request, $user_phone);
@@ -66,7 +66,7 @@ class FrontLoginController extends Controller{
             $insert_id = UserAccounts::insertUserAccount($userPhone);
             if($insert_id) {
                 $this->loginSuccess($request, $userPhone);
-                return responseToJson(0, '创建成功');
+                return responseToJson(0, '创建成功', $insert_id);
             }
             else return responseToJson(1, '创建用户失败');
         }

@@ -38,7 +38,7 @@ class ConsultController extends Controller{
     }
 
     /**
-     * 推荐阅读模块组件的后端接口
+     * 推荐阅读模块或行业列表组件的后端接口
      * @param $pageNumber 页面下标
      * @param $type 1获得行业列表咨询推荐模块数据
      */
