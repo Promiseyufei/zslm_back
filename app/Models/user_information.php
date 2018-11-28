@@ -195,6 +195,16 @@
         public static function getUserFrontMsg($id,$field){
             return DB::table(self::$sTableName)->where('user_account_id',$id)->where('is_delete',0)->limit(1)->get($field);
         }
+
+        //创建用户信息记录
+        public static function insertUserInfo($userId = 0, $infoArr = []) {
+            if($infoArr == [])
+                return DB::table(self::$sTableName)->insertGetId([
+                    'user_account_id' => $userId,
+                     'create_time' => time()
+                ]);
+            else return DB::table(self::$sTableName)->insertGetId($infoArr);
+        }
         
     }
     

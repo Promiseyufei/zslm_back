@@ -8,6 +8,7 @@ namespace App\Models;
 use DB;
 use Illuminate\Http\Request;
 use App\Models\dict as Dict;
+use App\Models\user_information as UserInformation;
 
 class user_accounts
 {
@@ -186,6 +187,45 @@ class user_accounts
             'password' => encryptPassword($password),
             'update_time' => time()
         ]);
+    }
+    
+    //通过手机号修改用户指定值
+    public static function updateUserInfo($userPhone, $userInfoArr = []) {
+        // dd($userInfoArr);
+        if(!DB::table('user_information')->where('user_account_id', DB::table(self::$sTableName)->where('phone', $userPhone)->value('id'))->count()) {
+            UserInformation::insertUserInfo(DB::table(self::$sTableName)->where('phone', $userPhone)->value('id'));
+        }
+
+        return DB::table('user_information')->where('user_account_id', DB::table(self::$sTableName)->where('phone', $userPhone)->value('id'))->update($userInfoArr);
+
+    }
+
+
+    //个人中心－账户管理　获得用户个人信息
+    public static function getUserInfo($userPhone) {
+        // dd(!DB::table('user_information')->where('user_account_id', DB::table(self::$sTableName)->where('phone', $userPhone)->value('id'))->count());
+        if(!DB::table('user_information')->where('user_account_id', DB::table(self::$sTableName)->where('phone', $userPhone)->value('id'))->count()) {
+           
+            UserInformation::insertUserInfo(DB::table(self::$sTableName)->where('phone', $userPhone)->value('id'));
+        }
+        // dd('aa');
+        if(DB::table(self::$sTableName)->where('phone', $userPhone)->count() || DB::table(self::$sTableName)->where('phone', $userPhone)->value('is_delete') == 1) {
+            return DB::table(self::$sTableName)
+                ->leftJoin('user_information', self::$sTableName . '.id', '=', 'user_information.user_account_id')
+                ->where(self::$sTableName . '.phone', $userPhone)->select(
+                    self::$sTableName . '.create_time',
+                    'user_information.user_name',
+                    'user_information.head_portrait',
+                    'user_information.real_name',
+                    'user_information.sex',
+                    'user_information.address',
+                    'user_information.schooling_id',
+                    'user_information.graduate_school',
+                    'user_information.industry',
+                    'user_information.worked_year'
+                )->first();
+        }
+        else return null;
     }
 
 }

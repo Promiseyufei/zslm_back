@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\Auto\Sms\SmsController;
 
 use App\Models\user_accounts as UserAccounts;
-class FrontLoginController extends Controller{
+class FrontLoginController extends Controller {
 
 
     /**
