@@ -80,7 +80,7 @@
                     $userMajor[$i]->city = '';
                     if (sizeof($addressArr) > 1)
                         $userMajor[$i]->city = dictRegion::getOneArea($addressArr[1])[0]->name;
-    
+                    // dd($userMajor);
                     $userMajor[$i]->product = majorRecruitProject::getProjectByMid($userMajor[$i]->major_id,
                         $request->min, $request->max, $request->money_ordre,
                         $request->score_type, $request->enrollment_mode,$request->project_count);

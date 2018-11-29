@@ -160,10 +160,19 @@ class zslm_information
 
 
     public static function getAppointInfoMsg($infoId = 0, $msgName = '') {
+        $handel = DB::table(self::$sTableName)->where('id', $infoId);
         if(empty($msgName))
-            return DB::table(self::$sTableName)->where('id', $infoId)->first();
+            return $handel->first();
         else
-            return DB::table(self::$sTableName)->where('id', $infoId)->select(...$msgName)->first();
+            return $handel->select(...$msgName)->first();
+    }
+
+    public static function getAppointInfoMsgss($infoId = 0, $msgName = '') {
+        $handel = DB::table(self::$sTableName)->leftJoin('dict_information_type', self::$sTableName . '.z_type', '=', 'dict_information_type.id')->where(self::$sTableName . '.id', $infoId);
+        if(empty($msgName))
+            return $handel->first();
+        else
+            return $handel->select(...$msgName)->first();
     }
 
     public static function delAppointInfo($infoId = 0) {
