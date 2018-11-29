@@ -21,12 +21,12 @@
         public static function getCountUserActivity($id,$status = 0){
             return DB::table(self::$sTableName)->where('user_id',$id)->where('status',$status)->count('activity_id');
         }
-<<<<<<< HEAD
     
         public static function unsetUserActivity($id,$a_id){
             return DB::table(self::$sTableName)->where('user_id',$id)->where('activity_id',$a_id)->update(['status'=>1]);
-=======
+        }
 
+        
         private static function judgeUserIsActivity($userId, $acId, $isInsert = false) {
             $is_existence = DB::table(self::$sTableName)->where('user_id', $userId)->where('activity_id', $acId)->count();
             if($is_existence < 1 && isset($isInsert)) 
@@ -48,6 +48,5 @@
                     ->update(['status' => $status, 'update_time' => time()]);
             }
 
->>>>>>> 17f921acfd9b2fe38c5fcaa181ba8554615947b7
         }
     }
