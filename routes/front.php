@@ -21,6 +21,10 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get('getActivity', 'ActivityController@getActivity');
 
         Route::get('getActivityType', 'ActivityController@getActivityType');
+        Route::get('getuseractivity', 'ActivityController@getUserActivity');
+        Route::post('unsetactive', 'ActivityController@unsetUserActivity');
+        
+        
 
         Route::get('getAppointAcInfo', 'ActivityController@getAppointAcInfo');
 
@@ -30,7 +34,9 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
 
         Route::post('activitySign', 'ActivityController@activitySign');
     
+
     });
+
 
 
     /**
@@ -39,6 +45,10 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     Route::group(['prefix' => 'coach', 'namespace' => 'Coach'],function() {
         Route::get("getcoach","CoachController@getSelectCoach");
         Route::get("getcoachbyname","CoachController@getCoachByName");
+        Route::get("getusercoach","CoachController@getUserCoach");
+        Route::get("getcoachbyid","CoachController@getCoachById");
+        
+        
     });
 
     /**
@@ -51,7 +61,9 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("info","MajorController@getInfo");
         Route::get("getCollegesType","CollegesController@getCollegesType");
         Route::get("getcollegebyname","MajorController@getMajorByName");
-
+        Route::get("getmajordetails","MajorController@getMajorDetails");
+        Route::get("getmajoractive","MajorController@getMajorActive");
+        
     
     });
 
@@ -77,6 +89,16 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     Route::group(['prefix' => 'usercore', 'namespace' => 'UserCore'],function() {
         Route::get("getuserinfo","userController@getUserInfo");
         Route::get("getusermajor","userController@getUserMajor");
+
+        Route::get("getUserInfo","UserAccountController@getUserInfo");
+
+        Route::get("getIndustryList","UserAccountController@getIndustryList");
+
+        Route::post("changeName","UserAccountController@changeName");
+
+        Route::post("changeUserInfo","UserAccountController@changeUserInfo");
+
+        Route::get("getUserNews","UserNewsController@getUserNews");
     });
 
 

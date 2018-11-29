@@ -198,10 +198,10 @@
             
         }
         
-        public static function getSonCoach($f_id)
+        public static function getSonCoach($f_id,$fields)
         {
             $result = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)
-                ->where('father_id', $f_id)->get(['id','coach_name']);
+                ->where('father_id', $f_id)->get($fields);
             return $result;
         }
         
@@ -211,4 +211,26 @@
             $count = $query->count('id');
             return $count;
         }
+    
+        public static function getCoachById($id,$fields)
+        {
+            $result = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)
+                ->where('id',$id)
+                ->where('father_id', 0)
+                ->limit(1)
+                ->get($fields);
+            return $result;
+        }
+    
+        public static function getAllCoachByIds($id,$fields)
+        {
+            $result = DB::table(self::$sTableName)
+                ->where('is_delete', 0)
+                ->whereIn('id',$id)
+                ->get($fields);
+            return $result;
+        }
+        
+     
+        
     }
