@@ -14,6 +14,7 @@
     use App\Models\dict_major_direction;
     use App\Models\dict_major_type;
     use App\Models\dict_recruitment_pattern;
+    use function Couchbase\defaultDecoder;
     use Illuminate\Http\Request;
     use App\Http\Controllers\Controller;
     
@@ -178,7 +179,6 @@
             //创建 ActivityController 对象
     
             $get_activitys = ZslmActivitys::getFrontActiListById($request->id,$request->page,$request->page_size);
-            
             if(sizeof($get_activitys['info']) == 0)
                 return responseToJson(1,'暂无数据');
             
