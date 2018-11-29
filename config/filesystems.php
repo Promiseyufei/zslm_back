@@ -63,6 +63,11 @@ return [
             'root' => storage_path('app/admin/info'),
             'visibility' => 'public',
         ],
+        'user' => [
+            'driver' => 'local',
+            'root' => storage_path('app/front/user'),
+            'visibility' => 'public',
+        ],
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_KEY'),

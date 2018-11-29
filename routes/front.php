@@ -21,10 +21,22 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get('getActivity', 'ActivityController@getActivity');
 
         Route::get('getActivityType', 'ActivityController@getActivityType');
+<<<<<<< HEAD
         Route::get('getuseractivity', 'ActivityController@getUserActivity');
         Route::post('unsetactive', 'ActivityController@unsetUserActivity');
         
         
+=======
+
+        Route::get('getAppointAcInfo', 'ActivityController@getAppointAcInfo');
+
+        Route::get('getAcHostMajor', 'ActivityController@getAcHostMajor');
+
+        Route::get('getPopularAcInfo', 'ActivityController@getPopularAcInfo');
+
+        Route::post('activitySign', 'ActivityController@activitySign');
+    
+>>>>>>> 17f921acfd9b2fe38c5fcaa181ba8554615947b7
     });
 
 
@@ -76,6 +88,14 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     Route::group(['prefix' => 'usercore', 'namespace' => 'UserCore'],function() {
         Route::get("getuserinfo","userController@getUserInfo");
         Route::get("getusermajor","userController@getUserMajor");
+
+        Route::get("getUserInfo","UserAccountController@getUserInfo");
+
+        Route::get("getIndustryList","UserAccountController@getIndustryList");
+
+        Route::post("changeName","UserAccountController@changeName");
+
+        Route::post("changeUserInfo","UserAccountController@changeUserInfo");
     });
 
 
@@ -93,6 +113,12 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get('getConsultListBroadcast', 'ConsultController@getConsultListBroadcast');
 
         Route::get('getConsultListInfo', 'ConsultController@getConsultListInfo');
+
+        Route::get('getAppointRead', 'ConsultController@getAppointRead');
+
+        Route::get('getConsultDeyail', 'ConsultController@getConsultDeyail');
+
+        Route::get('getBt', 'ConsultController@getBt');
     });
 
 

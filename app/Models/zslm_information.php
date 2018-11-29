@@ -247,10 +247,10 @@ class zslm_information
     public static function getSearchConsults($keyword = '', $pageNumber = 0, $pageCount = 8) {
         return DB::table(self::$sTableName)
             ->where('zx_name', 'like', '%' . $keyword . '%')
-            ->orWhere('z_text', '%' . $keyword . '%')
+            ->orWhere('z_text', 'like', '%' . $keyword . '%')
             ->offset($pageCount * ($pageNumber - 1))
             ->limit($pageCount)
-            ->select('id', 'zx_name', 'create_time', 'z_text', 'z_image')->get();
+            ->select('id', 'zx_name as title', 'create_time as time', 'z_text as content', 'z_image as img')->get();
     }
 
 
@@ -308,16 +308,28 @@ class zslm_information
     }
     
     public static function getIndexConsult(){
-    
         $handel = DB::table(self::$sTableName);
-        
-    
         return $handel->where('is_delete', 0)
             ->orderBy('weight', 'desc')
             ->orderBy('create_time', 'desc')
             ->offset(6 * (1 -1))
             ->limit(6)
             ->get(['id', 'zx_name','z_text' ,'z_from', 'create_time', 'z_image']);
+    }
+
+
+    /**
+     * 资讯详情页获得该资讯的推荐阅读
+     */
+    public static function getFrontAppointRead($infoIdArr = [], $pageNumber = 0) {
+        $pageCount = 4;
+        $handel = DB::table(self::$sTableName)->whereIn('id', $infoIdArr)->where('is_delete', 0);
+            
+        $count = $handel->count();
+        $info = $handel
+            ->offset($pageCount * $pageNumber)->limit($pageCount)
+            ->select('id', 'zx_name', 'create_time', 'z_image')->get();
+        return ['count' => $count, 'info' => $info];
     }
     
     

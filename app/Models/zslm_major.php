@@ -237,9 +237,9 @@
                 $query = $query->whereIn('z_type', $types);
                 
             }
+            
             if ($z_name != '' && !empty($z_name))
                 $query = $query->where('z_name', 'like', '%' . $z_name . '%');
-            
             // if ($provice != '')
             //     $query = $query->where('province', 'like', $provice . '%');
             
@@ -248,6 +248,7 @@
                 $professional_directions = strChangeArr($professional_direction, EXPLODE_STR);
                 $query = $query->whereIn('professional_direction', $professional_directions);
             }
+            
             $desc = $order == 0 ? 'desc' : "asc";
             $query = $query->orderBy('weight', $desc)
                 ->offset(($page - 1) * $page_size)
@@ -270,6 +271,11 @@
                 $query = $query->where('province', 'like', $provice . '%');
             $result = $query->count('id');
             return $result;
+        }
+
+        //获得指定院校专业的指定信息
+        public static function getMjorInfo($majorId, $fieldArr = []) {
+            return DB::table(self::$sTableName)->where('id', $majorId)->where('is_delete', 0)->select(...$fieldArr)->first();
         }
         
         public static function getMajorById($id,$felds){

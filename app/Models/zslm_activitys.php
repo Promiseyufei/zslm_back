@@ -285,7 +285,7 @@ class zslm_activitys
             ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
             ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
             ->where(self::$sTableName . '.active_name', 'like', '%' . $keyword . '%')
-            ->orWhere(self::$sTableName . '.introduce', 'like', '%' . $keyword. '%')
+            // ->orWhere(self::$sTableName . '.introduce', 'like', '%' . $keyword. '%')
             ->offset($pageCount * ($pageNumber - 1))
             ->limit($pageCount)
             ->select(
@@ -295,7 +295,7 @@ class zslm_activitys
                 self::$sTableName . '.begin_time', 
                 self::$sTableName . '.end_time', 
                 self::$sTableName . '.active_img', 
-                'dict_activity_type.name', 
+                'dict_activity_type.name as activity_type', 
                 'zslm_major.z_name'
             )->get();
     }
@@ -339,8 +339,41 @@ class zslm_activitys
         )->get();
 
         return ['count'=> $count, 'info' => $get_info];
+    }
+
+
+    public static function getAppointAcInfos($acId) {
+        return DB::table(self::$sTableName)
+            ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
+            ->where(self::$sTableName . '.id', $acId)
+            ->select(
+                self::$sTableName . '.id', 
+                self::$sTableName . '.active_name', 
+                self::$sTableName . '.begin_time', 
+                self::$sTableName . '.end_time',
+                self::$sTableName . '.address',
+                self::$sTableName . '.introduce',
+                'dict_activity_type.name as active_type'
+            )->first();
+    }
+
+    public static function getFrontPopularAcInfo($acIdArr = [], $pageNumber = 0) {
+        $pageCount = 4;
+        $handel = DB::table(self::$sTableName)
+            ->whereIn('id', $acIdArr)->where('is_delete', 0)
+            ->orderBy('begin_time', 'desc')->orderBy('show_weight', 'desc');
         
-        
+        $count = $handel->count();
+
+        $ac_info = $handel->offset($pageCount * $pageNumber)->limit($pageCount)
+            ->select('id', 'active_img', 'active_name', 'begin_time')->get();
+            
+        return ['count' => $count, 'acInfo' => $ac_info];
+
+    }
+
+    public static function getAcEndTime($acId) {
+        return DB::table(self::$sTableName)->where('id', $acId)->where('is_delete', 0)->value('end_time');
     }
     
     
@@ -389,6 +422,7 @@ class zslm_activitys
             ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
             ->where(self::$sTableName . '.show_state', 0)->where(self::$sTableName . '.is_delete', 0)
             ->where('zslm_major.id',$major_id);
+
 
         $get_info = $handel->orderBy('show_weight', 'desc')->offset($pageCount * ($pageNumber - 1))->limit($pageCount)->select(
             self::$sTableName . '.id',
@@ -458,7 +492,7 @@ class zslm_activitys
             'zslm_major.z_name',
             'zslm_major.magor_logo_name'
         )->get();
-
+        
         return ['info'=>$get_info];
     }
     
