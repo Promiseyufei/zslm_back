@@ -21,7 +21,10 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get('getActivity', 'ActivityController@getActivity');
 
         Route::get('getActivityType', 'ActivityController@getActivityType');
-    
+        Route::get('getuseractivity', 'ActivityController@getUserActivity');
+        Route::post('unsetactive', 'ActivityController@unsetUserActivity');
+        
+        
     });
 
 
@@ -31,6 +34,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     Route::group(['prefix' => 'coach', 'namespace' => 'Coach'],function() {
         Route::get("getcoach","CoachController@getSelectCoach");
         Route::get("getcoachbyname","CoachController@getCoachByName");
+        Route::get("getusercoach","CoachController@getUserCoach");
+        
     });
 
     /**
@@ -43,7 +48,9 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("info","MajorController@getInfo");
         Route::get("getCollegesType","CollegesController@getCollegesType");
         Route::get("getcollegebyname","MajorController@getMajorByName");
-
+        Route::get("getmajordetails","MajorController@getMajorDetails");
+        Route::get("getmajoractive","MajorController@getMajorActive");
+        
     
     });
 

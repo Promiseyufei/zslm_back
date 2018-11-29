@@ -21,4 +21,8 @@
         public static function getCountUserActivity($id,$status = 0){
             return DB::table(self::$sTableName)->where('user_id',$id)->where('status',$status)->count('activity_id');
         }
+    
+        public static function unsetUserActivity($id,$a_id){
+            return DB::table(self::$sTableName)->where('user_id',$id)->where('activity_id',$a_id)->update(['status'=>1]);
+        }
     }

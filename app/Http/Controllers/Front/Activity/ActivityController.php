@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Front\Activity;
  
 use App\Models\dict as Dict;
+use App\Models\user_activitys;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\dict_region as DictRegion;
@@ -125,7 +126,7 @@ class ActivityController extends Controller{
             }
         
         
-            $get_activitys = ZslmActivitys::getFrontActiListInfo('', $request->majorType, $provice_id_arr, $request->activityType,
+            $get_activitys = ZslmActivitys::getFrontActiListInfoNoCount('', $request->majorType, $provice_id_arr, $request->activityType,
                 $request->activityState, $request->activityDate, $page_size, $page);
         
             $get_activitys['info'] = $get_activitys['info']->toArray();
@@ -135,13 +136,63 @@ class ActivityController extends Controller{
                 $get_activitys['info'][$key]->start_state = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
                 $get_activitys['info'][$key]->begin_time = date("m-d",$item->begin_time);
                 $get_activitys['info'][$key]->end_time = date("m-d", $item->end_time);
+               
                 if($item->province !== '')
                     $get_activitys['info'][$key]->province = getProCity($item->province);
             }
-            return$get_activitys;
+            return $get_activitys;
         
         }
         else return null;
+    }
+    
+    public function getUserActivity(Request $request){
+        if(!$request->isMethod('get'))
+            return responseToJson(1,'请求错误');
+    
+        if(!isset($request->id) && !is_numeric($request->id))
+            return responseToJson(1,"院校id不存在，或者不为数字");
+    
+        if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
+            return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
+        $active_ids = user_activitys::getActivityByUser($request->id);
+        $acitve_ids_arru = [];
+        
+        if(sizeof($active_ids) == 0)
+            return responseToJson(1,'暂无数据');
+        
+        for($i = 0;$i<sizeof($active_ids);$i++){
+            $acitve_ids_arru[$i] = $active_ids[$i]->activity_id;
+        }
+    
+        $get_activitys = ZslmActivitys::getFrontUserActivity($acitve_ids_arru,$request->page,$request->page_size);
+    
+        
+        $get_activitys['info'] = $get_activitys['info']->toArray();
+    
+        foreach ($get_activitys['info'] as $key => $item) {
+            $now_time = time();
+            $get_activitys['info'][$key]->start_state = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
+            $get_activitys['info'][$key]->begin_time = date("Y-m-d",$item->begin_time);
+            $get_activitys['info'][$key]->end_time = date("Y-m-d", $item->end_time);
+            $get_activitys['info'][$key]->update_time = date("Y-m-d", $item->update_time);
+            if($item->province !== '')
+                $get_activitys['info'][$key]->province = getProCity($item->province);
+        }
+        return responseToJson(0,'success',$get_activitys);
+        
+    }
+    
+    public function unsetUserActivity(Request $request){
+        if(!$request->isMethod('post'))
+            return responseToJson(1,'请求错误');
+        if(!isset($request->id) || !is_numeric($request->id) || !isset($request->a_id) || !is_numeric($request->a_id))
+            return responseToJson(1,'id或者a_id错误');
+       $result =  user_activitys::unsetUserActivity($request->id,$request->a_id);
+       if($result>0)
+           return responseToJson(0,'取消成功');
+       else
+           return responseToJson(1,'取消失败');
     }
 
 }

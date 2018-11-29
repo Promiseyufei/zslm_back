@@ -140,4 +140,9 @@
             return $updateResult;
         }
         
+        public static function getMajorFile($id){
+            $files = DB::table(self::$sTableName)->where('id',$id)->where('is_delete',0)->get(['file_name','file_alt']);
+            return $files;
+        }
+        
     }
