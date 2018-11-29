@@ -96,9 +96,16 @@
         }
         
         /**
-         *  获取制定的coach
+         *  获取指定的coach
          */
         public function getCoachById(Request $request){
+    
+            if(!$request->isMethod('get'))
+                return responseToJson('1','请求错误');
+    
+            if(!isset($request->id) || !is_numeric($request->id))
+                return responseToJson(1,'id错误');
+            
             $fields = ['id', 'coach_name', 'phone', 'address', 'web_url', 'update_time',
                 'coach_type', 'describe', 'logo_name', 'logo_alt','cover_name', 'cover_alt','province'];
             $coach = coachOrganize::getCoachById($request->id,$fields);
@@ -106,7 +113,10 @@
                 return responseToJson(1,'没有数据');
             $coach[0]->son_coach = coachOrganize::getSonCoach($request->id,$fields);
             $f = ['id','name','type','is_enable'];
+            //获取辅导机构的优惠券
             $coach[0]->coupont = zslm_coupon::getFrontCouponByCoach($request->id,$f);
+            
+            //获取地区热门的活动
             $province = explode(EXPLODE_STR,$coach[0]->province)[0];
             $get_activitys = zslm_activitys::getFrontActiById($province,1,1);
             $get_activitys['info'] = $get_activitys['info']->toArray();
@@ -118,7 +128,8 @@
                 $get_activitys['info'][$key]->end_time = date("m-d", $item->end_time);
                 if($item->province !== '')
                     $get_activitys['info'][$key]->province = getProCity($item->province);
-            }   
+            }
+            
             $coach[0]->best_hot_active = $get_activitys;
             return responseToJson(0,'success',$coach);
         }

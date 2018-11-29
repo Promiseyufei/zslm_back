@@ -81,9 +81,11 @@
                     if (sizeof($addressArr) > 1)
                         $userMajor[$i]->city = dictRegion::getOneArea($addressArr[1])[0]->name;
                     // dd($userMajor);
+    
+                    $fileds = ['project_name','cost','language','class_situation','student_count'];
                     $userMajor[$i]->product = majorRecruitProject::getProjectByMid($userMajor[$i]->major_id,
                         $request->min, $request->max, $request->money_ordre,
-                        $request->score_type, $request->enrollment_mode,$request->project_count);
+                        $request->score_type, $request->enrollment_mode,$request->project_count,$fileds);
     
                     $userMajor[$i]->major_confirm_id = $major_confirms[$userMajor[$i]->major_confirm_id];
                     $userMajor[$i]->major_follow_id = $major_follows[$userMajor[$i]->major_follow_id];

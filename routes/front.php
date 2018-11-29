@@ -34,7 +34,9 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
 
         Route::post('activitySign', 'ActivityController@activitySign');
     
+
     });
+
 
 
     /**
@@ -44,6 +46,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("getcoach","CoachController@getSelectCoach");
         Route::get("getcoachbyname","CoachController@getCoachByName");
         Route::get("getusercoach","CoachController@getUserCoach");
+        Route::get("getcoachbyid","CoachController@getCoachById");
+        
         
     });
 

@@ -119,6 +119,15 @@ class ActivityController extends Controller{
         else return responseToJson(2, 'error');
     }
     
+    /**
+     * 获取主页的activity
+     * @param Request $request
+     * @param         $page
+     * @param         $page_size
+     *
+     * @return array|null
+     */
+    
     public function  getIndexActivity(Request $request,$page,$page_size){
         if($request->isMethod('get')) {
             $provice_id_arr = [];
@@ -148,6 +157,12 @@ class ActivityController extends Controller{
         }
         else return null;
     }
+    
+    /**获取用户关注的activity
+     * @param Request $request
+     *
+     * @return mixed
+     */
     
     public function getUserActivity(Request $request){
         if(!$request->isMethod('get'))
@@ -186,6 +201,11 @@ class ActivityController extends Controller{
         
     }
     
+    /**取消关注
+     * @param Request $request
+     *
+     * @return mixed
+     */
     public function unsetUserActivity(Request $request){
         if(!$request->isMethod('post'))
             return responseToJson(1,'请求错误');
