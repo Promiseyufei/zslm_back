@@ -43,6 +43,7 @@ class information_major
                 'zslm_information.brief_introduction'
             )->get()->map(function($item) {
                 $item->create_time = date("Y-m-d", $item->create_time);
+                $item->publisher = '专硕联盟';
                 return $item;
             });
 
