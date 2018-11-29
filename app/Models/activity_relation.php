@@ -60,6 +60,30 @@ class activity_relation
         }
     }
 
+
+    public static function getDynamicActivity($activityId) {
+        return DB::table(self::$sTableName)
+            ->leftJoin('zslm_major', self::$sTableName . '.host_major_id', '=', 'zslm_major.id')
+            ->leftJoin('zslm_activitys', self::$sTableName . '.activity_id', '=', 'zslm_activitys.id')
+            ->leftJoin('dict_activity_type', 'zslm_activitys.active_type', '=', 'dict_activity_type.id')
+            ->where(self::$sTableName . '.activity_id', $activityId)->where([
+                ['zslm_major.is_delete', '=', 0],
+                ['zslm_activitys.is_delete', '=', 0]
+            ])->select(
+                'zslm_activitys.id',
+                'zslm_major.z_name', 
+                'zslm_activitys.address', 
+                'zslm_activitys.end_time', 
+                'zslm_activitys.begin_time', 
+                'zslm_activitys.active_name', 
+                'dict_activity_type.name as active_type'
+            )->get()->map(function($item) {
+                $item->begin_time = date("Y-m-d H:i", $item->begin_time);
+                $item->end_time = date("Y-m-d H:i", $item->end_time);
+                return $item;
+            });
+    }
+
     
 
 

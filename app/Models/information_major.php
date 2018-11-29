@@ -27,4 +27,26 @@ class information_major
 
     }
 
+    public static function getDynamicInfo($infoId) {
+        return DB::table(self::$sTableName)
+            ->leftJoin('zslm_major', self::$sTableName . '.xg_sc_id', '=', 'zslm_major.id')
+            ->leftJoin('zslm_information', self::$sTableName . '.zx_id', '=', 'zslm_information.id')
+            ->where(self::$sTableName . '.zx_id', $infoId)->where([
+                ['zslm_major.is_delete', '=', 0],
+                ['zslm_information.is_delete', '=', 0]
+            ])->select(
+                'zslm_major.z_name', 
+                'zslm_information.id', 
+                'zslm_information.zx_name', 
+                'zslm_information.z_image',
+                'zslm_information.create_time', 
+                'zslm_information.brief_introduction'
+            )->get()->map(function($item) {
+                $item->create_time = date("Y-m-d", $item->create_time);
+                return $item;
+            });
+
+            // dd()
+    }
+
 }
