@@ -278,4 +278,11 @@
             return DB::table(self::$sTableName)->where('id', $majorId)->where('is_delete', 0)->select(...$fieldArr)->first();
         }
         
+        public static function getMajorById($id,$felds){
+            $data = DB::table(self::$sTableName)->where('is_delete', 0)->where('id', $id)->limit(1)->get($felds);
+            return $data;
+        }
+        
+        
+        
     }

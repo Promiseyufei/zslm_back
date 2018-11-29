@@ -21,6 +21,12 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get('getActivity', 'ActivityController@getActivity');
 
         Route::get('getActivityType', 'ActivityController@getActivityType');
+<<<<<<< HEAD
+        Route::get('getuseractivity', 'ActivityController@getUserActivity');
+        Route::post('unsetactive', 'ActivityController@unsetUserActivity');
+        
+        
+=======
 
         Route::get('getAppointAcInfo', 'ActivityController@getAppointAcInfo');
 
@@ -30,6 +36,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
 
         Route::post('activitySign', 'ActivityController@activitySign');
     
+>>>>>>> 17f921acfd9b2fe38c5fcaa181ba8554615947b7
     });
 
 
@@ -39,6 +46,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     Route::group(['prefix' => 'coach', 'namespace' => 'Coach'],function() {
         Route::get("getcoach","CoachController@getSelectCoach");
         Route::get("getcoachbyname","CoachController@getCoachByName");
+        Route::get("getusercoach","CoachController@getUserCoach");
+        
     });
 
     /**
@@ -51,7 +60,9 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("info","MajorController@getInfo");
         Route::get("getCollegesType","CollegesController@getCollegesType");
         Route::get("getcollegebyname","MajorController@getMajorByName");
-
+        Route::get("getmajordetails","MajorController@getMajorDetails");
+        Route::get("getmajoractive","MajorController@getMajorActive");
+        
     
     });
 

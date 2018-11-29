@@ -375,9 +375,126 @@ class zslm_activitys
     public static function getAcEndTime($acId) {
         return DB::table(self::$sTableName)->where('id', $acId)->where('is_delete', 0)->value('end_time');
     }
-
     
+    
+    public static function getFrontActiListInfoNoCount($keyword, $majorType, $provinceIdArr, $activityType, $activityState, $activityDate, $pageCount, $pageNumber) {
+        
+        $handel = DB::table(self::$sTableName)
+            ->leftJoin('activity_relation', self::$sTableName . '.id', '=', 'activity_relation.activity_id')
+            ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
+            ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
+            ->where(self::$sTableName . '.show_state', 0)->where(self::$sTableName . '.is_delete', 0)
+            ->where('active_name', 'like', '%' . $keyword . '%');
+        
+        if(!empty($majorType) && count($majorType) > 0)
+            $handel = $handel->whereIn('major_type', $majorType);
+        
+        
+        if(!empty($activityType) && count($activityType))
+            $handel = $handel->whereIn('active_type', $activityType);
+        
+        if(!empty($activityState) && count($activityState))
+            $handel = $handel->whereIn('active_status', $activityState);
+        
+        
+        $get_info = $handel->orderBy('show_weight', 'desc')->offset($pageCount * ($pageNumber - 1))->limit($pageCount)->select(
+            self::$sTableName . '.id',
+            self::$sTableName . '.active_name',
+            self::$sTableName . '.province',
+            self::$sTableName . '.begin_time',
+            self::$sTableName . '.end_time',
+            self::$sTableName . '.active_img',
+            'dict_activity_type.name as activity_type',
+            'zslm_major.z_name',
+            'zslm_major.magor_logo_name'
+        )->get();
+        
+        return ['info'=>$get_info];
+        
+        
+    }
+    
+    public static function getFrontActiListById( $major_id,$pageCount, $pageNumber) {
+        
+        $handel = DB::table(self::$sTableName)
+            ->leftJoin('activity_relation', self::$sTableName . '.id', '=', 'activity_relation.activity_id')
+            ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
+            ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
+            ->where(self::$sTableName . '.show_state', 0)->where(self::$sTableName . '.is_delete', 0)
+            ->where('zslm_major.id',$major_id);
 
 
-
+        $get_info = $handel->orderBy('show_weight', 'desc')->offset($pageCount * ($pageNumber - 1))->limit($pageCount)->select(
+            self::$sTableName . '.id',
+            self::$sTableName . '.active_name',
+            self::$sTableName . '.province',
+            self::$sTableName . '.begin_time',
+            self::$sTableName . '.end_time',
+            self::$sTableName . '.active_img',
+            'dict_activity_type.name as activity_type',
+            'zslm_major.z_name',
+            'zslm_major.magor_logo_name'
+        )->get();
+        
+        return ['info'=>$get_info];
+    }
+    
+    public static function getFrontActiById( $province, $pageNumber,$pageCount) {
+        
+        $handel = DB::table(self::$sTableName)
+            ->leftJoin('activity_relation', self::$sTableName . '.id', '=', 'activity_relation.activity_id')
+            ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
+            ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
+            ->where(self::$sTableName . '.show_state', 0)->where(self::$sTableName . '.is_delete', 0)
+            ->where(self::$sTableName . '.province','like',$province.'%');
+        
+        $get_info = $handel->orderBy('show_weight', 'desc')->offset($pageCount * ($pageNumber - 1))->limit($pageCount)->select(
+            self::$sTableName . '.id',
+            self::$sTableName . '.active_name',
+            self::$sTableName . '.province',
+            self::$sTableName . '.begin_time',
+            self::$sTableName . '.end_time',
+            self::$sTableName . '.active_img',
+            'dict_activity_type.name as activity_type',
+            'zslm_major.z_name',
+            'zslm_major.magor_logo_name'
+        )->get();
+        
+        return ['info'=>$get_info];
+    }
+    
+    public static function getFrontUserActivity( $a_id, $pageNumber,$pageCount) {
+      
+        $handel = DB::table(self::$sTableName)
+            ->leftJoin('activity_relation', self::$sTableName . '.id', '=', 'activity_relation.activity_id')
+            ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
+            ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
+            ->where(self::$sTableName . '.show_state', 0)
+            ->where(self::$sTableName . '.is_delete', 0)
+            ->whereIn(self::$sTableName.'.id',$a_id);
+        
+        $get_info = $handel->orderBy('show_weight', 'desc')
+            ->offset($pageCount * ($pageNumber - 1))
+            ->limit($pageCount)
+            ->select(
+            self::$sTableName . '.id',
+            self::$sTableName . '.active_name',
+            self::$sTableName . '.province',
+            self::$sTableName . '.begin_time',
+            self::$sTableName . '.end_time',
+            self::$sTableName . '.active_img',
+            self::$sTableName . '.address',
+            self::$sTableName . '.update_time',
+            self::$sTableName . '.address',
+            self::$sTableName . '.active_status',
+            
+            'dict_activity_type.name as activity_type',
+            'zslm_major.z_name',
+            'zslm_major.magor_logo_name'
+        )->get();
+        
+        return ['info'=>$get_info];
+    }
+    
+ 
 }

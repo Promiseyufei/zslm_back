@@ -85,8 +85,16 @@ class activity_relation
     }
 
     
-
-
+    
+    /**
+     * 获取院校主办的活动
+     * @param $id 院校id
+     */
+    public static function getMajorActivity($id,$page,$page_size){
+        $result =  DB::table(self::$sTableName)->where('host_major_id',$id)
+            ->offset(($page-1)*$page_size)->limit($page_size)->get(['activity_id']);
+        return $result->toArray();
+    }
 
 
 

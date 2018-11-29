@@ -8,9 +8,10 @@
     
     namespace App\Http\Controllers\Front\Colleges;
     
+ 
+    use App\Http\Controllers\Front\Activity\ActivityController;
     use App\Models\dict_fraction_type;
     use App\Models\dict_major_direction;
-    use App\Models\dict_major_follow;
     use App\Models\dict_major_type;
     use App\Models\dict_recruitment_pattern;
     use Illuminate\Http\Request;
@@ -21,7 +22,9 @@
     use App\Models\major_recruit_project as majorRecruitProject;
     use App\Models\dict_major_confirm as majorConfirm;
     use App\Models\dict_major_follow as majorFollow;
-    
+    use App\Models\major_files as majorFiles;
+    use App\Models\activity_relation as activityRelation;
+    use App\Models\zslm_activitys as ZslmActivitys;
     
     
     class MajorController extends Controller
@@ -56,9 +59,10 @@
                 if (sizeof($addressArr) > 1)
                     $majors[$i]->city = dictRegion::getOneArea($addressArr[1])[0]->name;
                 
+                $fileds = ['project_name','cost','language','class_situation','student_count'];
                 $majors[$i]->product = majorRecruitProject::getProjectByMid($majors[$i]->id,
                     $request->min, $request->max, $request->money_ordre,
-                    $request->score_type, $request->enrollment_mode, $request->project_count);
+                    $request->score_type, $request->enrollment_mode, $request->project_count,$fileds);
                 
                 $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
                 $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
@@ -119,4 +123,79 @@
             return $majors;
             
         }
+    
+        /**
+         * 获取院校专业详情
+         *
+         * @param Request $request
+         */
+        
+        public function getMajorDetails(Request $request){
+        
+            if(!$request->isMethod("get"))
+                return responseToJson(1,"请求错误");
+            
+            if(!isset($request->id) && !is_numeric($request->id))
+                return responseToJson(1,"院校id不存在，或者不为数字");
+    
+    
+            $felds = ['id', 'z_name', 'magor_logo_name',
+                'major_follow_id', 'province','index_web',
+                'admissions_web','address','phone', 'major_confirm_id',
+                'access_year','wc_image','wb_image'];
+            
+            $major = zslmMajor::getMajorById($request->id,$felds);
+            if(sizeof($major) == 0)
+                return responseToJson(1,'没有数据');
+    
+            $major[0]->file = majorFiles::getMajorFile($request->id);
+            $fileds = ['id','project_name','student_count','language','eductional_systme',
+                'can_conditions','score_describe','score_type','recruitment_pattern',
+                'graduation_certificate','other_explain','cost',"enrollment_mode"];
+            $major[0]->project = majorRecruitProject::getProjectByMid($request->id,0,
+                0,0,'','',0,$fileds);
+            return $major;
+        }
+    
+        /**
+         * 获取相关活动
+         * @param Request $request
+         *
+         * @return mixed
+         */
+        
+        public function getMajorActive(Request $request){
+    
+            if(!$request->isMethod("get"))
+                return responseToJson(1,"请求错误");
+    
+            if(!isset($request->id) && !is_numeric($request->id))
+                return responseToJson(1,"院校id不存在，或者不为数字");
+    
+            if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
+                return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
+            //返回关联活动查询结果
+            //创建 ActivityController 对象
+    
+            $get_activitys = ZslmActivitys::getFrontActiListById($request->id,$request->page,$request->page_size);
+            
+            if(sizeof($get_activitys['info']) == 0)
+                return responseToJson(1,'暂无数据');
+            
+            $get_activitys['info'] = $get_activitys['info']->toArray();
+            
+            foreach ($get_activitys['info'] as $key => $item) {
+                $now_time = time();
+                $get_activitys['info'][$key]->start_state = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
+                $get_activitys['info'][$key]->begin_time = date("m-d",$item->begin_time);
+                $get_activitys['info'][$key]->end_time = date("m-d", $item->end_time);
+                if($item->province !== '')
+                    $get_activitys['info'][$key]->province = getProCity($item->province);
+            }
+            
+            return responseToJson(0,'success',$get_activitys);
+            
+        }
+        
+        
     }
