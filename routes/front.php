@@ -65,8 +65,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("getmajoractive","MajorController@getMajorActive");
         Route::get("getactivemajor","MajorController@getActiveMajor");
         Route::post("setusermajor","MajorController@setUserMajor");
-        
     
+        Route::get("getmajorinformation","MajorController@getMajorInformation");
         
     
     });
@@ -104,6 +104,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
 
         Route::get("getUserNews","UserNewsController@getUserNews");
         Route::post("adduseropinion","userController@userOpinion");
+       
         
     });
 
