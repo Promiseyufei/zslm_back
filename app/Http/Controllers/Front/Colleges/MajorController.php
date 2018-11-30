@@ -156,7 +156,7 @@
             $major[0]->file = majorFiles::getMajorFile($request->id);
             $fileds = ['id','project_name','student_count','language','eductional_systme',
                 'can_conditions','score_describe','score_type','recruitment_pattern',
-                'graduation_certificate','other_explain','cost',"enrollment_mode"];
+                'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
             $major[0]->project = majorRecruitProject::getProjectByMid($request->id,0,
                 0,0,'','',0,$fileds);
             $is_guanzhu =  user_follow_major::getIfUsesMajor($request->u_id,$request->id);
