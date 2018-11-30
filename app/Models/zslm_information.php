@@ -316,6 +316,10 @@ class zslm_information
 
     }
     
+    /**
+     * 获取首页的info信息
+     * @return mixed
+     */
     public static function getIndexConsult(){
         $handel = DB::table(self::$sTableName);
         return $handel->where('is_delete', 0)
@@ -341,6 +345,16 @@ class zslm_information
         return ['count' => $count, 'info' => $info];
     }
     
+    /**
+     * @param $ids 咨询id数组
+     * @param $fileds 结果集的字段数组
+     */
+    public static function getInfoByIds($ids,$fileds){
+       return DB::table(self::$sTableName)->whereIn('id', $ids)
+            ->where('is_delete', 0)
+            ->get($fileds);
+        
+    }
     
 
 

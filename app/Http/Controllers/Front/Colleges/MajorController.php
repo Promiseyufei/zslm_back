@@ -15,8 +15,10 @@
     use App\Models\dict_major_direction;
     use App\Models\dict_major_type;
     use App\Models\dict_recruitment_pattern;
+    use App\Models\information_major;
     use App\Models\user_activitys;
     use App\Models\user_follow_major;
+    use App\Models\zslm_information;
     use function Couchbase\defaultDecoder;
     use Illuminate\Http\Request;
     use App\Http\Controllers\Controller;
@@ -202,7 +204,33 @@
             return responseToJson(0,'success',$get_activitys);
             
         }
+    
+        /**
+         * 获取推荐咨询
+         */
         
+        public function getMajorInformation(Request $request){
+    
+            if(!isset($request->id) && !is_numeric($request->id))
+                return responseToJson(1,"院校id不存在，或者不为数字");
+    
+            if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
+                return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
+            $fileds = ['zx_id'];
+           $inf =  information_major::getMajorInformation($request->id,$request->page,$request->page_size,$fileds);
+           $len = sizeof($inf) ;
+           if($len== 0)
+               return responseToJson(1,'暂无数据');
+            //咨询id数组
+            $inf_ids = [];
+            for($i = 0;$i<$len;$i++)
+                $inf_ids[$i] = $inf[$i]->zx_id;
+    
+            $fileds = ['id','zx_name','z_image','z_alt','brief_introduction','z_from','update_time'];
+            $information = zslm_information::getInfoByIds($inf_ids,$fileds);
+            return responseToJson(0,'success',$information);
+    
+        }
         /**
          * 获取活动的主办院校
          */
