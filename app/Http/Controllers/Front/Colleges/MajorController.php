@@ -10,10 +10,13 @@
     
  
     use App\Http\Controllers\Front\Activity\ActivityController;
+    use App\Models\activity_relation;
     use App\Models\dict_fraction_type;
     use App\Models\dict_major_direction;
     use App\Models\dict_major_type;
     use App\Models\dict_recruitment_pattern;
+    use App\Models\user_activitys;
+    use App\Models\user_follow_major;
     use function Couchbase\defaultDecoder;
     use Illuminate\Http\Request;
     use App\Http\Controllers\Controller;
@@ -138,7 +141,8 @@
             
             if(!isset($request->id) && !is_numeric($request->id))
                 return responseToJson(1,"院校id不存在，或者不为数字");
-    
+            if(!isset($request->u_id) && !is_numeric($request->u_id))
+                return responseToJson(1,"U_id错误");
     
             $felds = ['id', 'z_name', 'magor_logo_name',
                 'major_follow_id', 'province','index_web',
@@ -155,6 +159,8 @@
                 'graduation_certificate','other_explain','cost',"enrollment_mode"];
             $major[0]->project = majorRecruitProject::getProjectByMid($request->id,0,
                 0,0,'','',0,$fileds);
+            $is_guanzhu =  user_follow_major::getIfUsesMajor($request->u_id,$request->id);
+            $major[0]->is_guanzhu = $is_guanzhu == 0 ? false : true;
             return $major;
         }
     
@@ -195,6 +201,53 @@
             
             return responseToJson(0,'success',$get_activitys);
             
+        }
+        
+        /**
+         * 获取活动的主办院校
+         */
+        
+        public function getActiveMajor(Request $request){
+            
+            if(!isset($request->a_id) || !is_numeric($request->a_id))
+                return responseToJson(1,'a_id 错误');
+            if(!isset($request->u_id) || !is_numeric($request->u_id))
+                return responseToJson(1,'a_id 错误');
+            
+           $major =  activity_relation::getOneMajorActivity($request->a_id);
+      
+           if(sizeof($major) == 0)
+               return responseToJson('1','暂无数据');
+           //判断用户是否关注了该院校，0表示没有，大于0表示关注
+           $if_guanzhu = user_follow_major::getIfUsesMajor($request->u_id,$major[0]->host_major_id);
+            $felds = ['id','province','z_name','magor_logo_name','major_cover_name'];
+            $major_msg = zslmMajor::getMajorById($major[0]->host_major_id, $felds);
+            $major_msg[0]->is_guanzhu = $if_guanzhu == 0 ? false : true;
+            //获取文字的省市
+            $addressArr = strChangeArr($major_msg[0]->province, EXPLODE_STR);
+            $major_msg[0]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
+            $major_msg[0]->city = '';
+            if (sizeof($addressArr) > 1)
+                $major_msg[0]->city = dictRegion::getOneArea($addressArr[1])[0]->name;
+            return responseToJson(0,'success',$major_msg);
+           
+        }
+    
+        /**
+         * 用户关注院校
+         * @param Request $request
+         */
+        public function setUserMajor(Request $request){
+            if(!isset($request->m_id) || !is_numeric($request->m_id))
+                return responseToJson(1,'a_id 错误');
+            if(!isset($request->u_id) || !is_numeric($request->u_id))
+                return responseToJson(1,'a_id 错误');
+            
+           $result =  user_follow_major::setUserMajor($request->u_id,$request->m_id);
+           if($result == 1)
+               return responseToJson(0,'success');
+           else
+               return responseToJson(1,'关注失败');
         }
         
         

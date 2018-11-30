@@ -63,6 +63,10 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("getcollegebyname","MajorController@getMajorByName");
         Route::get("getmajordetails","MajorController@getMajorDetails");
         Route::get("getmajoractive","MajorController@getMajorActive");
+        Route::get("getactivemajor","MajorController@getActiveMajor");
+        Route::post("setusermajor","MajorController@setUserMajor");
+        
+    
         
     
     });
