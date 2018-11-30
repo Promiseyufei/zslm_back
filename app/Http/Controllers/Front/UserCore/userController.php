@@ -9,6 +9,7 @@
     namespace App\Http\Controllers\Front\UserCore;
 
     use App\Models\news_users as newUsers;
+    use App\Models\opinion_feedback;
     use App\Models\user_activitys as userActivitys;
     use App\Models\user_coupon as userCoupon;
     use App\Models\user_follow_major as userFollowMajor;
@@ -94,6 +95,27 @@
             
             }else
                 return responseToJson(1,'没有页数、页码或者页数、页码不为数字');
+        }
+        
+        public function userOpinion(Request $request){
+    
+            if(!isset($request->id) || !is_numeric($request->id)){
+                return responseToJson(1,'id错误');
+            }
+    
+            if(!isset($request->name)){
+                return responseToJson(1,'没有 name');
+            }
+            if(!isset($request->text)){
+                return responseToJson(1,'没有 name');
+            }
+            
+            $result = opinion_feedback::addOpinion($request->id,$request->name,$request->text);
+            if($result == 1)
+                return responseToJson(0,'success');
+            else
+                return responseToJson(1,'添加失败');
+            
         }
         
     }

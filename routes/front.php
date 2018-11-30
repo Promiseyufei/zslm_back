@@ -103,6 +103,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::post("changeUserInfo","UserAccountController@changeUserInfo");
 
         Route::get("getUserNews","UserNewsController@getUserNews");
+        Route::post("adduseropinion","userController@userOpinion");
+        
     });
 
 
