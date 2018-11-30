@@ -38,4 +38,11 @@
              return $query->get(['coupon_id']);
         }
         
+        public static function useCoupon($u_id,$c_id){
+          return  DB::table(self::$sTableName)
+                ->where('user_id',$u_id)
+                ->where('coupon_id',$c_id)
+                ->update(['is_use',1]);
+        }
+        
     }
