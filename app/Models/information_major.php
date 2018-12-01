@@ -60,7 +60,9 @@ class information_major
     public static function getMajorInformation($id,$page,$page_size,$fields){
         return DB::table(self::$sTableName)
             ->where('xg_sc_id',$id)
-            ->limit(($page-1)*$page_size)->offset($page_size)
+            ->offset(($page-1)*$page_size)
+            ->limit($page_size)
+            
             ->get($fields);
     }
 

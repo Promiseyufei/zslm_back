@@ -217,6 +217,7 @@
             if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
                 return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
             $fileds = ['zx_id'];
+            
            $inf =  information_major::getMajorInformation($request->id,$request->page,$request->page_size,$fileds);
            $len = sizeof($inf) ;
            if($len== 0)
