@@ -163,7 +163,7 @@
                 0,0,'','',0,$fileds);
             $is_guanzhu =  user_follow_major::getIfUsesMajor($request->u_id,$request->id);
             $major[0]->is_guanzhu = $is_guanzhu == 0 ? false : true;
-            return $major;
+            return responseToJson(0,'success',$major);
         }
     
         /**

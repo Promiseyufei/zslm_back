@@ -148,6 +148,10 @@
             if(!isset($request->is_use) || !isset($request->is_use))
                 return responseToJson(1,'is_use 错误');
             
+            $use_coupon = user_coupon::getCountUserCoupon($request->id,0);
+            $notuse_coupon =   user_coupon::getCountUserCoupon($request->id,1);
+            $noEn_coupon = user_coupon::getCountEnableCoupon($request->id,1);
+            
             if(!isset($request->page) || !isset($request->page_size) || !is_numeric($request->page) || !is_numeric($request->page_size))
                 return responseToJson(1,'没有页码、页面大小或者页码、也买你大小不是数字');
             
