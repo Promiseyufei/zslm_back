@@ -27,6 +27,12 @@
 
     class userController extends Controller
     {
+        /**
+         * 获取用户的初始信息，名称，地区，关注院校等
+         * @param Request $request
+         *
+         * @return mixed
+         */
         public function getUserInfo(Request $request){
             
             if(!$request->isMethod("get"))
@@ -55,7 +61,13 @@
             return responseToJson(0,'success',$user);
             
         }
-        
+    
+        /**
+         * 获取用户关注的院校
+         * @param Request $request
+         *
+         * @return mixed
+         */
         public function getUserMajor(Request $request){
             if(!$request->isMethod('get')){
                 return responseToJson(1,'请求错误');
@@ -96,6 +108,13 @@
             }else
                 return responseToJson(1,'没有页数、页码或者页数、页码不为数字');
         }
+    
+        /**
+         * 用户反馈
+         * @param Request $request
+         *
+         * @return mixed
+         */
         
         public function userOpinion(Request $request){
     

@@ -23,7 +23,15 @@
         
         
         public static function getCountUserCoupon($id,$status){
-            return DB::table(self::$sTableName)->where('user_id',$id)->where('is_use',$status)->count('id');
+            return DB::table(self::$sTableName)
+                ->join('zslm_coupon',self::$sTableName.'.coupon_id','zslm_coupon.id')
+                ->where('user_id',$id)->where('is_use',$status)->where('is_enable',0)->count('zslm_coupon.id');
+        }
+    
+        public static function getCountEnableCoupon($id,$status){
+            return DB::table(self::$sTableName)
+                ->join('zslm_coupon',self::$sTableName.'.coupon_id','zslm_coupon.id')
+                ->where('user_id',$id)->where('is_enable',$status)->count('zslm_coupon.id');
         }
     
         public static function getCouponIdWithUse($user_id,$is_use){
