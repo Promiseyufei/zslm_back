@@ -96,6 +96,8 @@
         }
         
         /**
+         *
+         * 辅导机构详情
          *  获取指定的coach
          */
         public function getCoachById(Request $request){
@@ -114,7 +116,7 @@
             $coach[0]->son_coach = coachOrganize::getSonCoach($request->id,$fields);
             $f = ['id','name','type','is_enable'];
             //获取辅导机构的优惠券
-            $coach[0]->coupont = zslm_coupon::getFrontCouponByCoach($request->id,$f);
+            $coach[0]->coupon = zslm_coupon::getFrontCouponByCoach($request->id,$f);
             
             //获取地区热门的活动
             $province = explode(EXPLODE_STR,$coach[0]->province)[0];
