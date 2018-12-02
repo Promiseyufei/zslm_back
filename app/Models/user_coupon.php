@@ -53,4 +53,16 @@
                 ->update(['is_use',1]);
         }
         
+        public static function getUserCouponByCouponId($u_id,$c_id){
+            return DB::table(self::$sTableName)
+                ->where('user_id',$u_id)
+                ->where('coupon_id',$c_id)
+                ->limit(1)
+                ->count('id');
+        }
+        
+        public static function addUserCoupon($u_id,$c_id){
+            return DB::table(self::$sTableName)->insert(['coupon_id'=>$c_id,'user_id'=>$u_id,'is_use'=>0,"create_time"=>time(),'is_delete'=>0]);
+        }
+        
     }
