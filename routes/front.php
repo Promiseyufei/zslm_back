@@ -47,7 +47,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("getcoachbyname","CoachController@getCoachByName");
         Route::get("getusercoach","CoachController@getUserCoach");
         Route::get("getcoachbyid","CoachController@getCoachById");
-        
+        Route::post("addcoupon","CoachController@addUserCoupon");
         
     });
 
@@ -104,8 +104,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
 
         Route::get("getUserNews","UserNewsController@getUserNews");
         Route::post("adduseropinion","userController@userOpinion");
-       
-        
+    
+      
     });
 
 

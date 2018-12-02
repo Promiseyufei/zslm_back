@@ -117,7 +117,9 @@
             $f = ['id','name','type','is_enable'];
             //获取辅导机构的优惠券
             $coach[0]->coupon = zslm_coupon::getFrontCouponByCoach($request->id,$f);
-            
+            for($i = 0;$i < sizeof($coach[0]->coupon) ;$i++){
+                $coach[0]->coupon[$i]->is_have =  user_coupon::getUserCouponByCouponId($request->u_id, $coach[0]->coupon[$i]->id);
+            }
             //获取地区热门的活动
             $province = explode(EXPLODE_STR,$coach[0]->province)[0];
             $get_activitys = zslm_activitys::getFrontActiById($province,1,1);
@@ -135,7 +137,12 @@
             $coach[0]->best_hot_active = $get_activitys;
             return responseToJson(0,'success',$coach);
         }
-        
+    
+        /**获取用户关注的辅导机构
+         * @param Request $request
+         *
+         * @return mixed
+         */
         public function getUserCoach(Request $request){
     
             if(!$request->isMethod('get'))
@@ -185,8 +192,24 @@
                 $coupon = zslm_coupon::getUserCoachCoupon($request->id,$coach_res[$i]->id,$request->type,$request->is_use);
                 $coach_res[$i]->coupon = $coupon;
             }
-//            dd($coach_res);
             return responseToJson(0,'success',$coach_res);
             
+        }
+        
+        public function addUserCoupon(Request $request){
+    
+            if(!isset($request->c_id) || !isset($request->c_id))
+                return responseToJson(1,'c_id 错误');
+    
+            if(!isset($request->u_id) || !isset($request->u_id))
+                return responseToJson(1,'u_id 错误');
+            
+            $result = user_coupon::addUserCoupon($request->u_id,$request->c_id);
+            if($result == 1){
+                return responseToJson(0,'success');
+            }else{
+                return responseToJson(1,"领取失败");
+            }
+        
         }
     }
