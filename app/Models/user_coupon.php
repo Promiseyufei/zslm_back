@@ -58,7 +58,7 @@
                 ->where('user_id',$u_id)
                 ->where('coupon_id',$c_id)
                 ->limit(1)
-                ->count('id');
+                ->get(['id','use_time']);
         }
         
         public static function addUserCoupon($u_id,$c_id){

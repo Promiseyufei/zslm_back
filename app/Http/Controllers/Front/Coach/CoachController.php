@@ -118,7 +118,13 @@
             //获取辅导机构的优惠券
             $coach[0]->coupon = zslm_coupon::getFrontCouponByCoach($request->id,$f);
             for($i = 0;$i < sizeof($coach[0]->coupon) ;$i++){
-                $coach[0]->coupon[$i]->is_have =  user_coupon::getUserCouponByCouponId($request->u_id, $coach[0]->coupon[$i]->id);
+                $user_coupont = user_coupon::getUserCouponByCouponId($request->u_id, $coach[0]->coupon[$i]->id);
+                $user_coupont_len = sizeof($user_coupont);
+                $coach[0]->coupon[$i]->is_have =  $user_coupont_len;
+                $coach[0]->coupon[$i]->is_use = 0;
+                if($user_coupont_len > 0 ){
+                    $coach[0]->coupon[$i]->is_use = $user_coupont[0]->use_time;
+                }
             }
             //获取地区热门的活动
             $province = explode(EXPLODE_STR,$coach[0]->province)[0];
