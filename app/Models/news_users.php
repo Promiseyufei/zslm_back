@@ -19,7 +19,7 @@ class news_users
     public static function getUserNews($userId, $pageCount = 6, $pageNumber = 0, $newsType = 1) {
         return DB::table(self::$sTableName)
             ->leftJoin('news', self::$sTableName . '.news_id', '=', 'news.id')
-            ->where(self::$sTableName . 'user_id', $userId)->where([
+            ->where(self::$sTableName . '.user_id', $userId)->where([
                 ['news.success', '=', 1],
                 ['news.is_delete', '=', 0],
                 ['news.type', '=', $newsType]

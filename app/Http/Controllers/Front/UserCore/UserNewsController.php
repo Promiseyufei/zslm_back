@@ -33,7 +33,6 @@ class UserNewsController extends Controller{
             if($user_phone == '' || $news_type === null) return responseToJson(1, '参数错误');
             $user_id = UserAccounts::getAppointUser($user_phone)->id; 
             if(empty($user_id)) return responseToJson(1, '没有该用户');
-
             switch($news_type) {
                 case 3: 
                     $get_dynamic = DynamicNews::getMajorDynamic($user_id, $request->pageCount, $request->pageNumber);
@@ -42,6 +41,9 @@ class UserNewsController extends Controller{
                 case 1: 
                 case 2:
                     $get_dynamic = NewsUsers::getUserNews($user_id, $request->pageCount, $request->pageNumber, $news_type);
+                    foreach($get_dynamic as $key => $item) {
+                        $get_dynamic[$key]->context = strip_tags($item->context);
+                    }
                     break;
             }
             return !empty($get_dynamic) ? responseToJson(0, 'success', $get_dynamic) : responseToJson(1, '没有查询到数据');

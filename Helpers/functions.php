@@ -320,6 +320,7 @@ function getByteToMb($bytes) {
   */
  function getMajorProvincesAndCity() {
     $region = Dict::dictRegion();
+    var_dump($region);
 
     foreach($region[0] as $key=>$item) {
         $item->citys = $region[$item->id];
