@@ -181,8 +181,13 @@ return [
         Maatwebsite\Excel\ExcelServiceProvider::class,
 
         //第三方登录插件weixin/weibo
+<<<<<<< HEAD
 	Laravel\Socialite\SocialiteServiceProvider::class,
         \SocialiteProviders\Manager\ServiceProvider::class,
+=======
+        //Laravel\Socialite\SocialiteServiceProvider::class,
+        SocialiteProviders\Manager\ServiceProvider::class,
+>>>>>>> bd5799ad083c3cbffd31c3aadb1ff08a25074652
 
     ],
 
