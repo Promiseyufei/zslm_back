@@ -96,6 +96,8 @@
         }
         
         /**
+         *
+         * 辅导机构详情
          *  获取指定的coach
          */
         public function getCoachById(Request $request){
@@ -114,8 +116,16 @@
             $coach[0]->son_coach = coachOrganize::getSonCoach($request->id,$fields);
             $f = ['id','name','type','is_enable'];
             //获取辅导机构的优惠券
-            $coach[0]->coupont = zslm_coupon::getFrontCouponByCoach($request->id,$f);
-            
+            $coach[0]->coupon = zslm_coupon::getFrontCouponByCoach($request->id,$f);
+            for($i = 0;$i < sizeof($coach[0]->coupon) ;$i++){
+                $user_coupont = user_coupon::getUserCouponByCouponId($request->u_id, $coach[0]->coupon[$i]->id);
+                $user_coupont_len = sizeof($user_coupont);
+                $coach[0]->coupon[$i]->is_have =  $user_coupont_len;
+                $coach[0]->coupon[$i]->is_use = 0;
+                if($user_coupont_len > 0 ){
+                    $coach[0]->coupon[$i]->is_use = $user_coupont[0]->use_time;
+                }
+            }
             //获取地区热门的活动
             $province = explode(EXPLODE_STR,$coach[0]->province)[0];
             $get_activitys = zslm_activitys::getFrontActiById($province,1,1);
@@ -133,7 +143,12 @@
             $coach[0]->best_hot_active = $get_activitys;
             return responseToJson(0,'success',$coach);
         }
-        
+    
+        /**获取用户关注的辅导机构
+         * @param Request $request
+         *
+         * @return mixed
+         */
         public function getUserCoach(Request $request){
     
             if(!$request->isMethod('get'))
@@ -147,6 +162,10 @@
                 return responseToJson(1,'type 错误');
             if(!isset($request->is_use) || !isset($request->is_use))
                 return responseToJson(1,'is_use 错误');
+            
+            $use_coupon = user_coupon::getCountUserCoupon($request->id,0);
+            $notuse_coupon =   user_coupon::getCountUserCoupon($request->id,1);
+            $noEn_coupon = user_coupon::getCountEnableCoupon($request->id,1);
             
             if(!isset($request->page) || !isset($request->page_size) || !is_numeric($request->page) || !is_numeric($request->page_size))
                 return responseToJson(1,'没有页码、页面大小或者页码、也买你大小不是数字');
@@ -179,8 +198,24 @@
                 $coupon = zslm_coupon::getUserCoachCoupon($request->id,$coach_res[$i]->id,$request->type,$request->is_use);
                 $coach_res[$i]->coupon = $coupon;
             }
-//            dd($coach_res);
             return responseToJson(0,'success',$coach_res);
             
+        }
+        
+        public function addUserCoupon(Request $request){
+    
+            if(!isset($request->c_id) || !isset($request->c_id))
+                return responseToJson(1,'c_id 错误');
+    
+            if(!isset($request->u_id) || !isset($request->u_id))
+                return responseToJson(1,'u_id 错误');
+            
+            $result = user_coupon::addUserCoupon($request->u_id,$request->c_id);
+            if($result == 1){
+                return responseToJson(0,'success');
+            }else{
+                return responseToJson(1,"领取失败");
+            }
+        
         }
     }

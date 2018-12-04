@@ -50,5 +50,21 @@ class information_major
 
             // dd()
     }
+    
+    /**
+     * 获取院校的推荐咨询
+     * @param $id 院校专业id
+     * @param $page 页码
+     * @param $page_size 页面大小
+     * @param $fields 获取的字段数组
+     */
+    public static function getMajorInformation($id,$page,$page_size,$fields){
+        return DB::table(self::$sTableName)
+            ->where('xg_sc_id',$id)
+            ->offset(($page-1)*$page_size)
+            ->limit($page_size)
+            
+            ->get($fields);
+    }
 
 }

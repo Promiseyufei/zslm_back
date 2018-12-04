@@ -37,4 +37,25 @@ class user_follow_major
             ->get($fields);
             
     }
+    
+    /**
+     * 获取用户是否关注某些院校
+     */
+    
+    public static function getIfUsesMajor($u_id,$m_id){
+        return DB::table(self::$sTableName)
+            ->where('user_id',$u_id)
+            ->where('is_focus',0)
+             ->where('major_id',$m_id)
+            ->count('id');
+    }
+    
+    /**
+     * 用户关注院校
+     * @param $u_id 用户id
+     * @param $m_id 院校id
+     */
+    public static function setUserMajor($u_id,$m_id){
+        return DB::table(self::$sTableName)->insert(['user_id'=>$u_id,'major_id'=>$m_id]);
+    }
 }

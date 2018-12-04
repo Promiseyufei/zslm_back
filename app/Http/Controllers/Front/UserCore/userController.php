@@ -9,6 +9,7 @@
     namespace App\Http\Controllers\Front\UserCore;
 
     use App\Models\news_users as newUsers;
+    use App\Models\opinion_feedback;
     use App\Models\user_activitys as userActivitys;
     use App\Models\user_coupon as userCoupon;
     use App\Models\user_follow_major as userFollowMajor;
@@ -26,6 +27,12 @@
 
     class userController extends Controller
     {
+        /**
+         * 获取用户的初始信息，名称，地区，关注院校等
+         * @param Request $request
+         *
+         * @return mixed
+         */
         public function getUserInfo(Request $request){
             
             if(!$request->isMethod("get"))
@@ -54,7 +61,13 @@
             return responseToJson(0,'success',$user);
             
         }
-        
+    
+        /**
+         * 获取用户关注的院校
+         * @param Request $request
+         *
+         * @return mixed
+         */
         public function getUserMajor(Request $request){
             if(!$request->isMethod('get')){
                 return responseToJson(1,'请求错误');
@@ -94,6 +107,34 @@
             
             }else
                 return responseToJson(1,'没有页数、页码或者页数、页码不为数字');
+        }
+    
+        /**
+         * 用户反馈
+         * @param Request $request
+         *
+         * @return mixed
+         */
+        
+        public function userOpinion(Request $request){
+    
+            if(!isset($request->id) || !is_numeric($request->id)){
+                return responseToJson(1,'id错误');
+            }
+    
+            if(!isset($request->name)){
+                return responseToJson(1,'没有 name');
+            }
+            if(!isset($request->text)){
+                return responseToJson(1,'没有 name');
+            }
+            
+            $result = opinion_feedback::addOpinion($request->id,$request->name,$request->text);
+            if($result == 1)
+                return responseToJson(0,'success');
+            else
+                return responseToJson(1,'添加失败');
+            
         }
         
     }

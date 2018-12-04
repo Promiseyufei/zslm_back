@@ -141,11 +141,12 @@
                 ->where('coach_id', $c_id)
                 ->where('user_id', $u_id)
                 ->where('is_enable', $type)
-                 ->where( self::$sTableName . '.is_delete', 0);
+                 ->where( 'user_coupon.is_delete', 0);
             if ($is_use == 0)
                 $query = $query->where('use_time', 0);
             else if ($is_use == 1)
                 $query = $query->where('use_time', '>', 0);
+            
             
             return $query->get([self::$sTableName.'.id',self::$sTableName.'.name',self::$sTableName.'.type']);
         }

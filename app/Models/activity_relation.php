@@ -97,7 +97,20 @@ class activity_relation
             ->offset(($page-1)*$page_size)->limit($page_size)->get(['activity_id']);
         return $result->toArray();
     }
-
+    
+    /**
+     * 获取活动的主办院校
+     * @param $id
+     *
+     * @return mixed
+     */
+    public static function getOneMajorActivity($id){
+        $result =  DB::table(self::$sTableName)
+            ->where('activity_id',$id)
+            ->limit(1)
+            ->get(['host_major_id']);
+        return $result;
+    }
 
 
 

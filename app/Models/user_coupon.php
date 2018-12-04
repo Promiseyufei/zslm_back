@@ -23,7 +23,15 @@
         
         
         public static function getCountUserCoupon($id,$status){
-            return DB::table(self::$sTableName)->where('user_id',$id)->where('is_use',$status)->count('id');
+            return DB::table(self::$sTableName)
+                ->join('zslm_coupon',self::$sTableName.'.coupon_id','zslm_coupon.id')
+                ->where('user_id',$id)->where('is_use',$status)->where('is_enable',0)->count('zslm_coupon.id');
+        }
+    
+        public static function getCountEnableCoupon($id,$status){
+            return DB::table(self::$sTableName)
+                ->join('zslm_coupon',self::$sTableName.'.coupon_id','zslm_coupon.id')
+                ->where('user_id',$id)->where('is_enable',$status)->count('zslm_coupon.id');
         }
     
         public static function getCouponIdWithUse($user_id,$is_use){
@@ -36,6 +44,25 @@
              else if($is_use == 1)
                  $query = $query->where('use_time','>',0);
              return $query->get(['coupon_id']);
+        }
+        
+        public static function useCoupon($u_id,$c_id){
+          return  DB::table(self::$sTableName)
+                ->where('user_id',$u_id)
+                ->where('coupon_id',$c_id)
+                ->update(['is_use',1]);
+        }
+        
+        public static function getUserCouponByCouponId($u_id,$c_id){
+            return DB::table(self::$sTableName)
+                ->where('user_id',$u_id)
+                ->where('coupon_id',$c_id)
+                ->limit(1)
+                ->get(['id','use_time']);
+        }
+        
+        public static function addUserCoupon($u_id,$c_id){
+            return DB::table(self::$sTableName)->insert(['coupon_id'=>$c_id,'user_id'=>$u_id,'is_use'=>0,"create_time"=>time(),'is_delete'=>0]);
         }
         
     }
