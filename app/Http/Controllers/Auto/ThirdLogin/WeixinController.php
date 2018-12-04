@@ -15,17 +15,18 @@ use Log;
 use Exception;
 use Illuminate\Http\Request;
 use Socialite;
-use SocialiteProviders\Weixin\Provider;
+use SocialiteProviders\WeixinWeb\Provider;
 
 class WeixinController extends Controller{
     public function redirectToProvider(Request $request)
     {
-        return Socialite::with('weixin')->redirect();
+        return Socialite::with('weixinweb')->redirect();
     }
 
     public function handleProviderCallback(Request $request)
     {
-        $user_data = Socialite::with('weixin')->user();
+        $user_data = Socialite::with('weixinweb')->user();
+        dd($user_data);
         //todo whatever
     }
 }
