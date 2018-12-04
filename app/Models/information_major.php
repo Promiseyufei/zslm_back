@@ -36,6 +36,7 @@ class information_major
                 ['zslm_information.is_delete', '=', 0]
             ])->select(
                 'zslm_major.z_name', 
+                'zslm_major.magor_logo_name', 
                 'zslm_information.id', 
                 'zslm_information.zx_name', 
                 'zslm_information.z_image',

@@ -214,6 +214,7 @@ class user_accounts
                 ->leftJoin('user_information', self::$sTableName . '.id', '=', 'user_information.user_account_id')
                 ->where(self::$sTableName . '.phone', $userPhone)->select(
                     self::$sTableName . '.create_time',
+                    self::$sTableName . '.phone',
                     'user_information.user_name',
                     'user_information.head_portrait',
                     'user_information.real_name',

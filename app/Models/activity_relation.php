@@ -76,6 +76,8 @@ class activity_relation
                 'zslm_activitys.end_time', 
                 'zslm_activitys.begin_time', 
                 'zslm_activitys.active_name', 
+                'zslm_activitys.active_img',
+                'zslm_major.magor_logo_name',
                 'dict_activity_type.name as active_type'
             )->get()->map(function($item) {
                 $item->begin_time = date("Y-m-d H:i", $item->begin_time);

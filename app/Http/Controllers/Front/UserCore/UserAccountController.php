@@ -31,7 +31,7 @@ class UserAccountController extends Controller{
      * 所属行业
      * 工作年限
      */
-    public function getUserInfo(Request $request) {
+    public function getUserAccountInfo(Request $request) {
         if($request->isMethod('get')) {
             $user_phone = !empty($request->phone) ? $request->phone : '';
             if($user_phone == '') return responseToJson(1, '参数错误');

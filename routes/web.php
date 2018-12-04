@@ -18,17 +18,21 @@ Route::get('/', function () {
 });
 
 
-//测试验证码
 
-
+//短信测试验证码
 Route::get('/smsSend', function() {
     $a = SmsController::sendSms('15837587256', ['name'=>'李闪磊'], '测试', '');
     dd($a);
 });
-
 Route::get('/smsBatchSend', function() {
     SmsController::sendBatchSms(['15837587256', '13569829175'],'测试', [['name'=>'李闪磊'], ['name' => '尤齐秦']]);
 });
+
+//微信第三方登录测试
+Route::get('auth/weixin', 'Auto\ThirdLogin\WeixinController@redirectToProvider');
+Route::get('auth/weixin/callback', 'Auto\ThirdLogin\WeixinController@handleProviderCallback');
+
+
 
 
 Route::group(['middleware' => 'cors'], function() {

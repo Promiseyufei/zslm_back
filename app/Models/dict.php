@@ -58,6 +58,14 @@ class dict
         ->toArray();
     }
 
+    // public static function dictRegionList() {
+    //     return DB::table('dict_region')
+    //     ->select('id as','father_id','name')
+    //     ->get()
+    //     ->groupBy('father_id')
+    //     ->toArray();
+    // }
+
     /**
      * 获取指定地区的名称
      */

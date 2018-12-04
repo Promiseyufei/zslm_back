@@ -90,7 +90,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("getuserinfo","userController@getUserInfo");
         Route::get("getusermajor","userController@getUserMajor");
 
-        Route::get("getUserInfo","UserAccountController@getUserInfo");
+        Route::get("getUserAccountInfo","UserAccountController@getUserAccountInfo");
 
         Route::get("getIndustryList","UserAccountController@getIndustryList");
 
@@ -99,6 +99,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::post("changeUserInfo","UserAccountController@changeUserInfo");
 
         Route::get("getUserNews","UserNewsController@getUserNews");
+
+        Route::post("changeNewsStatus","UserNewsController@changeNewsStatus");
     });
 
 
