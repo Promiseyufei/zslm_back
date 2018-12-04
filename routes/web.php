@@ -13,9 +13,9 @@
 
 use App\Http\Controllers\Auto\Sms\SmsController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//Route::get('/', function () {
+//    return view('welcome');
+//});
 
 
 
@@ -30,7 +30,7 @@ Route::get('/smsBatchSend', function() {
 
 //微信第三方登录测试
 Route::get('auth/weixin', 'Auto\ThirdLogin\WeixinController@redirectToProvider');
-Route::get('auth/weixin/callback', 'Auto\ThirdLogin\WeixinController@handleProviderCallback');
+Route::get('/', 'Auto\ThirdLogin\WeixinController@handleProviderCallback');
 
 
 
