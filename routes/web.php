@@ -32,7 +32,8 @@ Route::get('/smsBatchSend', function() {
 Route::get('auth/weixin', 'Auto\ThirdLogin\WeixinController@redirectToProvider');
 Route::get('/', 'Auto\ThirdLogin\WeixinController@handleProviderCallback');
 
-
+// 错:https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx4bc9b1b4f2bbe009&redirect_uri=http://www.lishanlei.cn&response_type=code&scope=snsapi_login&state=fWW91SAQ3wKJJywJ5TLVRfYjD9utlwWXR2EyOt53&connect_redirect=1#wechat_redirect
+// 对:https://open.weixin.qq.com/connect/qrconnect?appid=wx4bc9b1b4f2bbe009&redirect_uri=http://www.lishanlei.cn&response_type=code&scope=snsapi_login&state=STATE#wechat_redirect
 
 
 Route::group(['middleware' => 'cors'], function() {
