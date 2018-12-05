@@ -8,19 +8,14 @@
 
 namespace App\Http\Controllers\Auto\ThirdLogin;
 
-use App\Http\Controllers\Controller;
-use App\User;
-use Auth;
-use Log;
-use Exception;
-use Illuminate\Http\Request;
 use Socialite;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use SocialiteProviders\WeixinWeb\Provider;
 
 class WeixinController extends Controller{
     public function redirectToProvider(Request $request)
     {   
-        // $driver = Socialite::driver('weixinweb');
         return Socialite::with('weixinweb')->redirect();
     }
 
@@ -28,6 +23,5 @@ class WeixinController extends Controller{
     {
         $user_data = Socialite::with('weixinweb')->stateless()->user();
         dd($user_data);
-        //todo whatever
     }
 }
