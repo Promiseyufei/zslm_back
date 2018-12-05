@@ -10,7 +10,10 @@
     
     
     use App\Http\Controllers\Controller;
+    use App\Models\dict_fraction_type;
+    use App\Models\dict_recruitment_pattern;
     use App\Models\dict_region as dictRegion;
+    use App\Models\major_recruit_project;
     use App\Models\user_coupon;
     use App\Models\zslm_activitys;
     use App\Models\zslm_coupon;
@@ -201,7 +204,13 @@
             return responseToJson(0,'success',$coach_res);
             
         }
-        
+    
+        /**
+         * 用户领取优惠券
+         * @param Request $request
+         *
+         * @return mixed
+         */
         public function addUserCoupon(Request $request){
     
             if(!isset($request->c_id) || !isset($request->c_id))
@@ -218,4 +227,6 @@
             }
         
         }
+    
+      
     }

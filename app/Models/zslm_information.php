@@ -292,7 +292,7 @@ class zslm_information
         $count = SystemSetup::getContent('front_consult_list_broadcast_count');
         $handel = DB::table(self::$sTableName)->where('is_delete', 0)->orderBy('weight', 'desc')->orderBy('create_time', 'desc');
         if($handel->count() > $count) 
-            $handel = $handel->skip($count);
+            $handel = $handel->limit($count);
 
         return $handel->select('id', 'zx_name', 'z_image')->get();
     }
