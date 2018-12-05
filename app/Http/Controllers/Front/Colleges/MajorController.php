@@ -16,6 +16,7 @@
     use App\Models\dict_major_type;
     use App\Models\dict_recruitment_pattern;
     use App\Models\information_major;
+    use App\Models\major_recruit_project;
     use App\Models\user_activitys;
     use App\Models\user_follow_major;
     use App\Models\zslm_information;
@@ -31,8 +32,9 @@
     use App\Models\major_files as majorFiles;
     use App\Models\activity_relation as activityRelation;
     use App\Models\zslm_activitys as ZslmActivitys;
-    
-    
+    use phpDocumentor\Reflection\Types\Integer;
+
+
     class MajorController extends Controller
     {
         public function getMajor(Request $request)
@@ -338,8 +340,22 @@
             $result =  substr($result, 0, -1) ;
             return $result;
         }
+    
+    
+        /**
+         * 获取年份
+         */
         
-       
+        public function getYear(Request $request){
+            
+            $year = [];
+            $year[0] = 2015;
+            $year[1] = 2016;
+            $year[2] = 2017;
+            $year[3] = 2018;
+            
+            return responseToJson(0,'success',$year);
+        }
     
         /**
          * @param Request $request获取院校招生简章列表
@@ -365,6 +381,50 @@
             
             return responseToJson(0,'success',$majors);
         }
+    
+        /**
+         * 获取一个院校的所有专业项目id
+         * @param Request $request
+         *
+         * @return mixed
+         */
+        public function getMajorPorjectId(Request $request){
+            if(!isset($request->m_id) && $request->m_id == '')
+                return responseToJson(1,'m_id 错误');
         
+            $project_id = major_recruit_project::getProjectByMid( $request->m_id,0,
+                0,0,'','',0,['id']);
+            if(sizeof($project_id) == 0)
+                return responseToJson(1,'暂无数据');
+            return responseToJson(0,'success',$project_id);
+        }
+    
+        /**
+         * 专业对比接口，也就是招生项目对比接口
+         * @param Request $request
+         */
+    
+        public function vsProject(Request $request){
         
+            if(!isset($request->p_id) || $request->p_id == ''){
+                return responseToJson(1,'p_id 错误');
+            
+                $project_id = strChangeArr($request->p_id,EXPLODE_STR);
+            
+                $fileds = ['id','project_name','student_count','language','eductional_systme',
+                    'can_conditions','score_describe','score_type','recruitment_pattern',
+                    'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
+                $porjects = major_recruit_project::getProjectById($project_id,0,sizeof($project_id),$fileds);
+            
+                $len = sizeof($projects);
+            
+                if($len == 0)
+                    return responseToJson(1,"暂无数据");
+            
+                for($i = 0;$i < $len;$i++){
+                    $porjects[$i]->enrollment_mode = dict_recruitment_pattern::getPattern($porjects[$i]->enrollment_mode);
+                    $porjects[$i]->score_type = dict_fraction_type::getType( $porjects[$i]->score_type);
+                }
+            }
+        }
     }

@@ -10,7 +10,10 @@
     
     
     use App\Http\Controllers\Controller;
+    use App\Models\dict_fraction_type;
+    use App\Models\dict_recruitment_pattern;
     use App\Models\dict_region as dictRegion;
+    use App\Models\major_recruit_project;
     use App\Models\user_coupon;
     use App\Models\zslm_activitys;
     use App\Models\zslm_coupon;
@@ -225,16 +228,5 @@
         
         }
     
-        /**
-         * 专业对比接口，也就是招生项目对比接口
-         * @param Request $request
-         */
-        
-        public function vsProject(Request $request){
-            
-            if(!isset($request->p_id) || $request->p_id == ''){
-                return responseToJson(1,'p_id 错误');
-                
-            }
-        }
+      
     }
