@@ -278,6 +278,93 @@
            else
                return responseToJson(1,'关注失败');
         }
+    
+        /**
+         * 对比院校借口
+         * @param Request $request
+         */
+        public function vsMajors(Request $request){
+            if(!isset($request->m_ids)){
+                return responseToJson(1,"m_ids 错误");
+            }
+            
+            $ids = strChangeArr($request->m_ids,EXPLODE_STR);
+    
+            $fileds = ['id', 'z_name', 'major_follow', 'province','index_web',
+                'admissions_web','address','phone', 'major_confirm',
+                'access_year','wc_image'];
+            $majors = zslmMajor::getVsMajorsByIds($ids,$fileds);
+    
+            if(sizeof($majors) == 0)
+                return responseToJson(1,"暂无数据");
+    
+            $major_confirms = majorConfirm::getAllMajorConfirm();
+            $major_follows = majorFollow::getAllMajorFollow();
+            
+            $fileds = ['id','project_name','student_count','language','eductional_systme',
+                'can_conditions','score_describe','score_type','recruitment_pattern',
+                'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
+            
+            for($i = 0 ;$i < sizeof($majors);$i++){
+                $majors[$i]->project =  majorRecruitProject::getProjectByMid( $majors[$i]->id,0,
+                    0,0,'','',0,$fileds);
+                $majors[$i]->province = getProCity($majors[$i]->province);
+                $major_confirms_str = strChangeArr($majors[$i]->major_confirm,EXPLODE_STR);
+                $major_confirms_str = changeStringToInt($major_confirms_str);
+                $major_follow_str = strChangeArr($majors[$i]->major_follow,EXPLODE_STR);
+                $major_follow_str = changeStringToInt($major_follow_str);
+     
+                $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
+                $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
+                $majors[$i]->major_confirm_id = $major_confirm;
+                $majors[$i]->major_follow_id = $major_follow;
+                unset($majors[$i]->major_confirm);
+                unset($majors[$i]->major_follow);
+            }
+        
+            return responseToJson(0,'success',$majors);
+            
+        }
+    
+        /**通过id数组获取院校性质，或者专业认证
+         * @param $val_arrl
+         * @param $get_arr
+         */
+        private function getConfirmsOrFollow($val_arrl,$get_arr){
+            $result = '';
+            for($i = 0;$i < sizeof($val_arrl);$i++){
+                $result.=$get_arr[$val_arrl[$i]].',';
+            }
+            $result =  substr($result, 0, -1) ;
+            return $result;
+        }
+        
+       
+    
+        /**
+         * @param Request $request获取院校招生简章列表
+         */
+        
+        public function getMajorZSJZFiles(Request $request){
+            if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
+                return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
+    
+            $felds = ['id', 'magor_logo_name',
+                'z_name', 'major_cover_name'];
+            $majors = zslmMajor::getMajorBySelect('', $request->name,
+                '', null, $request->page, $request->page_size, $felds, 0);
+            
+            $len = sizeof($majors);
+            
+            if($len == 0)
+                return responseToJson(1,"暂无数据");
+            
+            for($i = 0;$i < $len;$i++){
+                $majors[$i]->ZSJZF = majorFiles::getZSJZFile($majors[$i]->id,$request->year);
+            }
+            
+            return responseToJson(0,'success',$majors);
+        }
         
         
     }

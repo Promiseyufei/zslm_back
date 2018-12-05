@@ -266,8 +266,17 @@ function getByteToMb($bytes) {
     $mb = $bytes / 1048576;
     return round($mb, 0);
 }
-
-
+    
+     /**
+      * 将数字字符串数组转换为数字数组
+      * @param $val 带转换的字符串数字数组
+      */
+function changeStringToInt($val){
+    for($i = 0;$i < sizeof($val);$i++){
+        $val[$i] = intval($val[$i]);
+    }
+    return $val;
+}
 /**
  * 删除数组中指定的值
  */
