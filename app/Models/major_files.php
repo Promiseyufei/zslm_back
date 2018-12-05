@@ -144,5 +144,13 @@
             $files = DB::table(self::$sTableName)->where('major_id',$id)->where('is_delete',0)->get(['file_name','file_alt']);
             return $files;
         }
-        
+        public static function getZSJZFile($id,$year){
+            
+            $files = DB::table(self::$sTableName)->where('major_id',$id)->where('is_delete',0)->where('file_type',0);
+            if($year != '' && !empty($year)){
+                $files = $files->where('file_year','like','%'.$year.'%');
+            }
+            $result = $files->get(['file_name','file_alt']);
+            return $result;
+        }
     }

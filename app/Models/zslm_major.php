@@ -282,7 +282,11 @@
             $data = DB::table(self::$sTableName)->where('is_delete', 0)->where('id', $id)->limit(1)->get($felds);
             return $data;
         }
-        
+    
+        public static function getVsMajorsByIds($id,$felds){
+            $data = DB::table(self::$sTableName)->where('is_delete', 0)->whereIn('id', $id)->get($felds);
+            return $data;
+        }
         
         
     }

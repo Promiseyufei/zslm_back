@@ -201,7 +201,13 @@
             return responseToJson(0,'success',$coach_res);
             
         }
-        
+    
+        /**
+         * 用户领取优惠券
+         * @param Request $request
+         *
+         * @return mixed
+         */
         public function addUserCoupon(Request $request){
     
             if(!isset($request->c_id) || !isset($request->c_id))
@@ -217,5 +223,18 @@
                 return responseToJson(1,"领取失败");
             }
         
+        }
+    
+        /**
+         * 专业对比接口，也就是招生项目对比接口
+         * @param Request $request
+         */
+        
+        public function vsProject(Request $request){
+            
+            if(!isset($request->p_id) || $request->p_id == ''){
+                return responseToJson(1,'p_id 错误');
+                
+            }
         }
     }
