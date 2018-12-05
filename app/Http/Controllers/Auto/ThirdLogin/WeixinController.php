@@ -26,7 +26,7 @@ class WeixinController extends Controller{
 
     public function handleProviderCallback(Request $request)
     {
-        $user_data = Socialite::with('weixinweb')->user();
+        $user_data = Socialite::with('weixinweb')->stateless()->user();
         dd($user_data);
         //todo whatever
     }
