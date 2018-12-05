@@ -99,6 +99,25 @@ class major_recruit_project
         return $result;
     }
     
+    /**
+     * @param     $id 项目id数组
+     * @param int $order 排序方式 0降序，其他升序
+     * @param     $size 获取的数据数量
+     * @param     $fileds 获取的字段
+     *
+     * @return mixed
+     */
+    public static function getProjectById($id,$order = 0,$size,$fileds){
+        $query =  DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->whereIn('id',$id);
+        $desc = $order == 0 ? 'desc':'asc';
+        if($size !=0){
+            $query =  $query->limit($size);
+        }
+        $result = $query->get($fileds);
+        return $result;
+        
+    }
+    
     public static function getProjectByMidNoMoney($id,$size = 3){
         $query =  DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->where('major_id',$id);
     

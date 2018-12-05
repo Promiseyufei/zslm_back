@@ -19,4 +19,9 @@
         {
             return DB::table(self::$sTableName)->get(['id','name']);
         }
+    
+        public static function getType($id)
+        {
+            return DB::table(self::$sTableName)->where('id',$id)->get(['name']);
+        }
     }
