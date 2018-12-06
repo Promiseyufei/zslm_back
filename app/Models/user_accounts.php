@@ -172,6 +172,11 @@ class user_accounts
         return DB::table(self::$sTableName)->where('phone', $userPhone)->where('is_delete', 0)->first();
     }
 
+    //以用户id获得手机号
+    public static function getIdToPhone($userId) {
+        return DB::table(self::$sTableName)->where('id', $userId)->where('is_delete', 0)->value('phone');
+    }
+
     public static function insertUserAccount($userPhone = '') {
         if(!DB::table(self::$sTableName)->where('phone', $userPhone)->count()) {
             return DB::table(self::$sTableName)->insertGetId([

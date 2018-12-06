@@ -28,7 +28,7 @@ class FrontLoginController extends Controller {
         if($request->type == 0) {
             if($user) {
                 if($user->password == encryptPassword($request->userPassword)) {
-                    $this->loginSuccess($request, $user_phone);
+                    loginSuccess($request, $user_phone);
                     return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user->id));
                 }
                 else {
@@ -42,6 +42,7 @@ class FrontLoginController extends Controller {
         else if($request->type == 1) {
             if($request->smsCode == Redis::get(getUserStatusString($user_phone, 1))) {
                 if($user) {
+                    loginSuccess($request, $user_phone);
                     return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user->id));
                 }
                 else {
@@ -66,7 +67,7 @@ class FrontLoginController extends Controller {
         else if(isset($request->agree) && $request->agree == 1) {
             $insert_id = UserAccounts::insertUserAccount($userPhone);
             if($insert_id) {
-                $this->loginSuccess($request, $userPhone);
+                loginSuccess($request, $userPhone);
                 return responseToJson(0, '创建成功', $insert_id);
             }
             else return responseToJson(1, '创建用户失败');
@@ -77,17 +78,17 @@ class FrontLoginController extends Controller {
     /**
      * 登录成功存储用户会话状态
      */
-    private function loginSuccess($request, $userPhone) {
-        Redis::set(getUserStatusString($userPhone, 0), 1);
+    // private function loginSuccess($request, $userPhone) {
+    //     Redis::set(getUserStatusString($userPhone, 0), 1);
 
-        if(!Redis::exists(getUserStatusString($userPhone, 0))) {
-            $session = $request->session();
-            $session->put(getUserStatusString($userPhone, 0), 1);
-            Cookie::queue(getUserStatusString($userPhone, 0),1,time()+60*60*60*24);
-        }
+    //     if(!Redis::exists(getUserStatusString($userPhone, 0))) {
+    //         $session = $request->session();
+    //         $session->put(getUserStatusString($userPhone, 0), 1);
+    //         Cookie::queue(getUserStatusString($userPhone, 0),1,time()+60*60*60*24);
+    //     }
 
-        return true;
-    }
+    //     return true;
+    // }
 
 
     /**
@@ -145,7 +146,7 @@ class FrontLoginController extends Controller {
         return $this->verificationCallBack(function($request) {
             $user = UserAccounts::getAppointUser($request->userPhone);
             if($user) {
-                $this->loginSuccess($request, $request->userPhone);
+                loginSuccess($request, $request->userPhone);
                 return responseToJson(2, '已注册');
             }
             else {

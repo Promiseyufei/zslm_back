@@ -1,6 +1,8 @@
  <?php
 
+use Cookie;
 use App\Models\dict as Dict;
+use Illuminate\Support\Facades\Redis;
 use App\Models\dict_region as dictRegion;
 
 /**
@@ -464,4 +466,20 @@ function changeStringToInt($val){
      */
     function changeString($str = '', $start = 0, $length, $replace = '...', $codeType = 'utf-8') {
         return mb_strlen($str, $codeType) < ($start + $length) ? $str : mb_substr($str, $start, $length, $codeType) . $replace;
+    }
+
+
+    /**
+     * 登录成功存储用户会话状态
+     */
+    function loginSuccess($request, $userPhone) {
+        Redis::set(getUserStatusString($userPhone, 0), 1);
+
+        if(!Redis::exists(getUserStatusString($userPhone, 0))) {
+            $session = $request->session();
+            $session->put(getUserStatusString($userPhone, 0), 1);
+            Cookie::queue(getUserStatusString($userPhone, 0),1,time()+60*60*60*24);
+        }
+
+        return true;
     }
