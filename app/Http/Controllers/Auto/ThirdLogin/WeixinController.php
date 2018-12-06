@@ -24,4 +24,9 @@ class WeixinController extends Controller{
         $user_data = Socialite::with('weixinweb')->stateless()->user();
         dd($user_data);
     }
+
+
+    private function selectThirdAccount() {
+        
+    }
 }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\Auto\Sms\SmsController;
 
 use App\Models\user_accounts as UserAccounts;
+use App\Models\user_information as UserInformation;
 class FrontLoginController extends Controller {
 
 
@@ -22,13 +23,13 @@ class FrontLoginController extends Controller {
      */
     public function login(Request $request) {
         $user_phone = $request->userPhone;
+        $user = UserAccounts::getAppointUser($user_phone);
         
         if($request->type == 0) {
-            $user = UserAccounts::getAppointUser($user_phone);
             if($user) {
                 if($user->password == encryptPassword($request->userPassword)) {
                     $this->loginSuccess($request, $user_phone);
-                    return responseToJson(0, 'success', $user->id);
+                    return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user->id));
                 }
                 else {
                     return responseToJson(1, '账号或密码错误');
@@ -40,8 +41,8 @@ class FrontLoginController extends Controller {
         }
         else if($request->type == 1) {
             if($request->smsCode == Redis::get(getUserStatusString($user_phone, 1))) {
-                if($user = UserAccounts::getAppointUser($user_phone)) {
-                    return responseToJson(0, 'success', $user->id);
+                if($user) {
+                    return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user->id));
                 }
                 else {
                     return $this->judgeAgree($request, $user_phone);
