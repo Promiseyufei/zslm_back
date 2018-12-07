@@ -45,7 +45,7 @@
         }
 
         public static function updateThirdBind($userOpenId, $userId) {
-
+            // dd(DB::table(self::$sTableName)->where('thirdAccount', $userOpenId)->get());
             return DB::table(self::$sTableName)->where('thirdAccount', $userOpenId)->where('is_delete', 0)->update([
                 'user_account_id' => $userId,
                 'update_time' => time()
