@@ -65,6 +65,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("getmajoractive","MajorController@getMajorActive");
         Route::get("getactivemajor","MajorController@getActiveMajor");
         Route::post("setusermajor","MajorController@setUserMajor");
+        Route::post("unsetusermajor","MajorController@unsetUserMajor");
         Route::get("getmajorinformation","MajorController@getMajorInformation");
         Route::get("vsmajors","MajorController@vsMajors");
         Route::get("getyear","MajorController@getYear");

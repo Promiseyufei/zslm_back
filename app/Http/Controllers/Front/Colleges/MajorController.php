@@ -280,6 +280,19 @@
            else
                return responseToJson(1,'关注失败');
         }
+        
+        public function unsetUserMajor(Request $request){
+    
+            if(!isset($request->m_id) || !is_numeric($request->m_id))
+                return responseToJson(1,'a_id 错误');
+            if(!isset($request->u_id) || !is_numeric($request->u_id))
+                return responseToJson(1,'a_id 错误');
+            $result = user_follow_major::unsetUserMajor($request->u_id,$request->m_id);
+            if($result == 1)
+                return responseToJson(0,'success');
+            else
+                return responseToJson(1,'关注失败');
+        }
     
         /**
          * 对比院校借口
