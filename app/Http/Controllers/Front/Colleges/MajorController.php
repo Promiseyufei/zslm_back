@@ -369,7 +369,7 @@
                 'z_name', 'major_cover_name'];
             $majors = zslmMajor::getMajorBySelect('', $request->name,
                 '', null, $request->page, $request->page_size, $felds, 0);
-            
+            $count = zslmMajor::getMajorBySelectCount('',$request->name,'');
             $len = sizeof($majors);
             
             if($len == 0)
@@ -379,7 +379,7 @@
                 $majors[$i]->ZSJZF = majorFiles::getZSJZFile($majors[$i]->id,$request->year);
             }
             
-            return responseToJson(0,'success',$majors);
+            return responseToJson(0,'success',[$majors,$count]);
         }
     
         /**
@@ -406,25 +406,27 @@
     
         public function vsProject(Request $request){
         
-            if(!isset($request->p_id) || $request->p_id == ''){
+            if(!isset($request->p_id) || $request->p_id == '')
                 return responseToJson(1,'p_id 错误');
             
                 $project_id = strChangeArr($request->p_id,EXPLODE_STR);
-            
+   
                 $fileds = ['id','project_name','student_count','language','eductional_systme',
                     'can_conditions','score_describe','score_type','recruitment_pattern',
                     'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
                 $porjects = major_recruit_project::getProjectById($project_id,0,sizeof($project_id),$fileds);
             
-                $len = sizeof($projects);
+                $len = sizeof($porjects);
             
                 if($len == 0)
                     return responseToJson(1,"暂无数据");
             
                 for($i = 0;$i < $len;$i++){
-                    $porjects[$i]->enrollment_mode = dict_recruitment_pattern::getPattern($porjects[$i]->enrollment_mode);
+                    $porjects[$i]->recruitment_pattern = dict_recruitment_pattern::getPattern($porjects[$i]->recruitment_pattern);
                     $porjects[$i]->score_type = dict_fraction_type::getType( $porjects[$i]->score_type);
                 }
+            
+                return responseToJson(0,'success',$porjects);
             }
-        }
+        
     }

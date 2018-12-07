@@ -69,7 +69,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("vsmajors","MajorController@vsMajors");
         Route::get("getyear","MajorController@getYear");
         Route::get("getmajorzsjz","MajorController@getMajorZSJZFiles");
-            Route::get("getmajorporject","MajorController@getMajorPorjectId");
+        Route::get("getmajorporject","MajorController@getMajorPorjectId");
+        Route::get("vsproject","MajorController@vsProject");
         
     });
 
