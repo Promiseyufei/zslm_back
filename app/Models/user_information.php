@@ -205,6 +205,13 @@
                 ]);
             else return DB::table(self::$sTableName)->insertGetId($infoArr);
         }
+
+        //登录成功后获得用户的昵称和头像
+        public static function getUserViewsInfo($userId) {
+            if(!DB::table(self::$sTableName)->where('user_account_id', $userId)->count()) self::insertUserInfo($userId, []);
+            return DB::table(self::$sTableName)->where('user_account_id', $userId)->select('user_account_id', 'user_name', 'head_portrait')->first();
+        
+        }
         
     }
     
