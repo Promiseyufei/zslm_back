@@ -56,6 +56,10 @@ class user_follow_major
      * @param $m_id 院校id
      */
     public static function setUserMajor($u_id,$m_id){
-        return DB::table(self::$sTableName)->insert(['user_id'=>$u_id,'major_id'=>$m_id]);
+        return DB::table(self::$sTableName)->insert(['user_id'=>$u_id,'major_id'=>$m_id,'create_time'=>time()]);
+    }
+    
+    public static function unsetUserMajor($u_id,$m_id){
+        return DB::table(self::$sTableName)->where('user_id',$u_id)->where('major_id',$m_id)->update(['is_focus'=>1,'update_time'=>time()]);
     }
 }
