@@ -26,7 +26,6 @@ class WeixinController extends Controller{
     public function handleProviderCallback(Request $request)
     {
         $user_data = Socialite::with('weixinweb')->stateless()->user();
-	//dd($user_data);
         if(!empty($user_data) && $user_data->getId()) {
            return $this->selectThirdAccount($user_data->getId(), 1, $request);
         }
@@ -41,13 +40,15 @@ class WeixinController extends Controller{
      */
     private function selectThirdAccount($userOpenId = '', $type = 0, $request) {
         //已绑定账号
-        if($user_id = UserThirdAccounts::judgeThirdUser($userOpenId, $type) && !empty($user_id) && is_numeric($user_id)) {
+        $user_id = UserThirdAccounts::judgeThirdUser($userOpenId, $type);
+        if(!empty($user_id) && is_numeric($user_id)) {
             if($user_phone = UserAccounts::getIdToPhone($user_id) && !empty($user_phone)) {
                 loginSuccess($request, $user_phone);
                 return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user_id));
             }
         }
         else {
+            //如果没有绑定，前台输入手机号，然后跳转到bindAccounts()
             return responseToJson(3, '未绑定账号', $userOpenId);
         }
     }
@@ -63,6 +64,7 @@ class WeixinController extends Controller{
             if($phone == '' || $user_open_id == '') return responseToJson(1, '参数错误');
             //该手机号已注册
             if($user = UserAccounts::getAppointUser($phone)) {
+                // dd($user);
                 $is_update = UserThirdAccounts::updateThirdBind($user_open_id, $user->id);
                 return $is_update ? responseToJson(0, '绑定成功') : responseToJson(1, '绑定失败');
             }
