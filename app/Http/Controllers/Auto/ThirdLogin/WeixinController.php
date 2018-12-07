@@ -42,10 +42,12 @@ class WeixinController extends Controller{
         //已绑定账号
         $user_id = UserThirdAccounts::judgeThirdUser($userOpenId, $type);
         if(!empty($user_id) && is_numeric($user_id)) {
-            if($user_phone = UserAccounts::getIdToPhone($user_id) && !empty($user_phone)) {
+            $user_phone = UserAccounts::getIdToPhone($user_id);
+            if(!empty($user_phone)) {
                 loginSuccess($request, $user_phone);
                 return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user_id));
             }
+            else return responseToJson(1, 'error');
         }
         else {
             //如果没有绑定，前台输入手机号，然后跳转到bindAccounts()
