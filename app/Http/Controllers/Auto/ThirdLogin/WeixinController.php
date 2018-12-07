@@ -26,10 +26,12 @@ class WeixinController extends Controller{
     public function handleProviderCallback(Request $request)
     {
         $user_data = Socialite::with('weixinweb')->stateless()->user();
+	//dd($user_data);
         if(!empty($user_data) && $user_data->getId()) {
-            $this->selectThirdAccount($user_data->getId(), 1, $request);
+           return $this->selectThirdAccount($user_data->getId(), 1, $request);
         }
-        else return responseToJson(1, '没有获得该用户微信信息,请重新尝试');
+       else return responseToJson(1, '没有获得该用户微信信息,请重新尝试');
+	//else dd('error');
     }
 
 
