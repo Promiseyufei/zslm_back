@@ -28,12 +28,12 @@ class ConsultController extends Controller{
         if($request->isMethod('get')) {
             $keyword = !empty($request->keyword) ? trim($request->keyword) : '';
             $get_consult_info = ZslmInformation::getSearchConsults($keyword, $request->pageNumber, $request->pageCount)->toArray();
-            foreach ($get_consult_info as $key => $item) {
-                $get_consult_info[$key]->time = date("Y.m.d",$item->time);
-                $get_consult_info[$key]->content = changeString(strip_tags($item->content), 0, 100, '...');
-                $get_consult_info[$key]->author = '专硕联盟';
+            foreach ($get_consult_info['info'] as $key => $item) {
+                $get_consult_info['info'][$key]->time = date("Y.m.d",$item->time);
+                $get_consult_info['info'][$key]->content = changeString(strip_tags($item->content), 0, 100, '...');
+                $get_consult_info['info'][$key]->author = '专硕联盟';
             }
-            if(empty($get_consult_info)) return responseToJson(1, '没有查询到数据');
+            if(empty($get_consult_info['info'])) return responseToJson(1, '没有查询到数据');
             return responseToJson(0, 'success', $get_consult_info);
         }
         else return responseToJson(2, '请求方式错误');
