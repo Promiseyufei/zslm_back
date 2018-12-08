@@ -288,7 +288,7 @@
             if(!isset($request->u_id) || !is_numeric($request->u_id))
                 return responseToJson(1,'a_id 错误');
             $result = user_follow_major::unsetUserMajor($request->u_id,$request->m_id);
-            if($result == 1)
+            if($result > 0)
                 return responseToJson(0,'success');
             else
                 return responseToJson(1,'关注失败');
