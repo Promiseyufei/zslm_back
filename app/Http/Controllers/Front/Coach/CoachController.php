@@ -78,7 +78,7 @@
             $count = coachOrganize::getSelectCoachCount('',null,$request->name,null,null);
             if(sizeof($coachs) == 0)
                 return responseToJson(1,'没有数据');
-            return responseToJson(0,'success',[$coachs,'count'=>$count]);
+            return responseToJson(0,'success',['coachs'=>$coachs,'count'=>$count]);
         }
     
         /**
