@@ -75,9 +75,10 @@
                 return responseToJson(1,'没有页码、页面大小或者页码、也买你大小不是数字');
             
             $coachs = $this->getIndexInfo($request->name,$request->page,$request->page_size);
+            $count = coachOrganize::getSelectCoachCount('',null,$request->name,null,null);
             if(sizeof($coachs) == 0)
                 return responseToJson(1,'没有数据');
-            return responseToJson(0,'success',$coachs);
+            return responseToJson(0,'success',['coachs'=>$coachs,'count'=>$count]);
         }
     
         /**
