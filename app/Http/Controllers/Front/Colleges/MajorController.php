@@ -380,9 +380,8 @@
     
             $felds = ['id', 'magor_logo_name',
                 'z_name', 'major_cover_name'];
-            $majors = zslmMajor::getMajorBySelect('', $request->name,
-                '', null, $request->page, $request->page_size, $felds, 0);
-            $count = zslmMajor::getMajorBySelectCount('',$request->name,'');
+            $majors = zslmMajor::getMajorByYearSelect($request->name,$request->year,$request->page, $request->page_size,$felds);
+            $count = zslmMajor::getMajorByYearSelectCount($request->name,$request->year);
             $len = sizeof($majors);
             
             if($len == 0)
