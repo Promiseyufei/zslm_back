@@ -111,6 +111,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::post("changeNewsStatus","UserNewsController@changeNewsStatus");
         Route::post("adduseropinion","userController@userOpinion");
         Route::post("refund","userController@userRefund");
+
+        Route::get("getFrontProvince","UserAccountController@getFrontProvince");
         
       
     });
