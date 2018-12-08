@@ -118,7 +118,7 @@
         public function getMajorToIndex($name, $page = 1, $page_size = 7)
         {
             $felds = ['id', 'province', 'magor_logo_name',
-                'z_name', 'major_cover_name', 'major_confirm_id', 'major_follow_id'];
+                'z_name', 'major_cover_name', 'major_confirm_id', 'major_follow_id','major_confirm','major_follow'];
             $zero = null;
             $major_confirms = majorConfirm::getAllMajorConfirm();
             $major_follows = majorFollow::getAllMajorFollow();
@@ -133,6 +133,17 @@
                 $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
                 if($majors[$i]->province !== '')
                     $majors[$i]->province = getProCity($majors[$i]->province);
+                $major_confirms_str = strChangeArr($majors[$i]->major_confirm,EXPLODE_STR);
+                $major_confirms_str = changeStringToInt($major_confirms_str);
+                $major_follow_str = strChangeArr($majors[$i]->major_follow,EXPLODE_STR);
+                $major_follow_str = changeStringToInt($major_follow_str);
+    
+                $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
+                $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
+                $majors[$i]->major_confirm_id = $major_confirm;
+                $majors[$i]->major_follow_id = $major_follow;
+                unset($majors[$i]->major_confirm);
+                unset($majors[$i]->major_follow);
             }
 
             return $majors;
@@ -158,7 +169,7 @@
             $felds = ['id', 'z_name', 'magor_logo_name',
                 'major_follow_id', 'province','index_web',
                 'admissions_web','address','phone', 'major_confirm_id',
-                'access_year','wc_image','wb_image'];
+                'access_year','wc_image','wb_image','major_confirm','major_follow'];
             
             $major = zslmMajor::getMajorById($request->id,$felds);
             if(sizeof($major) == 0)
@@ -167,7 +178,23 @@
             $major[0]->file = majorFiles::getMajorFile($request->id);
             $fileds = ['id','project_name','student_count','language','eductional_systme',
                 'can_conditions','score_describe','score_type','recruitment_pattern',
-                'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
+                'graduation_certificate','other_explain','cost',"enrollment_mode",
+                'class_situation'];
+    
+            $major_confirms = majorConfirm::getAllMajorConfirm();
+            $major_follows = majorFollow::getAllMajorFollow();
+            
+            $major_confirms_str = strChangeArr($major[0]->major_confirm,EXPLODE_STR);
+            $major_confirms_str = changeStringToInt($major_confirms_str);
+            $major_follow_str = strChangeArr($major[0]->major_follow,EXPLODE_STR);
+            $major_follow_str = changeStringToInt($major_follow_str);
+    
+            $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
+            $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
+            $major[0]->major_confirm_id = $major_confirm;
+            $major[0]->major_follow_id = $major_follow;
+            unset($major[0]->major_confirm);
+            unset($major[0]->major_follow);
             $major[0]->project = majorRecruitProject::getProjectByMid($request->id,0,
                 0,0,'','',0,$fileds);
             $is_guanzhu =  user_follow_major::getIfUsesMajor($request->u_id,$request->id);
