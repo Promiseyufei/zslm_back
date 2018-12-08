@@ -36,17 +36,17 @@ class ActivityController extends Controller{
         if($request->isMethod('get')) {
             $keyword = !empty($request->keyword) ? trim($request->keyword) : '';
             // if(!defined($request->pageCount) || !isset($requesst->pageNumber)) return responseToJson(1, '参数错误');
-            $get_activity_info = ZslmActivitys::getSearchActivitys($keyword, $request->pageNumber, $request->pageCount)->toArray();
+            $get_activity_info = ZslmActivitys::getSearchActivitys($keyword, $request->pageNumber, $request->pageCount);
             // dd($get_activity_info);
-            foreach ($get_activity_info as $key => $item) {
+            foreach ($get_activity_info['activitys'] as $key => $item) {
                 $now_time = time();
-                $get_activity_info[$key]->startState = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
-                $get_activity_info[$key]->begin_time = date("m-d",$item->begin_time);
-                $get_activity_info[$key]->end_time = date("m-d", $item->end_time);
+                $get_activity_info['activitys'][$key]->startState = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
+                $get_activity_info['activitys'][$key]->begin_time = date("m-d",$item->begin_time);
+                $get_activity_info['activitys'][$key]->end_time = date("m-d", $item->end_time);
                 if($item->province !== '')
-                    $get_activity_info[$key]->province = getProCity($item->province);
+                    $get_activity_info['activitys'][$key]->province = getProCity($item->province);
             }
-            if(empty($get_activity_info)) return responseToJson(1,'没有查询到数据');
+            if(empty($get_activity_info['activitys'])) return responseToJson(1,'没有查询到数据');
             return responseToJson(0, 'success', $get_activity_info);
         }
         else return responseToJson(2, '请求方式错误');
