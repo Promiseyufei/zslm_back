@@ -290,7 +290,7 @@
         
             $result = $query->get($felds);
         
-            return sizeof($result) > 0 ? $result : null;
+            return  $result;
         }
     
         public static function getMajorByYearSelectCount($year, $z_name)
