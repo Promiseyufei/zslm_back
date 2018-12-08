@@ -10,6 +10,7 @@
 
     use App\Models\news_users as newUsers;
     use App\Models\opinion_feedback;
+    use App\Models\refund_apply;
     use App\Models\user_activitys as userActivitys;
     use App\Models\user_coupon as userCoupon;
     use App\Models\user_follow_major as userFollowMajor;
@@ -19,9 +20,9 @@
     use App\Models\major_recruit_project as majorRecruitProject;
     use App\Models\dict_major_confirm as majorConfirm;
     use App\Models\dict_major_follow as majorFollow;
-    
-    
-    
+
+
+    use Illuminate\Support\Facades\Validator;
     use App\Http\Controllers\Controller;
     use Illuminate\Http\Request;
 
@@ -138,15 +139,35 @@
         }
         
         public function userRefund(Request $request){
-            $this->validate($request, [
-                'c_name' => 'required',
-                'money' => 'required|numeric',
-                'is_coupon' => 'required|numeric',
-                'time'=>'required|numeric',
-                'phone'=>'required|',
-                'refund_type'=>'required',
-                
-            ]);
+            $messages = [
+                'required' => ' :attribute 为空.',
+                'numeric' => ':attribute 不是数字'
+            ];
+           $v = Validator::make($request->all(), [
+               'c_name' => 'required',
+               'money' => 'required|numeric',
+               'is_coupon' => 'required|numeric',
+               'time'=>'required|numeric',
+               'phone'=>'required',
+               'refund_type'=>'required',
+               'alipay_account'=>'required',
+               'name'=>'required',
+               'card'=>'required',
+               'blank_addr'=>'required',
+               'message'=>'required',
+               'u_id'=>'required|numeric',
+               'f_id'=>'required|numeric',
+               'cou_id'=>'required|numeric',
+           ],$messages);
+          
+            $errors = $v->errors();
+           if(sizeof($errors) > 0 )
+               return responseToJson(1,$errors->first());
+           
+          $result =  refund_apply::addRefund($request);
+            if($result == 1)
+                return responseToJson(0,'success');
+            return responseToJson(1,'失败');
         }
         
     }

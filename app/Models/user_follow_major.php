@@ -60,6 +60,6 @@ class user_follow_major
     }
     
     public static function unsetUserMajor($u_id,$m_id){
-        return DB::table(self::$sTableName)->where('user_id',$u_id)->where('major_id',$m_id)->update(['is_focus'=>1,'update_time'=>time()]);
+        return DB::table(self::$sTableName)->where('user_id',$u_id)->where('major_id',$m_id)->where('is_focus',0)->update(['is_focus'=>1,'update_time'=>time()]);
     }
 }
