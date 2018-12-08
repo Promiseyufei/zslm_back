@@ -91,7 +91,13 @@
             $tongzhao_type = dict_recruitment_pattern::getAllPattern();
             return responseToJson(0, 'success', ['type' => $major_type, 'direction' => $major_fangxiang, 'socre' => $socre_type, 'pattern' => $tongzhao_type]);
         }
-        
+    
+        /**
+         * 通过名字获取院校专业
+         * @param Request $request
+         *
+         * @return mixed
+         */
         
         public function getMajorByName(Request $request)
         {
@@ -100,11 +106,12 @@
             }
             if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
                 return responseToJson(1, '没有页码、页面大小或者页码、也买你大小不是数字');
-            $name = defined($request->name) ? trim($request->name) : '';
+            $name = !empty($request->name) ? trim($request->name) : '';
             $majors = $this->getMajorToIndex($name, $request->page, $request->page_size);
+            $count = zslmMajor::getMajorBySelectCount(null,$name,'');
             if (sizeof($majors) == 0)
                 return responseToJson(1, '没有数据');
-            return responseToJson(0, 'success', $majors);
+            return responseToJson(0, 'success', ['majors'=>$majors,'count'=>$count]);
         }
         
         
