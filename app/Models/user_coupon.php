@@ -25,7 +25,10 @@
         public static function getCountUserCoupon($id,$status){
             return DB::table(self::$sTableName)
                 ->join('zslm_coupon',self::$sTableName.'.coupon_id','zslm_coupon.id')
-                ->where('user_id',$id)->where('is_use',$status)->where('is_enable',0)->count('zslm_coupon.id');
+                ->where('is_delete',0)
+                ->where('user_id',$id)
+                ->where('is_use',$status)->where('is_enable',0)
+                ->count('zslm_coupon.id');
         }
     
         public static function getCountEnableCoupon($id,$status){
@@ -64,5 +67,7 @@
         public static function addUserCoupon($u_id,$c_id){
             return DB::table(self::$sTableName)->insert(['coupon_id'=>$c_id,'user_id'=>$u_id,'is_use'=>0,"create_time"=>time(),'is_delete'=>0]);
         }
+        
+     
         
     }

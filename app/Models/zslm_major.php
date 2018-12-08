@@ -240,8 +240,6 @@
             
             if ($z_name != '' && !empty($z_name))
                 $query = $query->where('z_name', 'like', '%' . $z_name . '%');
-            // if ($provice != '')
-            //     $query = $query->where('province', 'like', $provice . '%');
             
             if ($professional_direction != '' && !empty($professional_direction)) {
 
@@ -259,7 +257,6 @@
             return sizeof($result) > 0 ? $result : null;
         }
         
-        
         public static function getMajorBySelectCount($z_type, $z_name, $provice)
         {
             $query = DB::table(self::$sTableName)->where("is_show", 0)->where('is_delete', 0);
@@ -269,6 +266,40 @@
                 $query = $query->where('z_name', 'like', '%' . $z_name . '%');
             if ($provice != '')
                 $query = $query->where('province', 'like', $provice . '%');
+            $result = $query->count('id');
+            return $result;
+        }
+    
+        public static function getMajorByYearSelect( $z_name,$year, $page, $page_size, $felds, $order = 0)
+        {
+        
+            $query = DB::table(self::$sTableName)->where("is_show", 0)->where('is_delete', 0);
+           
+        
+            if ($z_name != '' && !empty($z_name))
+                $query = $query->where('z_name', 'like', '%' . $z_name . '%');
+        
+            if($year != '' && !empty($year)){
+                $query = $query->where('access_year', 'like', '%' . $year . '%');
+            }
+        
+            $desc = $order == 0 ? 'desc' : "asc";
+            $query = $query->orderBy('weight', $desc)
+                ->offset(($page - 1) * $page_size)
+                ->limit($page_size);
+        
+            $result = $query->get($felds);
+        
+            return  $result;
+        }
+    
+        public static function getMajorByYearSelectCount($year, $z_name)
+        {
+            $query = DB::table(self::$sTableName)->where("is_show", 0)->where('is_delete', 0);
+            if ($year != 0 && !empty($year))
+                $query = $query->where('access_year', $year);
+            if ($z_name != '' && !empty($z_name))
+                $query = $query->where('z_name', 'like', '%' . $z_name . '%');
             $result = $query->count('id');
             return $result;
         }

@@ -99,6 +99,8 @@ class major_recruit_project
         return $result;
     }
     
+    
+    
     /**
      * @param     $id 项目id数组
      * @param int $order 排序方式 0降序，其他升序

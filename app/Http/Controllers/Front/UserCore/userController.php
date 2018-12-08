@@ -10,6 +10,7 @@
 
     use App\Models\news_users as newUsers;
     use App\Models\opinion_feedback;
+    use App\Models\refund_apply;
     use App\Models\user_activitys as userActivitys;
     use App\Models\user_coupon as userCoupon;
     use App\Models\user_follow_major as userFollowMajor;
@@ -19,9 +20,9 @@
     use App\Models\major_recruit_project as majorRecruitProject;
     use App\Models\dict_major_confirm as majorConfirm;
     use App\Models\dict_major_follow as majorFollow;
-    
-    
-    
+
+
+    use Illuminate\Support\Facades\Validator;
     use App\Http\Controllers\Controller;
     use Illuminate\Http\Request;
 
@@ -135,6 +136,64 @@
             else
                 return responseToJson(1,'添加失败');
             
+        }
+        
+        public function userRefund(Request $request){
+            $messages = [
+                'required' => ' :attribute 为空.',
+                'numeric' => ':attribute 不是数字'
+            ];
+           $v = Validator::make($request->all(), [
+               'c_name' => 'required',
+               'money' => 'required|numeric',
+                   'is_coupon' => 'required|numeric',
+               'time'=>'required|numeric',
+               'phone'=>'required',
+               'refund_type'=>'required',
+               'alipay_account'=>'required',
+               'name'=>'required',
+               'card'=>'required',
+               'blank_addr'=>'required',
+               'message'=>'required',
+               'u_id'=>'required|numeric',
+               'f_id'=>'required|numeric',
+               'cou_id'=>'required|numeric',
+           ],$messages);
+           $errors = $v->errors();
+            $g = "/^1[34578]\d{9}$/";
+            if(!preg_match($g,$request->phone)){
+                return responseToJson(1,'请输入正确格式的手机号');
+            }
+    
+            if(sizeof($errors) > 0 )
+               return responseToJson(1,$errors->first());
+           
+           if(!isset($request->img) && !is_array($request->img))
+               return responseToJson(1,'图片上传错误');
+    
+           $fileUrl = 'public/refund/';
+           $files = $request->file('img');
+           $ext = ['jpg','jpeg','png'];
+           DB::beginTransaction();
+            try{
+                $result =  refund_apply::addRefund($request);
+               for($i = 0;$i<sizeof($files);$i++){
+                   $name = getFileName('refund',$files[$i]->getClientOriginalExtension());
+                   if(!in_array($name,$ext))
+                       throwException("文件格式错误");
+                    Storage::putFileAs($fileUrl,$files[$i],$name);
+               }
+                DB::commit();
+                if($result == 1)
+                    return responseToJson(0,'success');
+                return responseToJson(1,'失败');
+            }catch (\Exception $e){
+                DB::rollBack();
+                return responseToJson(1,$e->getMessage());
+            }
+            
+            
+        
         }
         
     }

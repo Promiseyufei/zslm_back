@@ -28,7 +28,7 @@ class user_follow_major
         return DB::table(self::$sTableName)
             ->where('user_id',$id)
             ->where('is_focus',0)
-            ->join('zslm_major',self::$sTableName.'.major_id','=','zslm_major.id')
+            ->leftjoin('zslm_major',self::$sTableName.'.major_id','=','zslm_major.id')
             ->where('zslm_major.is_delete',0)
             ->where('is_show',0)
             ->orderBy('weight','desc')
@@ -56,6 +56,15 @@ class user_follow_major
      * @param $m_id 院校id
      */
     public static function setUserMajor($u_id,$m_id){
-        return DB::table(self::$sTableName)->insert(['user_id'=>$u_id,'major_id'=>$m_id]);
+        
+        $result = 0;
+        $result = DB::table(self::$sTableName)->where('user_id',$u_id)->where('major_id',$m_id)->update(['is_focus'=>0])->limit(1);
+        if($result == 1)
+            return $result;
+        return DB::table(self::$sTableName)->insert(['user_id'=>$u_id,'major_id'=>$m_id,'create_time'=>time()]);
+    }
+    
+    public static function unsetUserMajor($u_id,$m_id){
+        return DB::table(self::$sTableName)->where('user_id',$u_id)->where('major_id',$m_id)->where('is_focus',0)->update(['is_focus'=>1,'update_time'=>time()]);
     }
 }

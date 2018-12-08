@@ -163,4 +163,11 @@ class refund_apply
         
     }
     
+    public static function addRefund(Request $request){
+        return DB::table(self::$sTableName)->insert(['account_id'=>$request->u_id,'f_id'=>$request->f_id,
+            'is_use_coupon'=>$request->is_coupon,'coupon_id'=>$request->cou_id,'registration_deadline'=>$request->time,
+            'phone'=>$request->phone,'alipay_account'=>$request->alipay_account,'name'=>$request->name,'card'=>$request->card,
+            'bank'=>$request->blank_addr,'to_apply_for_reimbursement'=>$request->message]);
+    }
+    
 }

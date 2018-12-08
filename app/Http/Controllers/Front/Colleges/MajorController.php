@@ -91,7 +91,13 @@
             $tongzhao_type = dict_recruitment_pattern::getAllPattern();
             return responseToJson(0, 'success', ['type' => $major_type, 'direction' => $major_fangxiang, 'socre' => $socre_type, 'pattern' => $tongzhao_type]);
         }
-        
+    
+        /**
+         * 通过名字获取院校专业
+         * @param Request $request
+         *
+         * @return mixed
+         */
         
         public function getMajorByName(Request $request)
         {
@@ -100,11 +106,12 @@
             }
             if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
                 return responseToJson(1, '没有页码、页面大小或者页码、也买你大小不是数字');
-            $name = defined($request->name) ? trim($request->name) : '';
+            $name = !empty($request->name) ? trim($request->name) : '';
             $majors = $this->getMajorToIndex($name, $request->page, $request->page_size);
+            $count = zslmMajor::getMajorBySelectCount(null,$name,'');
             if (sizeof($majors) == 0)
                 return responseToJson(1, '没有数据');
-            return responseToJson(0, 'success', $majors);
+            return responseToJson(0, 'success', ['majors'=>$majors,'count'=>$count]);
         }
         
         
@@ -280,6 +287,19 @@
            else
                return responseToJson(1,'关注失败');
         }
+        
+        public function unsetUserMajor(Request $request){
+    
+            if(!isset($request->m_id) || !is_numeric($request->m_id))
+                return responseToJson(1,'a_id 错误');
+            if(!isset($request->u_id) || !is_numeric($request->u_id))
+                return responseToJson(1,'a_id 错误');
+            $result = user_follow_major::unsetUserMajor($request->u_id,$request->m_id);
+            if($result > 0)
+                return responseToJson(0,'success');
+            else
+                return responseToJson(1,'关注失败');
+        }
     
         /**
          * 对比院校借口
@@ -367,9 +387,8 @@
     
             $felds = ['id', 'magor_logo_name',
                 'z_name', 'major_cover_name'];
-            $majors = zslmMajor::getMajorBySelect('', $request->name,
-                '', null, $request->page, $request->page_size, $felds, 0);
-            
+            $majors = zslmMajor::getMajorByYearSelect($request->name,$request->year,$request->page, $request->page_size,$felds);
+            $count = zslmMajor::getMajorByYearSelectCount($request->name,$request->year);
             $len = sizeof($majors);
             
             if($len == 0)
@@ -379,7 +398,7 @@
                 $majors[$i]->ZSJZF = majorFiles::getZSJZFile($majors[$i]->id,$request->year);
             }
             
-            return responseToJson(0,'success',$majors);
+            return responseToJson(0,'success',[$majors,$count]);
         }
     
         /**
@@ -406,25 +425,27 @@
     
         public function vsProject(Request $request){
         
-            if(!isset($request->p_id) || $request->p_id == ''){
+            if(!isset($request->p_id) || $request->p_id == '')
                 return responseToJson(1,'p_id 错误');
             
                 $project_id = strChangeArr($request->p_id,EXPLODE_STR);
-            
+   
                 $fileds = ['id','project_name','student_count','language','eductional_systme',
                     'can_conditions','score_describe','score_type','recruitment_pattern',
                     'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
                 $porjects = major_recruit_project::getProjectById($project_id,0,sizeof($project_id),$fileds);
             
-                $len = sizeof($projects);
+                $len = sizeof($porjects);
             
                 if($len == 0)
                     return responseToJson(1,"暂无数据");
             
                 for($i = 0;$i < $len;$i++){
-                    $porjects[$i]->enrollment_mode = dict_recruitment_pattern::getPattern($porjects[$i]->enrollment_mode);
+                    $porjects[$i]->recruitment_pattern = dict_recruitment_pattern::getPattern($porjects[$i]->recruitment_pattern);
                     $porjects[$i]->score_type = dict_fraction_type::getType( $porjects[$i]->score_type);
                 }
+            
+                return responseToJson(0,'success',$porjects);
             }
-        }
+        
     }
