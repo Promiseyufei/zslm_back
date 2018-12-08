@@ -25,7 +25,10 @@
         public static function getCountUserCoupon($id,$status){
             return DB::table(self::$sTableName)
                 ->join('zslm_coupon',self::$sTableName.'.coupon_id','zslm_coupon.id')
-                ->where('user_id',$id)->where('is_use',$status)->where('is_enable',0)->count('zslm_coupon.id');
+                ->where('is_delete',0)
+                ->where('user_id',$id)
+                ->where('is_use',$status)->where('is_enable',0)
+                ->count('zslm_coupon.id');
         }
     
         public static function getCountEnableCoupon($id,$status){

@@ -140,8 +140,9 @@
                 ->join('user_coupon', self::$sTableName . '.id', '=', 'user_coupon.coupon_id')
                 ->where('coach_id', $c_id)
                 ->where('user_id', $u_id)
-                ->where('is_enable', $type)
                  ->where( 'user_coupon.is_delete', 0);
+            if($type != 2)
+                 $query = $query ->where('is_enable', $type);
             if ($is_use == 0)
                 $query = $query->where('use_time', 0);
             else if ($is_use == 1)
@@ -150,5 +151,22 @@
             
             return $query->get([self::$sTableName.'.id',self::$sTableName.'.name',self::$sTableName.'.type']);
         }
+    
+        public static function getUserCoachCouponCount($u_id, $type, $is_use)
+        {
+            $query = DB::table(self::$sTableName)
+                ->join('user_coupon', self::$sTableName . '.id', '=', 'user_coupon.coupon_id')
+                ->where('user_id', $u_id)
+                ->where( 'user_coupon.is_delete', 0);
+            if($type != 2)
+                $query = $query ->where('is_enable', $type);
+            
+            if ($is_use == 0)
+                $query = $query->where('use_time', 0);
+            else if ($is_use == 1)
+                $query = $query->where('use_time', '>', 0);
         
+        
+            return $query->count(self::$sTableName.'.id');
+        }
     }

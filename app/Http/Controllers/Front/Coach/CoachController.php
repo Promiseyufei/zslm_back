@@ -190,7 +190,7 @@
                 $coach_arr[$i] = $coachs[$i]->coach_id;
             
             $coach_res = coachOrganize::getAllCoachByIds($coach_arr,['id','coach_name','province','web_url']);
-            
+            $c1 = 0;$c2 = 0;$c3 = 0;
             for($i = 0;$i<sizeof($coach_res);$i++){
                 $province = explode(EXPLODE_STR,$coach_res[$i]->province);
                 
@@ -199,9 +199,13 @@
                 if (sizeof($province) > 1)
                     $coach_res[$i]->city = dictRegion::getOneArea($province[1])[0]->name;
                 $coupon = zslm_coupon::getUserCoachCoupon($request->id,$coach_res[$i]->id,$request->type,$request->is_use);
+           
                 $coach_res[$i]->coupon = $coupon;
             }
-            return responseToJson(0,'success',$coach_res);
+            $c1 += zslm_coupon::getUserCoachCouponCount($request->id,0,0);
+            $c2 += zslm_coupon::getUserCoachCouponCount($request->id,1,0);
+            $c3 += zslm_coupon::getUserCoachCouponCount($request->id,2,1);
+            return responseToJson(0,'success',[$coach_res,'nouse'=>$c1,'use'=>$c3,'enable'=>$c2]);
             
         }
     
