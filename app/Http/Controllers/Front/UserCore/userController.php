@@ -146,7 +146,7 @@
            $v = Validator::make($request->all(), [
                'c_name' => 'required',
                'money' => 'required|numeric',
-               'is_coupon' => 'required|numeric',
+                   'is_coupon' => 'required|numeric',
                'time'=>'required|numeric',
                'phone'=>'required',
                'refund_type'=>'required',
@@ -159,15 +159,41 @@
                'f_id'=>'required|numeric',
                'cou_id'=>'required|numeric',
            ],$messages);
-          
-            $errors = $v->errors();
-           if(sizeof($errors) > 0 )
+           $errors = $v->errors();
+            $g = "/^1[34578]\d{9}$/";
+            if(!preg_match($g,$request->phone)){
+                return responseToJson(1,'请输入正确格式的手机号');
+            }
+    
+            if(sizeof($errors) > 0 )
                return responseToJson(1,$errors->first());
            
-          $result =  refund_apply::addRefund($request);
-            if($result == 1)
-                return responseToJson(0,'success');
-            return responseToJson(1,'失败');
+           if(!isset($request->img) && !is_array($request->img))
+               return responseToJson(1,'图片上传错误');
+    
+           $fileUrl = 'public/refund/';
+           $files = $request->file('img');
+           $ext = ['jpg','jpeg','png'];
+           DB::beginTransaction();
+            try{
+                $result =  refund_apply::addRefund($request);
+               for($i = 0;$i<sizeof($files);$i++){
+                   $name = getFileName('refund',$files[$i]->getClientOriginalExtension());
+                   if(!in_array($name,$ext))
+                       throwException("文件格式错误");
+                    Storage::putFileAs($fileUrl,$files[$i],$name);
+               }
+                DB::commit();
+                if($result == 1)
+                    return responseToJson(0,'success');
+                return responseToJson(1,'失败');
+            }catch (\Exception $e){
+                DB::rollBack();
+                return responseToJson(1,$e->getMessage());
+            }
+            
+            
+        
         }
         
     }

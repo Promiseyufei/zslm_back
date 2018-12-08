@@ -110,7 +110,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
 
         Route::post("changeNewsStatus","UserNewsController@changeNewsStatus");
         Route::post("adduseropinion","userController@userOpinion");
-        Route::get("refund","userController@userRefund");
+        Route::post("refund","userController@userRefund");
         
       
     });
