@@ -230,7 +230,10 @@
                 ->get($fields);
             return $result;
         }
+    
+        public static function getAllCoupon(){
+            return DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->where('father_id',0)->get(['id','coach_name','logo_name','cover_name']);
         
-     
+        }
         
     }

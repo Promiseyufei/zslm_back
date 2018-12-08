@@ -65,4 +65,6 @@
             return DB::table(self::$sTableName)->insert(['coupon_id'=>$c_id,'user_id'=>$u_id,'is_use'=>0,"create_time"=>time(),'is_delete'=>0]);
         }
         
+     
+        
     }

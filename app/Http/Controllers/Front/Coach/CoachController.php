@@ -228,5 +228,10 @@
         
         }
     
-      
+        public function getAllConpon(Request $request){
+            $coupon = coachOrganize::getAllCoupon();
+            if(sizeof($coupon) == 0)
+                return responseToJson(1,'暂无数据');
+            return responseToJson(0,'success',$coupon);
+        }
     }
