@@ -150,6 +150,15 @@ class UserAccountController extends Controller{
 
 
 
+    /**
+     * 用户前台获得省事字典
+     */
+    public function  getFrontProvince() {
+       return responseToJson(0, '', getMajorProvincesAndCity());
+    }
+
+
+
 
     
 
