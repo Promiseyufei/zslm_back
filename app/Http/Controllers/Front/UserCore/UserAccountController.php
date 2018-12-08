@@ -38,8 +38,12 @@ class UserAccountController extends Controller{
             if(!Redis::get(getUserStatusString($user_phone, 0))) return responseToJson(3, '用户登录状态已失效，请重新登录');
             $user_info = UserAccounts::getUserInfo($user_phone);
             if(!empty($user_info)) {
-                if($user_info->address != '' || !empty($user_info->address)) $user_info->address = getProCity($user_info->address);
+                if($user_info->address != '' || !empty($user_info->address)) {
+                    $user_info->address = strChangeArr($user_info->address, ',');
+                }
+                // if($user_info->address != '' || !empty($user_info->address)) $user_info->address = getProCity($user_info->address);
                 $user_info->create_time = date("Y-m-d", $user_info->create_time);
+                $user_info->industry = intval($user_info->industry);
                     
             }
             return !empty($user_info) ? responseToJson(0, 'success', $user_info) : responseToJson(1, '查询不到该用户信息');
@@ -146,6 +150,15 @@ class UserAccountController extends Controller{
         }
         else return responseToJson(2, '请求方式错误');
 
+    }
+
+
+
+    /**
+     * 用户前台获得省事字典
+     */
+    public function  getFrontProvince() {
+       return responseToJson(0, '', getMajorProvincesAndCity());
     }
 
 

@@ -280,13 +280,16 @@ class zslm_activitys
      * 前台搜索页面获得活动搜索结果
      */
     public static function getSearchActivitys($keyword = '', $pageNumber = 0, $pageCount = 9) {
-        return DB::table(self::$sTableName)
+        $handle = DB::table(self::$sTableName)
             ->leftJoin('activity_relation', self::$sTableName . '.id', '=', 'activity_relation.activity_id')
             ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
             ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
-            ->where(self::$sTableName . '.active_name', 'like', '%' . $keyword . '%')
-            // ->orWhere(self::$sTableName . '.introduce', 'like', '%' . $keyword. '%')
-            ->offset($pageCount * ($pageNumber - 1))
+            ->where(self::$sTableName . '.active_name', 'like', '%' . $keyword . '%');
+
+        $count = $handle->count();
+            
+        // ->orWhere(self::$sTableName . '.introduce', 'like', '%' . $keyword. '%')
+        $activitys = $handle->offset($pageCount * ($pageNumber - 1))
             ->limit($pageCount)
             ->select(
                 self::$sTableName . '.id', 
@@ -298,6 +301,9 @@ class zslm_activitys
                 'dict_activity_type.name as activity_type', 
                 'zslm_major.z_name'
             )->get();
+        
+        return ['count' => $count, 'activitys' => $activitys];
+            
     }
 
 

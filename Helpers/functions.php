@@ -331,16 +331,17 @@ function changeStringToInt($val){
   */
  function getMajorProvincesAndCity() {
     $region = Dict::dictRegion();
-    var_dump($region);
-
     foreach($region[0] as $key=>$item) {
-        $item->citys = $region[$item->id];
-        unset($region[$item->id]);
+        if(array_key_exists($item->id, $region)) {
+            $item->citys = $region[$item->id];
+            unset($region[$item->id]);
+        }
     }
-
     return $region;
 
  }
+
+
 
 
 //  /**
