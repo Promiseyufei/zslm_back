@@ -138,7 +138,15 @@
         }
         
         public function userRefund(Request $request){
-            
+            $this->validate($request, [
+                'c_name' => 'required',
+                'money' => 'required|numeric',
+                'is_coupon' => 'required|numeric',
+                'time'=>'required|numeric',
+                'phone'=>'required|',
+                'refund_type'=>'required',
+                
+            ]);
         }
         
     }

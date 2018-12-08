@@ -99,6 +99,28 @@ class major_recruit_project
         return $result;
     }
     
+    public static function getProjectByMidWithYear($id,$min,$max,$order = 0,$sorce_type,$year,$size = 3,$fileds){
+        $query =  DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->where('major_id',$id);
+        if($min != 0 && $max != 0 && !empty($min) && !empty(!max))
+            $query = $query->where('min_cost'>$min)->where('max_cost','<',$max);
+        if($sorce_type != '' && !empty($sorce_type)){
+            $types = strChangeArr($sorce_type, EXPLODE_STR);
+            $query = $query->whereIn('score_type',$types);
+        }
+        if($year != '' && !empty($year)){
+            $query = $query->where('enrollment_mode',$year);
+        }
+        $desc = $order == 0 ? 'desc':'asc';
+        
+        $query = $query->orderBy("min_cost",$desc);
+        if($size !=0){
+            $query =  $query->limit($size);
+        }
+        $result = $query->get($fileds);
+        
+        return $result;
+    }
+    
     /**
      * @param     $id 项目id数组
      * @param int $order 排序方式 0降序，其他升序

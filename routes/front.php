@@ -48,7 +48,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("getusercoach","CoachController@getUserCoach");
         Route::get("getcoachbyid","CoachController@getCoachById");
         Route::post("addcoupon","CoachController@addUserCoupon");
-        
+        Route::get("getallcoupon","CoachController@getAllConpon");
     });
 
     /**
@@ -82,7 +82,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     Route::group(['prefix' => 'index', 'namespace' => 'Index'],function() {
     
     });
-
+    
 
     /**
      * 奖学金专题页

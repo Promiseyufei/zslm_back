@@ -28,7 +28,7 @@ class user_follow_major
         return DB::table(self::$sTableName)
             ->where('user_id',$id)
             ->where('is_focus',0)
-            ->join('zslm_major',self::$sTableName.'.major_id','=','zslm_major.id')
+            ->leftjoin('zslm_major',self::$sTableName.'.major_id','=','zslm_major.id')
             ->where('zslm_major.is_delete',0)
             ->where('is_show',0)
             ->orderBy('weight','desc')
