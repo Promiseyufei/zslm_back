@@ -54,7 +54,7 @@
           return  DB::table(self::$sTableName)
                 ->where('user_id',$u_id)
                 ->where('coupon_id',$c_id)
-                ->update(['is_use',1]);
+                ->update(['is_use'=>1,"use_time"=>time(),"update_time"=>time()]);
         }
         
         public static function getUserCouponByCouponId($u_id,$c_id){
