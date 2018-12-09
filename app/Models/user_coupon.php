@@ -27,7 +27,8 @@
                 ->join('zslm_coupon',self::$sTableName.'.coupon_id','zslm_coupon.id')
                 ->where('is_delete',0)
                 ->where('user_id',$id)
-                ->where('is_use',$status)->where('is_enable',0)
+                ->where('use_time',0)
+                ->where('is_enable',0)
                 ->count('zslm_coupon.id');
         }
     
@@ -68,6 +69,9 @@
             return DB::table(self::$sTableName)->insert(['coupon_id'=>$c_id,'user_id'=>$u_id,'is_use'=>0,"create_time"=>time(),'is_delete'=>0]);
         }
         
+        public static function checkUserCoupon($u_id,$c_id){
+            return DB::table(self::$sTableName)->where('user_id',$u_id)->where('coupon_id',$c_id)->where('use_time',0)->where('is_delete',0)->count('id');
+        }
      
         
     }
