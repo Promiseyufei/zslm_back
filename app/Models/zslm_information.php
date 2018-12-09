@@ -297,6 +297,7 @@ class zslm_information
 
         return $handel->select('id', 'zx_name', 'z_image')->get()->map(function($item) {
             $item->z_image = splicingImgStr('admin', 'info', $item->z_image);
+            return $item;
         });
     }
 
