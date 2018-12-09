@@ -134,11 +134,9 @@
                 return responseToJson(1,'id错误');
             }
     
-            if(!isset($request->name)){
-                return responseToJson(1,'没有 name');
-            }
+      
             if(!isset($request->text)){
-                return responseToJson(1,'没有 name');
+                return responseToJson(1,'没有 内容');
             }
             
             $result = opinion_feedback::addOpinion($request->id,$request->name,$request->text);
