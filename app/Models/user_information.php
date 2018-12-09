@@ -193,7 +193,10 @@
         
         //front
         public static function getUserFrontMsg($id,$field){
-            return DB::table(self::$sTableName)->where('user_account_id',$id)->where('is_delete',0)->limit(1)->get($field);
+            return DB::table(self::$sTableName)->where('user_account_id',$id)->where('is_delete',0)->limit(1)->get($field)->map(function($item) {
+                $item->head_portrait = splicingImgStr('front', 'user', $item->head_portrait);
+                return $item;
+            });
         }
 
         //创建用户信息记录
