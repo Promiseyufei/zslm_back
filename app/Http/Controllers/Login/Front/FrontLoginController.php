@@ -29,7 +29,9 @@ class FrontLoginController extends Controller {
             if($user) {
                 if($user->password == encryptPassword($request->userPassword)) {
                     loginSuccess($request, $user_phone);
-                    return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user->id));
+                    $user_info = UserInformation::getUserViewsInfo($user->id);
+                    if($user_info->head_portrait　!= '') $user_info->head_portrait = splicingImgStr('front', 'user', $item->img);
+                    return responseToJson(0, 'success', $user_info);
                 }
                 else {
                     return responseToJson(1, '账号或密码错误');
@@ -43,7 +45,9 @@ class FrontLoginController extends Controller {
             if($request->smsCode == Redis::get(getUserStatusString($user_phone, 1))) {
                 if($user) {
                     loginSuccess($request, $user_phone);
-                    return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user->id));
+                    $user_info = UserInformation::getUserViewsInfo($user->id);
+                    if($user_info->head_portrait　!= '') $user_info->head_portrait = splicingImgStr('front', 'user', $item->img);
+                    return responseToJson(0, 'success', $user_info);
                 }
                 else {
                     return $this->judgeAgree($request, $user_phone);
