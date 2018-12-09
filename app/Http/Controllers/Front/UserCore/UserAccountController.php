@@ -44,6 +44,7 @@ class UserAccountController extends Controller{
                 // if($user_info->address != '' || !empty($user_info->address)) $user_info->address = getProCity($user_info->address);
                 $user_info->create_time = date("Y-m-d", $user_info->create_time);
                 $user_info->industry = intval($user_info->industry);
+                $user_info->head_portrait = splicingImgStr('front', 'user', $user_info->head_portrait);
                     
             }
             return !empty($user_info) ? responseToJson(0, 'success', $user_info) : responseToJson(1, '查询不到该用户信息');

@@ -56,16 +56,16 @@ return [
         ],
         'operate' => [
             'driver' => 'local',
-            'root' => storage_path('app/admin/operate'),
+            'root' => storage_path('app/public/admin/operate'),
         ],
         'info' => [
             'driver' => 'local',
-            'root' => storage_path('app/admin/info'),
+            'root' => storage_path('app/public/admin/info'),
             'visibility' => 'public',
         ],
         'user' => [
             'driver' => 'local',
-            'root' => storage_path('app/front/user'),
+            'root' => storage_path('app/public/front/user'),
             'visibility' => 'public',
         ],
         's3' => [
