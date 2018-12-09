@@ -31,7 +31,6 @@ Route::get('/smsBatchSend', function() {
 Route::get('auth/weixin', 'Auto\ThirdLogin\WeixinController@redirectToProvider');
 Route::get('auth/authWeixinCallback', 'Auto\ThirdLogin\WeixinController@handleProviderCallback');
 
-
 Route::group(['middleware' => 'cors'], function() {
     include('admin.php');
     include('front.php');
