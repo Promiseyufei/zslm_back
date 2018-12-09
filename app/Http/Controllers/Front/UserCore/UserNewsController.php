@@ -46,7 +46,7 @@ class UserNewsController extends Controller{
                     }
                     break;
             }
-            return !empty($get_dynamic) ? responseToJson(0, 'success', $get_dynamic) : responseToJson(1, '没有查询到数据');
+            return responseToJson(0, 'success', $get_dynamic);
         }
         else return responseToJson(2, '请求方式错误');
     }
