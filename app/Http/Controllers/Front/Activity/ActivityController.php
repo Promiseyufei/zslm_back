@@ -44,6 +44,7 @@ class ActivityController extends Controller{
                 $get_activity_info['activitys'][$key]->begin_time = date("m-d",$item->begin_time);
                 $get_activity_info['activitys'][$key]->end_time = date("m-d", $item->end_time);
                 $get_activity_info['activitys'][$key]->active_img = splicingImgStr('admin', 'info', $item->active_img);
+                $get_activity_info['activitys'][$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
                 if($item->province !== '')
                     $get_activity_info['activitys'][$key]->province = getProCity($item->province);
             }
