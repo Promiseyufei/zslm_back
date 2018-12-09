@@ -176,7 +176,7 @@
             $query = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)->where('father_id', 0);
             if ($provice != '')
                 $query = $query->where('province', 'like', $provice . '%');
-            if ($type != '' && !empty($type)){
+            if ($type != '' && !empty($type) && $type != '2'){
                 $types = strChangeArr($type, EXPLODE_STR);
                 $query = $query->whereIn("coach_type", $types);
             }
