@@ -43,6 +43,10 @@ class ActivityController extends Controller{
                 $get_activity_info['activitys'][$key]->startState = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
                 $get_activity_info['activitys'][$key]->begin_time = date("m-d",$item->begin_time);
                 $get_activity_info['activitys'][$key]->end_time = date("m-d", $item->end_time);
+                if($item->active_img != '')
+                    $get_activity_info['activitys'][$key]->active_img = splicingImgStr('admin', 'info', $item->active_img);
+                if($item->magor_logo_name != '')
+                    $get_activity_info['activitys'][$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
                 if($item->province !== '')
                     $get_activity_info['activitys'][$key]->province = getProCity($item->province);
             }
@@ -110,6 +114,11 @@ class ActivityController extends Controller{
                 $get_activitys['info'][$key]->start_state = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
                 $get_activitys['info'][$key]->begin_time = date("m-d",$item->begin_time);
                 $get_activitys['info'][$key]->end_time = date("m-d", $item->end_time);
+                if($item->active_img != '')
+                    $get_activitys['info'][$key]->active_img = splicingImgStr('admin', 'info', $item->active_img);
+                if($item->magor_logo_name != '')
+                    $get_activitys['info'][$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
+
                 if($item->province !== '')
                     $get_activitys['info'][$key]->province = getProCity($item->province);
             }

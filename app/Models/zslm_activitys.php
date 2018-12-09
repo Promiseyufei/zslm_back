@@ -299,7 +299,8 @@ class zslm_activitys
                 self::$sTableName . '.end_time', 
                 self::$sTableName . '.active_img', 
                 'dict_activity_type.name as activity_type', 
-                'zslm_major.z_name'
+                'zslm_major.z_name',
+                'zslm_major.magor_logo_name'
             )->get();
         
         return ['count' => $count, 'activitys' => $activitys];
