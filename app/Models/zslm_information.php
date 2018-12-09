@@ -295,7 +295,9 @@ class zslm_information
         if($handel->count() > $count) 
             $handel = $handel->limit($count);
 
-        return $handel->select('id', 'zx_name', 'z_image')->get();
+        return $handel->select('id', 'zx_name', 'z_image')->get()->map(function($item) {
+            $item->z_image = splicingImgStr('admin', 'info', $item->z_image);
+        });
     }
 
 
