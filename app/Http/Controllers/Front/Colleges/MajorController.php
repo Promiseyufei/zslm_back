@@ -77,7 +77,7 @@
             }
             $count = zslmMajor::getMajorBySelectCount($request->z_type, $request->z_name, $provice);
             $majors->count = $count;
-            return responseToJson(0, 'success', [$majors,0]);
+            return responseToJson(0, 'success', [$majors,$count]);
         }
         
         public function getInfo(Request $request)

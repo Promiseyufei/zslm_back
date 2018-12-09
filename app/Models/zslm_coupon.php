@@ -41,8 +41,8 @@
                 ->get([self::$sTableName . '.id', 'coach_name', 'name', 'is_show', 'coach_organize.weight']);
             return $handle;
         }
-        
-        
+    
+
         private static function judgeScreenState($screenState, $title, &$handle)
         {
             switch ($screenState) {
@@ -169,4 +169,15 @@
         
             return $query->count(self::$sTableName.'.id');
         }
+    
+        public static function getCouponByCoachIdBash($id)
+        {
+            $handle = DB::table('coach_organize')
+                    ->join(self::$sTableName, 'coach_organize.id', '=', self::$sTableName . '.coach_id')
+                ->where(self::$sTableName . '.id',$id)
+                ->where('coach_organize.is_delete', 0)
+                ->get([self::$sTableName . '.id', 'coach_name', 'name', 'is_show', 'coach_organize.weight']);
+            return $handle;
+        }
+    
     }

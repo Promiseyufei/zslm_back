@@ -140,6 +140,12 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get('getBt', 'ConsultController@getBt');
     });
 
-
+    /**
+     * 优惠券
+     */
+    Route::group(['prefix' => 'coupon', 'namespace' => 'Coupon'],function() {
+        Route::post('usecoupon', 'couponController@useCoupon');
+    });
+    
     
 });

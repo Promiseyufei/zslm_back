@@ -42,7 +42,7 @@
     
             if($result == 0)
                 return responseToJson(1,'用户并没有领取该优惠券');
-            $coupon = zslm_coupon::getCouponByCoachId($request->c_id);
+            $coupon = zslm_coupon::getCouponByCoachIdBash($request->c_id);
             
             if(sizeof($coupon) == 0)
                 return responseToJson(1,'优惠券错误');
@@ -52,13 +52,13 @@
             $message = "您已使用 $coupon_coach 机构的 $coupon_name 优惠券，优惠券序列号为 $coupon_id";
             DB::beginTransaction();
             try {
-                $result = user_coupon::useCoupon($request->uid, $request->c_id);
-                SmsController::sendSms($request->phone, ['coachName' => $coupon_coach, 'couponName' => $coupon_name, 'couponId' => $coupon_id], 'MBA小助手', '');
+                $result = user_coupon::useCoupon($request->u_id, $request->c_id);
+                SmsController::sendSms($request->phone, ['coachName' => $coupon_coach, 'couponName' => $coupon_name, 'couponId' => $coupon_id], 'MBA小助手用于优惠券标识通知', '');
                 DB::commit();
                 return responseToJson(0,"成功");
             }catch (\Exception $e){
                 DB::rollBack();
-                return responseToJson(1,"使用失败");
+                return responseToJson(1,$e->getMessage());
             }
             
         }
