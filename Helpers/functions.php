@@ -486,5 +486,5 @@ function changeStringToInt($val){
     }
 
     function splicingImgStr($direction, $range, $name) {
-        return 'storage/' . $direction . '/' . $range . '/' . $name;
+        return $_SERVER['SERVER_NAME'] . '/storage/' . $direction . '/' . $range . '/' . $name;
     }
