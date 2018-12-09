@@ -193,7 +193,10 @@
         {
             
             $query = self::getSqlQuery($provice, $type, $name, $if_back, $if_coupon);
-            $result = $query->offset(($page - 1) * $page_size)->limit($page_size)->get($fields);
+            $result = $query->offset(($page - 1) * $page_size)->limit($page_size)->get($fields)->map(function($item) {
+                $item->logo_name = splicingImgStr('admin', 'info', $item->logo_name);
+                return $item;
+            });
             return $result;
             
         }

@@ -30,6 +30,7 @@ class ConsultController extends Controller{
             $get_consult_info = ZslmInformation::getSearchConsults($keyword, $request->pageNumber, $request->pageCount);
             foreach ($get_consult_info['info'] as $key => $item) {
                 $get_consult_info['info'][$key]->time = date("Y.m.d",$item->time);
+                $get_consult_info['info'][$key]->z_image = splicingImgStr('admin', 'info', $item->z_image);
                 $get_consult_info['info'][$key]->content = changeString(strip_tags($item->content), 0, 100, '...');
                 $get_consult_info['info'][$key]->author = '专硕联盟';
             }
