@@ -30,7 +30,7 @@ class FrontLoginController extends Controller {
                 if($user->password == encryptPassword($request->userPassword)) {
                     loginSuccess($request, $user_phone);
                     $user_info = UserInformation::getUserViewsInfo($user->id);
-                    if($user_info->head_portrait　!= '') $user_info->head_portrait = splicingImgStr('front', 'user', $item->img);
+                    if($user_info->head_portrait　!= '') $user_info->head_portrait = splicingImgStr('front', 'user', $user_info->head_portrait);
                     return responseToJson(0, 'success', $user_info);
                 }
                 else {
@@ -46,7 +46,7 @@ class FrontLoginController extends Controller {
                 if($user) {
                     loginSuccess($request, $user_phone);
                     $user_info = UserInformation::getUserViewsInfo($user->id);
-                    if($user_info->head_portrait　!= '') $user_info->head_portrait = splicingImgStr('front', 'user', $item->img);
+                    if($user_info->head_portrait　!= '') $user_info->head_portrait = splicingImgStr('front', 'user', $user_info->head_portrait);
                     return responseToJson(0, 'success', $user_info);
                 }
                 else {
