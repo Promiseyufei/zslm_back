@@ -7,7 +7,8 @@
      */
     
     namespace App\Http\Controllers\Front\UserCore;
-
+    use DB;
+    use App\Http\Controllers\Front\Colleges\MajorController;
     use App\Models\news_users as newUsers;
     use App\Models\opinion_feedback;
     use App\Models\refund_apply;
@@ -20,7 +21,7 @@
     use App\Models\major_recruit_project as majorRecruitProject;
     use App\Models\dict_major_confirm as majorConfirm;
     use App\Models\dict_major_follow as majorFollow;
-
+    use Illuminate\Support\Facades\Storage;
 
     use Illuminate\Support\Facades\Validator;
     use App\Http\Controllers\Controller;
@@ -81,13 +82,14 @@
             
                 $userMajor = userFollowMajor::getUserFollowMajors($request->id,
                     $request->page,$request->page_size,
-                    ['major_id','z_name','province','major_follow_id','major_confirm_id','magor_logo_name','major_logo_alt']);
+                    ['major_id','z_name','province','major_follow_id','major_confirm_id','magor_logo_name','major_logo_alt','major_follow','major_confirm']);
                 if(sizeof($userMajor) == 0){
                     return responseToJson(1,'无数据');
                 }
                 
                 $major_confirms = majorConfirm::getAllMajorConfirm();
                 $major_follows = majorFollow::getAllMajorFollow();
+                $major_c = new MajorController();
                 for ($i = 0; $i < sizeof($userMajor); $i++) {
                     $addressArr = strChangeArr($userMajor[$i]->province, EXPLODE_STR);
                     $userMajor[$i]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
@@ -101,8 +103,17 @@
                         $request->min, $request->max, $request->money_ordre,
                         $request->score_type, $request->enrollment_mode,$request->project_count,$fileds);
     
-                    $userMajor[$i]->major_confirm_id = $major_confirms[$userMajor[$i]->major_confirm_id];
-                    $userMajor[$i]->major_follow_id = $major_follows[$userMajor[$i]->major_follow_id];
+                    $major_confirms_str = strChangeArr($userMajor[$i]->major_confirm,EXPLODE_STR);
+                    $major_confirms_str = changeStringToInt($major_confirms_str);
+                    $major_follow_str = strChangeArr($userMajor[$i]->major_follow,EXPLODE_STR);
+                    $major_follow_str = changeStringToInt($major_follow_str);
+    
+                    $major_confirm = $major_c->getConfirmsOrFollow($major_confirms_str,$major_confirms);
+                    $major_follow = $major_c->getConfirmsOrFollow($major_follow_str,$major_follows);
+                    $userMajor[$i]->major_confirm_id = $major_confirm;
+                    $userMajor[$i]->major_follow_id = $major_follow;
+                    unset($userMajor[$i]->major_confirm);
+                    unset($userMajor[$i]->major_follow);
                 }
                 return responseToJson(0,'success',$userMajor);
             
@@ -137,7 +148,13 @@
                 return responseToJson(1,'添加失败');
             
         }
-        
+    
+        /**
+         * 退款
+         * @param Request $request
+         *
+         * @return mixed
+         */
         public function userRefund(Request $request){
             $messages = [
                 'required' => ' :attribute 为空.',
@@ -161,27 +178,31 @@
            ],$messages);
            $errors = $v->errors();
             $g = "/^1[34578]\d{9}$/";
+            if(sizeof($errors) > 0 )
+                return responseToJson(1,$errors->first());
             if(!preg_match($g,$request->phone)){
                 return responseToJson(1,'请输入正确格式的手机号');
             }
-    
-            if(sizeof($errors) > 0 )
-               return responseToJson(1,$errors->first());
-           
-           if(!isset($request->img) && !is_array($request->img))
-               return responseToJson(1,'图片上传错误');
-    
+
            $fileUrl = 'public/refund/';
-           $files = $request->file('img');
-           $ext = ['jpg','jpeg','png'];
+     
+           $i = 0;
+    
+     
+             $ext = ['jpg','jpeg','png'];
            DB::beginTransaction();
             try{
                 $result =  refund_apply::addRefund($request);
-               for($i = 0;$i<sizeof($files);$i++){
-                   $name = getFileName('refund',$files[$i]->getClientOriginalExtension());
-                   if(!in_array($name,$ext))
+                $img_index = 1;
+             
+               foreach($_FILES as $key => $value){
+                  $file = $request->file($key);
+                   $file_ext = $file->getClientOriginalExtension();
+                   $name = getFileName('refund',$file_ext);
+                   if(!in_array($file_ext,$ext))
                        throwException("文件格式错误");
-                    Storage::putFileAs($fileUrl,$files[$i],$name);
+                    Storage::putFileAs($fileUrl,$file ,$name);
+                    
                }
                 DB::commit();
                 if($result == 1)

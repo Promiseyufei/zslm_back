@@ -379,7 +379,7 @@
          * @param $val_arrl
          * @param $get_arr
          */
-        private function getConfirmsOrFollow($val_arrl,$get_arr){
+        public function getConfirmsOrFollow($val_arrl,$get_arr){
             $result = '';
             for($i = 0;$i < sizeof($val_arrl);$i++){
                 $result.=$get_arr[$val_arrl[$i]].',';
