@@ -43,6 +43,8 @@ class information_major
                 'zslm_information.create_time', 
                 'zslm_information.brief_introduction'
             )->get()->map(function($item) {
+                $item->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
+                $item->z_image = splicingImgStr('admin', 'info', $item->z_image);
                 $item->create_time = date("Y-m-d", $item->create_time);
                 $item->publisher = '专硕联盟';
                 return $item;
