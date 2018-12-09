@@ -80,6 +80,8 @@ class activity_relation
                 'zslm_major.magor_logo_name',
                 'dict_activity_type.name as active_type'
             )->get()->map(function($item) {
+                $item->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
+                $item->active_img = splicingImgStr('admin', 'info', $item->active_img);
                 $item->begin_time = date("Y-m-d H:i", $item->begin_time);
                 $item->end_time = date("Y-m-d H:i", $item->end_time);
                 return $item;
