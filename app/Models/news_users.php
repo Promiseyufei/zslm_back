@@ -24,6 +24,8 @@ class news_users
                 ['news.is_delete', '=', 0],
                 ['news.type', '=', $newsType]
             ])->offset($pageCount * $pageNumber)->limit($pageCount)->select(
+                self::$sTableName . '.news_id',
+                self::$sTableName . '.user_id',
                 self::$sTableName . '.create_time',
                 self::$sTableName . '.status',
                 'news.news_title',
