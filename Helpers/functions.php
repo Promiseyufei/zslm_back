@@ -1,6 +1,6 @@
  <?php
 
-//use Cookie;
+use Cookie;
 use App\Models\dict as Dict;
 use Illuminate\Support\Facades\Redis;
 use App\Models\dict_region as dictRegion;
