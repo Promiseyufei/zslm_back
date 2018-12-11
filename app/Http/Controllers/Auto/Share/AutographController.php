@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Http\Controllers\Auto\Share;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -9,9 +11,10 @@ class AutographController extends Controller {
     function getAccessToken()
     {
 
-        $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".'你的appid'."&secret=".'bc78e64a1e6c1b310cc525afe78a0853';
+        $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".'wx036711c8ba26c70f'."&secret=".'8b0bc5270f51aa702c975b8da0392bbf';
         // 微信返回的信息
         $returnData = json_decode($this->curlHttp($url));
+        dd($returnData);
         $resData['accessToken'] = $returnData->access_token;
         $resData['expiresIn'] = $returnData->expires_in;
         $resData['time'] = date("Y-m-d H:i",time());
