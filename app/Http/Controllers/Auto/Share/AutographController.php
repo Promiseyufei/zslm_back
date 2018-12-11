@@ -14,6 +14,7 @@ class AutographController extends Controller {
         $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".'wx036711c8ba26c70f'."&secret=".'8b0bc5270f51aa702c975b8da0392bbf';
         // 微信返回的信息
         $returnData = json_decode($this->curlHttp($url));
+        if(!empty($returnData->errcode) && $returnData->errcode != 0) return false;
         $resData['accessToken'] = $returnData->access_token;
         $resData['expiresIn'] = $returnData->expires_in;
         $resData['time'] = date("Y-m-d H:i",time());
@@ -38,7 +39,7 @@ class AutographController extends Controller {
         $url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=$accessToken&&type=jsapi";
         // 微信返回的信息
         $returnData = json_decode($this->curlHttp($url));
- 
+        if(!empty($returnData->errcode) && $returnData->errcode != 0) return false;
         $resData['ticket'] = $returnData->ticket;
         $resData['expiresIn'] = $returnData ->expires_in;
         $resData['time'] = date("Y-m-d H:i",time());
@@ -50,12 +51,15 @@ class AutographController extends Controller {
     public function getSignPackage(Request $request) {
         // 获取token
         $token = $this->getAccessToken();
+        
         // 获取ticket
         $ticketList = $this->getJsApiTicket($token['accessToken']);
+        if($token == false || $ticketList == false) return responseToJson(0, 'error');
+        
         $ticket = $ticketList['ticket'];
         
         // 该url为调用jssdk接口的url
-        $url = 'https://www.xxx.com/xxx.html';
+        $url = $request->url;
         // 生成时间戳
         $timestamp = time();
         // 生成随机字符串
@@ -75,7 +79,7 @@ class AutographController extends Controller {
         );
 
         // 返回数据给前端
-        echo json_encode($signPackage);
+        return responseToJson(0, 'success', $signPackage);
     }
 
     // 创建随机字符串
