@@ -12,11 +12,13 @@
 */
 
 use App\Http\Controllers\Auto\Sms\SmsController;
+// use App\Http\Controllers\Auto\Share\AutographController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/getToken', 'Auto\Share\AutographController@getSignPackage');
 
 
 //短信测试验证码
