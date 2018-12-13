@@ -274,6 +274,8 @@
          * 获取活动的主办院校
          */
         
+        
+        
         public function getActiveMajor(Request $request){
             
             if(!isset($request->a_id) || !is_numeric($request->a_id))

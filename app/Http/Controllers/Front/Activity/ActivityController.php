@@ -254,14 +254,18 @@ class ActivityController extends Controller{
      */
     public function getAcHostMajor(Request $request) {
         if($request->isMethod('get')) {
+            
             $activity_id = !empty($request->acId) ? $request->acId : 0;
             if($activity_id == 0) return responseToJson(1, '参数错误');
             $host_major_id = ActivityRelation::getAppointContent($activity_id, 'host_major_id');
             $major = ZslmMajor::getMjorInfo($host_major_id, ['id', 'magor_logo_name', 'major_cover_name', 'z_name', 'province']);
 
             if(!empty($host_major_id) || !empty($major)) {
-                if($major->province !== '')
-                    $major->province = getProCity($major->province);
+                if($major->province !== ''){
+                    $p =  getProCity($major->province);
+                    $major->province = $p['province'];
+                    $major->city = $p['city'];
+                }
 
                 return responseToJson(0, 'success', $major);
             }
