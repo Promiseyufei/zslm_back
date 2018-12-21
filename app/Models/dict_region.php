@@ -42,5 +42,9 @@
             $provice =  DB::table(self::$sTableName)->get(['id','name']);
             return $provice;
         }
+
+        public static function getDispenProvince() {
+            return DB::table(self::$sTableName)->where('father_id', 0)->pluck('name');
+        }
         
     }
