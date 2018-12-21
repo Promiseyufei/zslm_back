@@ -22,4 +22,8 @@
         public static function getAllMajor(){
             return DB::table(self::$sTableName)->where('father_id',0)->get(['id','name']);
         }
+
+        public static function getDispenMajor() {
+            return DB::table(self::$sTableName)->where('father_id',0)->pluck('name');
+        }
     }

@@ -432,7 +432,7 @@ function changeStringToInt($val){
     /**
      * 获得存储在redis中的用户的标示
      * @param $userPhone 用户手机号
-     * @param $type 类型 0获得用户会话控制　1获得用户短信验证码　2获得用户图形验证码
+     * @param $type 类型 0获得用户会话控制　1获得用户短信验证码　2获得用户图形验证码 
      */
     function getUserStatusString($userPhone = '', $type = 0) {
         switch($type) {

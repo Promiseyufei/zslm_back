@@ -8,6 +8,19 @@
     Route::get('/test', 'TestController@showProfile');
     
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
+
+
+        Route::group(['prefix' => 'dispen', 'namespace' => 'Dispensing'], function () {
+            Route::get('getProvinces', 'DispensingController@getProvinces');
+            Route::get('getDisPro', 'DispensingController@getDisPro');
+            Route::post('subscribe', 'DispensingController@subscribe');
+            Route::get('getCurrentMajorMsg', 'DispensingController@getCurrentMajorMsg');
+            Route::post('setMajorSubscribe', 'DispensingController@setMajorSubscribe');
+            Route::post('sendSmsCode', 'DispensingController@sendSmsCode');
+            Route::post('judgeSms', 'DispensingController@judgeSms');
+        });
+
+
         
         /**
          * Accounts模块
