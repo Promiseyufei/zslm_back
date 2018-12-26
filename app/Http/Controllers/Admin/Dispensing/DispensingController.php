@@ -173,9 +173,9 @@ class DispensingController extends Controller{
      */
     public function judgeSms(Request $request) {
         if($request->isMethod('post')) {
-            if($request->smsCode == '') return responseToJson(1, "验证码为空!");
+            if($request->smCode == '') return responseToJson(1, "验证码为空!");
             if(Redis::exists(getUserStatusString($request->phone, 1))) {
-                if($request->smsCode == Redis::get(getUserStatusString($request->phone, 1))) 
+                if($request->smCode == Redis::get(getUserStatusString($request->phone, 1))) 
                     return responseToJson(0, 'success');
                 else return responseToJson(1, '验证码错误');
             }
