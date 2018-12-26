@@ -100,6 +100,7 @@ class ConsultController extends Controller{
             foreach ($get_consult_info_list['info'] as $key => $item) {
                 $get_consult_info_list['info'][$key]->publisher = '专硕联盟';
                 $get_consult_info_list['info'][$key]->create_time = date("Y.m.d", $item->create_time);
+                $get_consult_info_list['info'][$key]->z_image = splicingImgStr('admin', 'info', $item->z_image);
                 $get_consult_info_list['info'][$key]->brief_introduction = changeString($item->brief_introduction, 0, 90, '...');
             }
             return responseToJson(0, 'success', $get_consult_info_list);
