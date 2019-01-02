@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Admin\Dispensing;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redis;
-use App\Models\zslm_major as zslmMajor;
+use App\Models\dispensing_major as DispensingMajor;
 use App\Models\dict_region as DictRegion;
 use App\Models\dict_major_type as DictMajorType;
 use App\Models\dispensing_special as DispensingSpecial;
 use App\Models\dict_major_confirm as majorConfirm;
 use App\Models\dict_major_follow as majorFollow;
-use App\Models\major_recruit_project as majorRecruitProject;
+use App\Models\dispensing_project as DispensingProject;
 use App\Http\Controllers\Auto\Sms\SmsController;
 
 define('TYPE_ERROR','The request type error');
@@ -74,9 +74,9 @@ class DispensingController extends Controller{
 
 
             $felds = ['id as majorId', 'z_name as major_name', 'magor_logo_name as major_logo',
-                'major_follow', 'major_confirm','address'];
+                'major_follow_id as major_follow', 'major_confirm_id as major_confirm','address', 'telephone', 'wc_image', 'mode', 'mode_intro', 'online_application', 'file_download', 'index_web', 'pg_index_web'];
             
-            $major = zslmMajor::getMajorById($major_id,$felds);
+            $major = DispensingMajor::getDiMajorById($major_id,$felds);
             if(sizeof($major) == 0)
                 return responseToJson(1,'没有数据');
     
@@ -95,11 +95,11 @@ class DispensingController extends Controller{
     
             $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
             $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
-            $major[0]->major_confirm = strChangeArr($major_confirm, ',');
-            $major[0]->major_follow = strChangeArr($major_follow, ',');
-            $major[0]->major_logo = splicingImgStr('admin', 'info', $major[0]->major_logo);
-            $major[0]->project = majorRecruitProject::getProjectByMid($major_id,0,
-                0,0,'','',0,$fileds);
+            $major[0]->major_confirm_id = strChangeArr($major_confirm, ',');
+            $major[0]->major_follow_id = strChangeArr($major_follow, ',');
+            $major[0]->major_logo = splicingImgStr('admin', 'dispensing', $major[0]->major_logo);
+            $major[0]->wc_image = splicingImgStr('admin', 'dispensing', $major[0]->wc_image);
+            $major[0]->project = DispensingProject::getDiProjectByMid($major_id, $fileds);
             return responseToJson(0,'success',$major);
 
         }
