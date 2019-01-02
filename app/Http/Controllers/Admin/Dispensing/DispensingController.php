@@ -88,15 +88,19 @@ class DispensingController extends Controller{
             $major_confirms = majorConfirm::getAllMajorConfirm();
             $major_follows = majorFollow::getAllMajorFollow();
             
-            $major_confirms_str = strChangeArr($major[0]->major_confirm,EXPLODE_STR);
-            $major_confirms_str = changeStringToInt($major_confirms_str);
-            $major_follow_str = strChangeArr($major[0]->major_follow,EXPLODE_STR);
-            $major_follow_str = changeStringToInt($major_follow_str);
+            if($major[0]->major_confirm != null) {
+                $major_confirms_str = strChangeArr($major[0]->major_confirm,EXPLODE_STR);
+                $major_confirms_str = changeStringToInt($major_confirms_str);
+                $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
+                $major[0]->major_confirm_id = strChangeArr($major_confirm, ',');
+            }
+            if($major[0]->major_follow != null) {
+                $major_follow_str = strChangeArr($major[0]->major_follow,EXPLODE_STR);
+                $major_follow_str = changeStringToInt($major_follow_str);
+                $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
+                $major[0]->major_follow_id = strChangeArr($major_follow, ',');
+            }
     
-            $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
-            $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
-            $major[0]->major_confirm_id = strChangeArr($major_confirm, ',');
-            $major[0]->major_follow_id = strChangeArr($major_follow, ',');
             $major[0]->major_logo = splicingImgStr('admin', 'dispensing', $major[0]->major_logo);
             $major[0]->wc_image = splicingImgStr('admin', 'dispensing', $major[0]->wc_image);
             $major[0]->project = DispensingProject::getDiProjectByMid($major_id, $fileds);
