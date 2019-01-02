@@ -12,7 +12,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
      */
     
     
-      Route::get('indexinfo', 'indexController@getIndexInfo');
+    Route::get('indexinfo', 'indexController@getIndexInfo');
     
     Route::group(['prefix' => 'activity', 'namespace' => 'Activity'],function() {
 
