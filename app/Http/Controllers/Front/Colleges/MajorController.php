@@ -71,8 +71,8 @@
                 $majors[$i]->product = majorRecruitProject::getProjectByMid($majors[$i]->id,
                     $request->min, $request->max, $request->money_ordre,
                     $request->score_type, $request->enrollment_mode, $request->project_count,$fileds);
-                
-                $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
+                if($majors[$i]->major_confirm_id != 0 || $majors[$i]->major_confirm_id != '')
+                    $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
                 $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
             }
             $count = zslmMajor::getMajorBySelectCount($request->z_type, $request->z_name, $provice);
@@ -127,7 +127,6 @@
                 '', null, $page, $page_size, $felds, 0);
             if(empty($majors))
                 return [];
-          
             for ($i = 0; $i < sizeof($majors); $i++) {
                 $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
                 $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
