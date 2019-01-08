@@ -29,6 +29,14 @@ class dispensing_special
             ]);
     }
 
+
+
+    public static function judgeMajorName($phone, $majorName) {
+        return DB::table(self::$sTableName)->where('phone', $phone)->where('major_name', $majorName)->count() ? true : false;
+    }
+
+
+    
     public static function updatePhone($phone, $grade = 0, $msg) {
         if($grade == 0)
             return DB::table(self::$sTableName)->where('phone', $phone)->where('grade', $grade)->update([
@@ -36,11 +44,12 @@ class dispensing_special
                 'major_types' => $msg['major_types'],
                 'update_time' => time()
             ]);
-        else 
-            return DB::table(self::$sTableName)->where('phone', $phone)->where('grade', $grade)->update([
-                'update_time' => time(),
-                'major_name' => $msg['major_name']
-            ]);
+        else
+            return self::judgeMajorName($phone, $msg['major_name']) ? true : self::insertPhone($phone, $grade, $msg);
+            // DB::table(self::$sTableName)->where('phone', $phone)->where('grade', $grade)->update([
+            //     'update_time' => time(),
+            //     'major_name' => $msg['major_name']
+            // ]);
     }
 
 }
