@@ -47,8 +47,8 @@ class DispensingController extends Controller{
      */
     public function subscribe(Request $request) {
         if($request->isMethod("post")) {
-            if(count($request->proArr) < 1 || count($request->proArr) > 3) return responseToJson(1, '所选地区最少应最少一个，最多三个');
-            else if(count($request->jectArr) < 1 || count($request->jectArr) > 3) return responseToJson(1, '所限项目最少应为一个，最多为两个');
+            if(count($request->proArr) < 1 || count($request->proArr) > 5) return responseToJson(1, '所选地区最少应最少一个，最多五个');
+            else if(count($request->jectArr) < 1 || count($request->jectArr) > 3) return responseToJson(1, '所限项目最少应为一个，最多为三个');
             else if(!preg_match("/^1[345678]{1}\d{9}$/",$request->phone)) return responseToJson(1, '填写正确的手机号');
             $msg = [
                 'provinces' => strChangeArr($request->proArr, ','),
