@@ -69,14 +69,14 @@ class DispensingController extends Controller{
      */
     public function getCurrentMajorMsg(Request $request) {
         if($request->isMethod('get')) {
-            $major_id = !empty($request->majorId) ? $request->majorId : 0;
-            if($major_id == 0) return responseToJson(1, DATA_ERROR);
+            $major_name = !empty($request->majorName) ? $request->majorName : '';
+            if($major_name == '') return responseToJson(1, DATA_ERROR);
 
 
             $felds = ['id as majorId', 'z_name as major_name', 'magor_logo_name as major_logo',
                 'major_follow_id as major_follow', 'major_confirm_id as major_confirm','address', 'telephone', 'wc_image', 'mode', 'mode_intro', 'online_application', 'file_download', 'index_web', 'pg_index_web'];
             
-            $major = DispensingMajor::getDiMajorById($major_id,$felds);
+            $major = DispensingMajor::getDiMajorById($major_name, $felds);
             if(sizeof($major) == 0)
                 return responseToJson(1,'没有数据');
     
@@ -103,7 +103,7 @@ class DispensingController extends Controller{
     
             $major[0]->major_logo = splicingImgStr('admin', 'dispensing', $major[0]->major_logo);
             $major[0]->wc_image = splicingImgStr('admin', 'dispensing', $major[0]->wc_image);
-            $major[0]->project = DispensingProject::getDiProjectByMid($major_id, $fileds);
+            $major[0]->project = DispensingProject::getDiProjectByMid($major[0]->majorId, $fileds);
             return responseToJson(0,'success',$major);
 
         }
