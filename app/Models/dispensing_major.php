@@ -13,8 +13,8 @@
 
         public static $sTableName = 'dispensing_major';
 
-        public static function getDiMajorById($id,$felds){
-            $data = DB::table(self::$sTableName)->where('is_delete', 0)->where('id', $id)->limit(1)->get($felds);
+        public static function getDiMajorById($majorName,$felds){
+            $data = DB::table(self::$sTableName)->where('is_delete', 0)->where('major_add', $majorName)->limit(1)->get($felds);
             return $data;
         }
 
