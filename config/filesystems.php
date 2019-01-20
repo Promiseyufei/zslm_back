@@ -68,6 +68,11 @@ return [
             'root' => storage_path('app/public/front/user'),
             'visibility' => 'public',
         ],
+        'dispensing' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/admin/dispensing'),
+            'visibility' => 'public',
+        ],
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_KEY'),
