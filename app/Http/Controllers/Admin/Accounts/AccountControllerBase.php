@@ -22,7 +22,7 @@
     use App\Models\zslm_coupon as ZslmCoupon;
     
     define('METHOD_ERROR','The request type error');
-    define('EXCEL_NAME','活动账户导出表');
+    define('EXCEL_NAME','账户信息导出表');
     define('MAX_INTEGER',2147483647);
     class AccountControllerBase extends Controller
     {
@@ -100,7 +100,7 @@
         }
     
         protected function getCouponNames(Request $request){
-            $coupon_ids = UserCoupon::getCouponId($request->id);
+            $coupon_ids = UserCoupon::getCouponId($request->id,0);
             $ids  = [];
             for($i = 0;$i<sizeof($coupon_ids);$i++){
                 $ids[$i] = $coupon_ids[$i]->coupon_id;
