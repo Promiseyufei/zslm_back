@@ -15,7 +15,7 @@
     {
         private static $sTableName = 'user_information';
         
-        public static function getInformation($name = '',$phone = '',$realname='',$page,$pageSize,$type){
+        public static function getInformation($name = '',$phone = '',$realname='',$page,$pageSize,$type,$sorting = 'desc'){
             $name = $name != ''? '%'.$name.'%' : '%%';
             if($type == 2){
                 if($phone != ''){
@@ -40,23 +40,23 @@
                     return self::getActiveUser($queryString,$page,$pageSize);
                     break;
                 case 1:
-                    $queryString = " user_accounts.phone like '$phone'
+                    $queryString = " z_name like '$phone'
                         and user_name like '$name'
                         and real_name like '$realname'";
-                    return self::getMajorUser($queryString,$page,$pageSize);
+                    return self::getMajorUser($queryString,$page,$pageSize,$sorting);
                     break;
                 case 2:
                     $queryString = " zslm_coupon.id like '$phone[0]'
                         and zslm_coupon.name like '$phone[1]'
                         and user_name like '$name'
                         and real_name like '$realname'";
-                    return self::getCouponUser($queryString,$page,$pageSize);
+                    return self::getCouponUser($queryString,$page,$pageSize,$sorting);
                     break;
                 case 3:
                     $queryString = " user_accounts.phone like '$phone'
                             and user_name like '$name'
                             and real_name like '$realname'";
-                    return self::getUser($queryString,$page,$pageSize);
+                    return self::getUser($queryString,$page,$pageSize,$sorting);
                     break;
             }
         }
@@ -88,7 +88,7 @@
             return [$result,$count];
         }
         
-        public static function getMajorUser($queryString,$page,$pageSize){
+        public static function getMajorUser($queryString,$page,$pageSize,$sorting = 'desc'){
             
             
             $result =  DB::table(self::$sTableName)->where('user_information.is_delete',0)
@@ -97,7 +97,7 @@
                 ->join('user_accounts','user_accounts.id', '=' ,'user_information.user_account_id')
                 ->where('is_focus',0)
                 ->whereRaw($queryString)
-                ->orderBy('user_information.create_time')
+                ->orderBy('user_information.create_time',$sorting)
                 ->offset(($page-1)*$pageSize)
                 ->limit($pageSize)
                 ->get(['z_name','user_account_id', 'user_name',
@@ -150,11 +150,12 @@
             return [$result,$count];
         }
         
-        public static function getUser($queryString,$page,$pageSize){
+        public static function getUser($queryString,$page,$pageSize,$sorting){
+     
             $result =  DB::table(self::$sTableName)->where('user_information.is_delete',0)
                 ->join('user_accounts','user_accounts.id', '=' ,'user_information.user_account_id')
                 ->whereRaw($queryString)
-                ->orderBy('user_information.create_time')
+                ->orderBy('user_information.create_time',$sorting)
                 ->offset(($page-1)*$pageSize)
                 ->limit($pageSize)
                 ->get(['user_account_id','phone','head_portrait','user_name',

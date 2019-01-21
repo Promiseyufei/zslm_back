@@ -6,6 +6,7 @@
 
 namespace App\Http\Controllers\Admin\Accounts;
 
+use App\Models\dict_education;
 use App\Models\user_third_accounts;
 use Illuminate\Http\Request;
 use Validator;
@@ -24,9 +25,13 @@ class AccountsController extends AccountControllerBase
             return responseToJson(1,METHOD_ERROR);
     
         $name  = isset($request->name) ? $request->name : '';
-        $active = isset($result->active) ? $request->active : '';
-        $realname = isset($result->realname) ? $request->realname : '';
-        $result = UserInformation::getInformation($name,$active,$realname,$request->page,$request->pageSize,0);
+        $active = isset($request->active) ? $request->active : '';
+        $realname = isset($request->realname) ? $request->realname : '';
+        $sorting = isset($request->sorting) ? $request->sorting : '';
+        $sorting = $sorting == '' ? 0 : $sorting;
+    
+        $sorting = $sorting == 0 ? 'desc' : 'asc';
+        $result = UserInformation::getInformation($name,$active,$realname,$request->page,$request->pageSize,0,$sorting);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
     
@@ -35,9 +40,13 @@ class AccountsController extends AccountControllerBase
             return responseToJson(1,METHOD_ERROR);
         
         $name  = isset($request->name) ? $request->name : '';
-        $phone = isset($result->phone) ? $request->phone : '';
-        $realname = isset($result->realname) ? $request->realname : '';
-        $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,1);
+        $major = isset($request->major) ? $request->major : '';
+        $realname = isset($request->realname) ? $request->realname : '';
+        $sorting = isset($request->sorting) ? $request->sorting : '';
+        $sorting = $sorting == '' ? 0 : $sorting;
+    
+        $sorting = $sorting == 0 ? 'desc' : 'asc';
+        $result = UserInformation::getInformation($name,$major,$realname,$request->page,$request->pageSize,1,$sorting);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
     
@@ -49,7 +58,11 @@ class AccountsController extends AccountControllerBase
         $phone[1]  = isset($request->cname) ? $request->cname : '';
         $name = isset($request->name) ? $request->name : '';
         $realname = isset($request->realname) ? $request->realname : '';
-        $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,2);
+        $sorting = isset($request->sorting) ? $request->sorting : '';
+        $sorting = $sorting == '' ? 0 : $sorting;
+    
+        $sorting = $sorting == 0 ? 'desc' : 'asc';
+        $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,2,$sorting);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
     
@@ -59,23 +72,35 @@ class AccountsController extends AccountControllerBase
         $phone  = isset($request->phone) ? $request->phone : '';
         $name = isset($request->name) ? $request->name : '';
         $realname = isset($request->realname) ? $request->realname : '';
-        $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,3);
+        $sorting =  isset($request->sorting) ? $request->sorting : '';
+        $sorting = $sorting == '' ? 0 : $sorting;
+        
+        $sorting = $sorting == 0 ? 'desc' : 'asc';
+        
+        $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,3,$sorting);
         $id = [];
         
         for($i = 0;$i<sizeof($result[0]);$i++){
             $id[$i] = $result[0][$i]->user_account_id;
         }
-
+        
         $thread =  user_third_accounts::getTypeOfThread($id);
     
-    
-    
+        $school = dict_education::getAllSchooling();
+        $school_arr = [];
+        for($i = 0;$i<sizeof($school);$i++){
+            $school_arr[$school[$i]->id] = $school[$i]->name;
+        }
+        
         for($i = 0;$i<sizeof($result[0]);$i++){
             $provice_name = '';
             $city_name = '';
             $return_ins = '';
             $result[0][$i]->weixin = '未绑定';
             $result[0][$i]->weibo = '未绑定';
+            
+            
+            $result[0][$i]->schooling_id = $school_arr[$result[0][$i]->schooling_id];
             for($j = 0;$j<sizeof($thread);$j++){
                 if($result[0][$i]->user_account_id == $thread[$j]->user_account_id)
                     if($thread[$j]->third_account_type == 1)
@@ -135,7 +160,7 @@ class AccountsController extends AccountControllerBase
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
         
-        return !empty($user) ? responseToJson(0,[$user,$activity_names]) : responseToJson(1,'no data');
+        return !empty($user) ? responseToJson(0,'success',[$user,$activity_names]) : responseToJson(1,'no data');
     }
     
     
@@ -166,7 +191,7 @@ class AccountsController extends AccountControllerBase
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
         
-        return !empty($user) ? responseToJson(0,[$user,$major_names]) : responseToJson(1,'no data');
+        return !empty($user) ? responseToJson(0,'success',[$user,$major_names]) : responseToJson(1,'no data');
     }
     
     public function getCouponOneUser(Request $request){
@@ -203,6 +228,13 @@ class AccountsController extends AccountControllerBase
         if(!empty($judge))
             return $judge;
     
+    
+        $school = dict_education::getAllSchooling();
+        $school_arr = [];
+        for($i = 0;$i<sizeof($school);$i++){
+            $school_arr[$school[$i]->id] = $school[$i]->name;
+        }
+        
         $user = $this->getUserId($request);
         $return_ins='';
         $provice_name = '';
@@ -223,12 +255,12 @@ class AccountsController extends AccountControllerBase
         }
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
-        
+        $user->schooling_id = $school_arr[$user->schooling_id];
         $activity_names = $this->getActivityNames($request);
         $major_names = $this->getMajorNames($request);
         $coupon_names = $this->getCouponNames($request);
         $data = [$user,$activity_names,$major_names,$coupon_names];
-        return !empty($user) ? responseToJson(0,[$data]) : responseToJson(1,'no data');
+        return !empty($user) ? responseToJson(0,'success',$data) : responseToJson(1,'no data');
     }
     
     public function createActivityExcel(Request $request){
