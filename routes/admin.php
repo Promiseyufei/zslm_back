@@ -137,7 +137,7 @@
             
             Route::post('setMajorState', 'MajorController@setMajorState');
             
-            Route::post('selectReception', 'MajorController@selectReception');
+            Route::get('selectReception', 'MajorController@selectReception');
             
             Route::post('updateMajorMsg', 'MajorController@updateMajorMsg');
             
