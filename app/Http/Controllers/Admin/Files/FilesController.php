@@ -87,7 +87,8 @@ class FilesController extends Controller
             return responseToJson(1,FORMAT_ERROR);
         
         $serachData = MajorFiles::getUploadFile($request);
-        return $serachData != null ? responseToJson(0,'success',['data'=>$serachData[0],'dataCount'=>$serachData[1]]) : responseToJson(1,'no data');
+        $zhaosheng = MajorFiles::getCountZhaos();
+        return $serachData != null ? responseToJson(0,'success',['data'=>$serachData[0],'dataCount'=>$serachData[1],'zhaos'=>$zhaosheng]) : responseToJson(1,'no data');
     }
     
     public function info(){
@@ -144,11 +145,13 @@ class FilesController extends Controller
         $judgeResult = $this->isDataIntegrity($request,$isDataIntegrity);
         if(!empty($judgeResult))
             return $judgeResult;
-        $request->fileName = getFileName($request->fileName);
+        
+        $file = $request->file('uploadFile');
+        $request->fileName = getFileName($request->fileName,$file->getClientOriginalExtension());
         DB::beginTransaction();
         try{
             MajorFiles::uploadFile($request);
-            Storage::putFileAs($this->fileUrl,$request->file('uploadFile'),$request->fileName);
+            Storage::putFileAs($this->fileUrl,$file,$request->fileName);
             DB::commit();
             return responseToJson(0,'success');
         }catch (\Exception $e){

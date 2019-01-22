@@ -36,12 +36,12 @@
                     $request->fileName."%'".
                     ' and file_type = '. $request->fileType.
                     ' and file_year like'."'%".$request->fileYear."%'".
-                    ' and z_name like '."'%".$request->majorNmae."%')";
+                    ' and z_name like '."'%".$request->majorName."%')";
             else
                 $queryWhere = self::$sTableName.'.is_delete = 0 and (file_name like '."'%".
                     $request->fileName."%'".
                     ' and file_year like'."'%".$request->fileYear."%'".
-                    ' and z_name like '."'%".$request->majorNmae."%')";
+                    ' and z_name like '."'%".$request->majorName."%')";
 
             $searchData=DB::table(self::$sTableName)
                         ->whereRaw($queryWhere)
@@ -56,7 +56,8 @@
                             self::$sTableName.'.is_show',
                             self::$sTableName.'.create_time',
                             'z_name',
-                            'show_weight']);
+                            'show_weight',
+                            'file_alt']);
     
             $count=DB::table(self::$sTableName)
                 ->whereRaw($queryWhere)
@@ -70,6 +71,12 @@
         
         public static function getCountData(){
             $countNum = DB::table(self::$sTableName)->where('is_delete',0)->count('id');
+            return $countNum;
+        }
+        
+        public static function getCountZhaos()
+        {
+            $countNum = DB::table(self::$sTableName)->where('file_type',0)->where('is_delete',0)->count('id');
             return $countNum;
         }
     

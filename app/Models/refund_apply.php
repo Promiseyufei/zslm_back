@@ -14,8 +14,8 @@ class refund_apply
         $handle = DB::table(self::$sTableName)
         ->leftJoin('user_accounts', self::$sTableName . '.account_id', '=', 'user_accounts.id')
         ->leftJoin('coach_organize', self::$sTableName . '.f_id', '=', 'coach_organize.id');
-        if(isset($val['keyWord']))
-            $handle = $handle->where(self::$sTableName.'.name', 'like', '%' . $val['keyWord'] . '%')->orWhere(self::$sTableName.'.phone', 'like', '%' . $val['phone'] . '%');
+        
+            $handle = $handle->where(self::$sTableName.'.name', 'like', '%' . $val['keyWord'] . '%')->where(self::$sTableName.'.phone', 'like', '%' . $val['phone'] . '%');
 
         switch($val['screenState'])
         {
@@ -146,9 +146,10 @@ class refund_apply
                 self::$sTableName . '.alipay_account',
                 self::$sTableName . '.apply_refund_money',
                 self::$sTableName . '.registration_deadline'
-                )->get()->toArray()->map(function($item) {
+                )->get()->map(function($item) {
+                 
                     $coupon_key = DB::table('user_coupon')->where([
-                        ['user_id', '=', $item->account_id],
+                        ['user_id', '=', $item->id],
                         ['coupon_id', '=', $item->coupon_id]
                     ])->value('key');
 
