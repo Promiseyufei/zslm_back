@@ -57,7 +57,8 @@
                             self::$sTableName.'.create_time',
                             'z_name',
                             'show_weight',
-                            'file_alt']);
+                            'file_alt',
+                            'file_url']);
     
             $count=DB::table(self::$sTableName)
                 ->whereRaw($queryWhere)
@@ -104,7 +105,8 @@
                     'is_show'=>$request->isShow,
                     'major_id'=>$request->majorId,
                     'create_time'=>time(),
-                    'update_time'=>time()]);
+                    'update_time'=>time(),
+                    'file_url'=>$request->file_url]);
             return $insertResult;
         }
         
@@ -113,7 +115,7 @@
                 ->where('id',$request->fileId)
                 ->update(['file_name'=>$request->fileName,
                     'file_type'=>$request->fileType,
-                    'file_alt'=>$request->fileType,
+                    'file_alt'=>$request->fileDescribe,
                     'is_show'=>$request->isShow,
                     'update_time'=>time()]);
             return $updateResult;

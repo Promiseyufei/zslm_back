@@ -147,11 +147,12 @@ class FilesController extends Controller
             return $judgeResult;
         
         $file = $request->file('uploadFile');
-        $request->fileName = getFileName($request->fileName,$file->getClientOriginalExtension());
+       $filename = getFileName($request->fileName,$file->getClientOriginalExtension());
+       $request->file_url = $filename;
         DB::beginTransaction();
         try{
             MajorFiles::uploadFile($request);
-            Storage::putFileAs($this->fileUrl,$file,$request->fileName);
+            Storage::putFileAs($this->fileUrl,$file,$filename);
             DB::commit();
             return responseToJson(0,'success');
         }catch (\Exception $e){
@@ -238,21 +239,29 @@ class FilesController extends Controller
 
         if(!$request->isMethod('post'))
             return responseToJson(1,METHOD_ERROR);
-        $isDataIntegrity = judgeRequest(2,['fileId','fileName','fileType','fileYear','fileDescribe','isShow']);
-        $judgeResult = $this->isDataIntegrity($request,$isDataIntegrity);
-        if(!empty($judgeResult))
-            return $judgeResult;
-        $lastFileName = MajorFiles::getFileName($request->fileId);
-        $nextFileName = $request->fileName=getFileName($request->fileName);
-        DB::beginTransaction();
-        try{
-            MajorFiles::updateFile($request);
-            Storage::move($this->fileUrl.$lastFileName,$this->fileUrl.$nextFileName);
-            DB::commit();
-        }catch (\Exception $e){
-            DB::rollBack();
-            return responseToJson(1,'upload error');
-        }
+//        $isDataIntegrity = judgeRequest(2,['fileId','fileName','fileType','fileYear','fileDescribe','isShow']);
+//        $judgeResult = $this->isDataIntegrity($request,$isDataIntegrity);
+//        if(!empty($judgeResult))
+//            return $judgeResult;
+        if(!isset($request->fileId) || !isset($request->fileName) || !isset($request->fileType) || !isset($request->fileYear) || !isset($request->fileDescribe) || !isset($request->isShow))
+            return responseToJson(1,"error");
+    
+       $result =  MajorFiles::updateFile($request);
+       if($result>0)
+           return responseToJson(0,"success");
+       else
+           return responseToJson(1,"修改失败");
+//        $lastFileName = MajorFiles::getFileName($request->fileId);
+//        $nextFileName = $request->fileName=getFileName($request->fileName);
+//        DB::beginTransaction();
+//        try{
+
+//            Storage::move($this->fileUrl.$lastFileName,$this->fileUrl.$nextFileName);
+//            DB::commit();
+//        }catch (\Exception $e){
+//            DB::rollBack();
+//            return responseToJson(1,'upload error');
+//        }
     }
     
     public function updateShowWeight(Request $request){
