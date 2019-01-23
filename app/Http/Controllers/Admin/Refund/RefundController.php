@@ -74,7 +74,6 @@ class RefundController extends Controller
         $data['keyWord'] = $request->name;
         $data['screenState'] = $request->type;
         $data['phone'] = $request->phone;
-        $data['keyWord'] = $request->name;
         $data['pageCount'] = $request->pageCount;
         $data['pageNumber'] = $request->pageNumber;
         $data['type2'] = $request->type2;

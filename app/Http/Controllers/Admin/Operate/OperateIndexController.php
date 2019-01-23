@@ -8,6 +8,7 @@ namespace App\Http\Controllers\Admin\Operate;
 
 use App\Models\information_index_region as InformationIndexRegion;
 use App\Models\dict_information_type as DictInformType;
+use App\Models\information_index_region;
 use App\Models\zslm_information as ZslmInformation;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -75,6 +76,9 @@ class OperateIndexController extends Controller
             $region_data->zx_id = ($region_data->zx_id != null) 
             ? (strpos(trim($region_data->zx_id), ',') > 0 
             ? explode(',', trim($region_data->zx_id)) : [$region_data->zx_id]) : null;
+            
+            $regions = information_index_region::getAllRegionName();
+            
             if(!empty($region_data->zx_id)) {
                 foreach($region_data->zx_id as $key => $value) {
                     $region_data->zx_id[$key] = ZslmInformation::getInformIdToData($value);
@@ -85,6 +89,7 @@ class OperateIndexController extends Controller
                     }
                 }
             }
+            $region_data->region = $regions;
             return responseToJson(0, '', $region_data);
         }
         else 

@@ -61,7 +61,12 @@ class information_index_region
 
         return DB::table(self::$sTableName)->where('id', $regionId)->update(['zx_id' => $str]);
     }
-
-
+    
+    /**
+     * 获取所有区域的名称
+     */
+    public static function getAllRegionName(){
+        return DB::table(self::$sTableName)->get(['id','region_name']);
+    }
 
 }

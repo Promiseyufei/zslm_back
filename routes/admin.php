@@ -111,6 +111,7 @@
             Route::any('updateweight', 'FilesController@updateShowWeight');
             Route::any('test', 'FilesController@getMajorByRegion');
             Route::get('getmajorbypro', 'FilesController@getMajorByRegion');
+            Route::post('updatefile', 'FilesController@updateFile');
 //        getMajorByRegion
         });
         
@@ -137,7 +138,7 @@
             
             Route::post('setMajorState', 'MajorController@setMajorState');
             
-            Route::post('selectReception', 'MajorController@selectReception');
+            Route::get('selectReception', 'MajorController@selectReception');
             
             Route::post('updateMajorMsg', 'MajorController@updateMajorMsg');
             
