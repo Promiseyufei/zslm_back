@@ -187,10 +187,20 @@
              * 活动管理模块　activity模块
              */
     
-    
             
             
-              Route::get('getActivityAll', 'ActivityController@getActivityAll');
+            
+            Route::post('cancelAppointRecommendActivity', 'ActivityController@cancelAppointRecommendActivity');
+
+            Route::post('setActivitydynamic', 'ActivityController@setActivitydynamic');
+
+            Route::post('cancelAppointRecommendMajor', 'ActivityController@cancelAppointRecommendMajor');
+
+            Route::post('cancelAppointActicityAllRe', 'ActivityController@cancelAppointActicityAllRe');
+
+            Route::post('cancelAppointMajorAllRe', 'ActivityController@cancelAppointMajorAllRe');
+            
+            Route::get('getActivityAll', 'ActivityController@getActivityAll');
             
             Route::get('getguanlian', 'ActivityController@getGuanlianById');
             

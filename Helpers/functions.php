@@ -389,7 +389,7 @@ function changeStringToInt($val){
              * 
              * 判断类型
              * 判断是否在文件夹中存在
-             *  判断大小
+             * 判断大小
              */
             if(!in_array(strtolower($ext), $file_type_arr)) return [1,'请上传格式为图片的文件'];
             // else if(Storage::disk('operate')->exists($imgName)) return [1, '图片已存在'];
@@ -405,20 +405,20 @@ function changeStringToInt($val){
     /**
      * 修改图片名称
      */
-    function updateDirImgName($imgUrl = '',$imgNewName = '', $modularName) {
+    function updateDirImgName($imgUrl = '',$imgNewName = '', $modularName, $url) {
         if($imgUrl !== '' && $imgNewName !== '' && $modularName !== '') {
             $img_arr = explode('/', $imgUrl); 
             if(count($img_arr) >= 2)
                 return false;
-
-            try {
-                $exists = Storage::disk($modularName)->exists($imgUrl);
-                $exists_new = Storage::disk($modularName)->exists($imgNewName);
-                if($exists == true && $exists == !$exists_new) {
-                    $dir_url = dirname(Storage::url($imgUrl));
-                    return rename(Storage::url($imgUrl), $dir_url . $imgNewName);
-                }
-                throw new \Exception('error');
+                try {
+                    // $exists = Storage::disk($modularName)->exists($imgUrl);
+                    // $exists_new = Storage::disk($modularName)->exists($imgNewName);
+                    // if($exists == true && $exists == !$exists_new) {
+                    $dir_url = $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . $url . DIRECTORY_SEPARATOR;
+                    // dd($dir_url . $imgNewName);
+                    return rename($dir_url . $imgUrl, $dir_url . $imgNewName);
+                // }
+                // throw new \Exception('error');
             } catch(\Exception $e) {
                 return false;
             }
@@ -484,6 +484,8 @@ function changeStringToInt($val){
 
         return true;
     }
+
+
 
     function splicingImgStr($direction, $range, $name) {
         return 'http://' . $_SERVER['HTTP_HOST'] . '/storage/' . $direction . '/' . $range . '/' . $name;

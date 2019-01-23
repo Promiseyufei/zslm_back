@@ -16,7 +16,7 @@
         private static $sTableName = 'dict_major_type';
         
         public static function getAllSonMajor(){
-            return DB::table(self::$sTableName)->where('father_id','!=',0)->get(['id','name']);
+            return DB::table(self::$sTableName)->get(['id','name']);
         }
     
         public static function getAllMajor(){
