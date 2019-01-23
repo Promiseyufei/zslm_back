@@ -40,9 +40,10 @@ class ExportExcelController extends Controller
         if(!$request->isMethod('get')) return responseToJson(2, '请求方式错误');
         
         $cellData = [];
-        $get_all_msg = $this->getRefundAllMessage();
+        $get_all_msg = RefundApply::getAllMessage();
         
-        if($get_all_msg == false) return responseToJson(1, '数据错误');
+        if(sizeof($get_all_msg) == 0)
+            return responseToJson(1,"暂无数据");
         
         $column = [
             '退款申请id', 
@@ -62,13 +63,19 @@ class ExportExcelController extends Controller
 
         array_push($cellData, $column);
 
-        foreach($get_all_msg as $key=> $vlaue)
-            array_push($cellData, array_values($vlaue->toArray()));
-
-        unset($get_all_msg);
-        
-        Excel::create('学生成绩',function($excel) use ($cellData){
-            $excel->sheet('score', function($sheet) use ($cellData){
+        foreach($get_all_msg as $key=> $vlaue){
+            $v_arr = [];
+            $v_i = 0;
+            foreach($vlaue as $vkey=> $vvlaue){
+                $v_arr[$v_i++] = $vvlaue;
+            }
+            array_push($cellData,$v_arr);
+        }
+    
+        ob_end_clean();
+        ob_start();
+        Excel::create(iconv('UTF-8', 'UTF-8', "退款记录"),function($excel) use ($cellData){
+            $excel->sheet('sheet1', function($sheet) use ($cellData){
                 $sheet->rows($cellData);
             });
         })->export('xls');
@@ -79,8 +86,8 @@ class ExportExcelController extends Controller
     private function getRefundAllMessage() {
 
         $all_message = RefundApply::getAllMessage();
-
-        return (is_array($all_message) && count($all_message) > 0) ? $all_message : false;
+        
+        return  count($all_message) > 0 ? $all_message : false;
         
     }
 }

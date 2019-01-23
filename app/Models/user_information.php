@@ -120,6 +120,7 @@
                 ->join('zslm_coupon','zslm_coupon.id','=', 'user_coupon.coupon_id')
                 ->join('user_accounts','user_accounts.id', '=' ,'user_information.user_account_id')
                 ->where('is_enable',0)
+                ->where('user_coupon.is_delete',0)
                 ->whereRaw($queryString)
                 ->orderBy('user_information.create_time')
                 ->offset(($page-1)*$pageSize)
