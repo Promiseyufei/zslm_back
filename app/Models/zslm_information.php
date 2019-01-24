@@ -110,7 +110,7 @@ class zslm_information
                 $handle = $handle->where('is_recommend', 1);
                 break;
             case 1:
-                $handle = $handle->where('is_show', 0);
+                $handle = $handle->where('is_recommend', 0);
                 break;
             default :
                 break;
@@ -159,6 +159,10 @@ class zslm_information
     }
 
 
+    public static function delInfos($ids){
+        return DB::table(self::$sTableName)->whereIn('id', $ids)->update(['is_delete' => 1, 'update_time' => time()]);
+    }
+    
     public static function getAppointInfoMsg($infoId = 0, $msgName = '') {
         $handel = DB::table(self::$sTableName)->where('id', $infoId);
         if(empty($msgName))

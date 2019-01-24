@@ -14,6 +14,7 @@ use App\Models\zslm_information as ZslmInformation;
 use App\Models\system_setup as SystemSetup;
 use App\Http\Requests\InfoCreateRequest;
 use App\Http\Requests\InfoUpdateRequest;
+use App\Models\zslm_information;
 use App\Models\zslm_major as ZslmMajor;
 use App\Models\news_users as NewsUsers;
 use App\Http\Controllers\Controller;
@@ -116,7 +117,28 @@ class InformationController extends Controller
         return is_array($get_info_msg['data']) ? responseToJson(0, '', $get_info_msg) : responseToJson(1, '查询失败');
                 
     }
+    
+    
+    /**
+     * 批量删除
+     */
 
+    public function delInfos(Request $request){
+        if(!isset($request->ids))
+            return responseToJson(1,"id 数组不存在");
+        $ids = $request->ids;
+        if(!is_array($ids))
+            return responseToJson(1,"id 数组格式错误");
+        $result = zslm_information::delInfos($ids);
+        DB::beginTransaction();
+        if($result == sizeof($ids)){
+            DB::commit();
+            return responseToJson(0,"success");
+        }else{
+            DB::rollBack();
+            return responseToJson(1,'删除失败');
+        }
+    }
 
 
 
@@ -527,7 +549,23 @@ class InformationController extends Controller
 
         return is_array($major_arr) ? responseToJson(0, '', $major_arr) : responseToJson(1, '未查询到相关院校专业信息');
     }
-
+    
+    public function getAppointInfoRelevantMaj(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $info_id = $request->infoId ?? 0;
+        
+        if($info_id == 0) return responseToJson(1, '参数错误');
+        
+        $re_major_arr = InformationMajor::selectAppointRelation($info_id)->toArray();
+        
+        $major_arr = ZslmMajor::getAllDictMajor(1, $re_major_arr)->toArray();
+        
+        foreach($major_arr as $key => $item) {
+            $major_arr[$key]->magor_logo_name =  $item->magor_logo_name;
+        }
+        
+        return is_array($major_arr) ? responseToJson(0, '', $major_arr) : responseToJson(1, '未查询到相关院校专业信息');
+    }
     // public function delAppointInfoRelevantMajor(Request $request) {
     //     if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
     // }
@@ -793,9 +831,15 @@ class InformationController extends Controller
         $get_re_major = ZslmMajor::getAppointInfoReMajor($get_recommend_major_id_arr)->toArray();
 
         foreach($get_re_major as $key => $item)
-            if(isset($item->province))
-                $get_re_major[$key]->province = Dict::getAppoinDictRegion(strChangeArr($item->province, ',')[1]);
-
+            if(isset($item->province)) {
+                $provinces = strChangeArr($item->province, ',');
+                $p = '';
+                if(sizeof($provinces)>1)
+                    $p = $provinces[1];
+                else
+                    $p = $provinces[0];
+                $get_re_major[$key]->province = Dict::getAppoinDictRegion($p);
+            }
         return is_array($get_re_major) ? responseToJson(0, '', $get_re_major) : responseToJson(1, '没有获得推荐院校专业信息');
     }
 

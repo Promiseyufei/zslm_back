@@ -186,7 +186,7 @@
             if ($handle->count() < $recomMajorCount) {
                 return $handle->orderBy('weight', 'desc')->pluck('id');
             } else {
-                return $handle->orderBy('weight', 'desc')->skip($recomMajorCount)->pluck('id');
+                return $handle->orderBy('weight', 'desc')->limit($recomMajorCount)->pluck('id');
             }
         }
         

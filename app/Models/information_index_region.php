@@ -48,17 +48,22 @@ class information_index_region
 
     public static function addRegionInform($regionId = 0, $informArr = []) {
         $region_data = self::getinformIndexRegionData($regionId, ['zx_id']);
-        print_r($regionId);
+
         $arr = ($region_data->zx_id != null)
         ? (strpos(trim($region_data->zx_id), ',') > 0
         ? explode(',', trim($region_data->zx_id)) : [$region_data->zx_id]) : [];
         
         $arr2 = array_unique(array_merge($arr, $informArr));
+      
         $str = '';
-        if(count($arr2) > 0)
-            foreach($arr2 as $key => $value)
-                ($key == (count($arr2)-1)) ? ($str .= $value) : ($str = $value . ',');
-
+        if(count($arr2) > 0) {
+            foreach ($arr2 as $key => $value)
+                $str .= $value . ',';
+            
+            $str = substr_replace($str,'',-1,1);
+            
+        }
+   
         return DB::table(self::$sTableName)->where('id', $regionId)->update(['zx_id' => $str]);
     }
     

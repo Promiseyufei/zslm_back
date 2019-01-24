@@ -126,12 +126,12 @@
              * test
              */
             Route::get('testa', 'MajorController@getMajorProvincesAndCities');
-            
+          
             
             /**
              * 院校专业模块　major模块
              */
-            
+            Route::post('getAppointInfoRecommendMajor', 'InformationController@getAppointInfoRecommendMajor');
             Route::post('getMajorPageMessage', 'MajorController@getMajorPageMessage');
             
             Route::post('getMajorPageCount', 'MajorController@getMajorPageCount');
@@ -182,8 +182,8 @@
             Route::post('getUnifiedRecruitPattern', 'StudentProjectController@getUnifiedRecruitPattern');
             
             Route::post('getAppointIdProject', 'StudentProjectController@getAppointIdProject');
-            
-            
+    
+            Route::post('delAppointInfoRecommendRead', 'InformationController@delAppointInfoRecommendRead');
             /**
              * 活动管理模块　activity模块
              */
@@ -295,8 +295,10 @@
             Route::post('createktd', 'CoachOrganizeController@setNewKTD');
             
             Route::post('created', 'CoachOrganizeController@setD');
-            
-            
+    
+            Route::post('setManualRecInfos', 'InformationController@setManualRecInfos');
+    
+            Route::post('getAppointInfoRelevantMajor', 'InformationController@getAppointInfoRelevantMaj');
             /**
              * 优惠券模块　coupon模块
              */
@@ -363,7 +365,7 @@
             Route::post('updateInfoTextMsg', 'InformationController@updateInfoTextMsg');
             
             Route::post('getAppointInfoRecommendRead', 'InformationController@getAppointInfoRecommendRead');
-            
+            Route::post('delinfos', 'InformationController@delInfos');
             
         });
         

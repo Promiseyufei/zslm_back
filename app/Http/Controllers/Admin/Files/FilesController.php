@@ -288,15 +288,16 @@ class FilesController extends Controller
             return responseToJson(1,METHOD_ERROR);
         if(!isset($request->provice))
             return responseToJson(1,'No provice is selected,please try again');
-        
-        $provice_id = dictRegion::getProvinceIdByName($request->provice);
+        $provice_id = [];
+        $provice_id[0] = dictRegion::getProvinceIdByNameOne($request->provice[0])[0];
+        $provice_id[1] = dictRegion::getProvinceIdByNameOne($request->provice[1])[0];
         if(empty($provice_id))
             return responseToJson(1,'something was wrong ,please try again');
         
         $provice_id_bash = [];
         $lenght = sizeof($provice_id);
         for($i = 0;$i<$lenght;$i++){
-            $provice_id_bash[] = $provice_id[$i]->id.'%';
+            $provice_id_bash[] = $provice_id[$i]->id;
         }
         $majors = [];
         for($i = 0;$i < $lenght;$i++){
