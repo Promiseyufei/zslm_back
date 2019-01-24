@@ -288,7 +288,7 @@ class CouponController extends Controller
 
         $coupon_id = (isset($request->couponId) && is_numeric($request->couponId)) ? $request->couponId : 0;
 
-        $state = ($request->state != null && is_numeric($request->state)) ? $request->state : -1;
+        $state = (is_numeric($request->state)) ? $request->state : -1;
 
         if($coupon_id == 0 || $state < 0 || intval($state) > 1) return responseToJson(1, '参数错误');
 
@@ -355,11 +355,11 @@ class CouponController extends Controller
 
         $validator = Validator::make($request->all(), $rules, $message);
 
-        if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
+        if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray());
 
         $create_id = ZslmCoupon::createCoupon($request->all());
 
-        return $create_id ? responseToJson(0, '新增成功') : responseToJson(1, '新增失败');
+        return $create_id ? responseToJson(0, '新增成功', $create_id) : responseToJson(1, '新增失败');
 
     }
 
@@ -430,10 +430,23 @@ class CouponController extends Controller
         if(!isset($request->id) && !is_numeric($request->id))
             return responseToJson(1, 'no id or id is not number');
         $c = ZslmCoupon::getCouponByCoachId($request);
-        if(sizeof($c)>0)
+        if(sizeof($c) >= 0)
             return responseToJson(0,'success',$c);
         else
             return responseToJson(1,'no data');
+    }
+
+
+    //获得指定优惠券信息
+    public function getAppoCoupon(Request $request) {
+        if(!$request->isMethod('get')) return responseToJson(2, 'request error');
+        $coach_id = !empty($request->coachId) && is_numeric($request->coachId) ? $request->coachId : null;
+        $coupon_id = !empty($request->couponId) && is_numeric($request->couponId) ? $request->couponId : null;
+
+        $coupon = ZslmCoupon::getCouponApp($coupon_id);
+        if(empty($coupon)) return responseToJson(1, 'no this coupon msg');
+        if($coupon->coach_id != $coach_id)  return responseToJson(1, 'the coupon does belong the coach');
+        return responseToJson(0, 'success', $coupon);
     }
 
 

@@ -268,6 +268,11 @@
              * 辅导机构　
              */
             
+
+            Route::post('updateCoachTime', 'CoachOrganizeController@updateCoachTime');
+
+            Route::get('getAppointCoachCoupon', 'CoachOrganizeController@getAppointCoachCoupon');
+
             Route::get('getcoachinfo', 'CoachOrganizeController@getPageInfo');
             
             Route::post('getPageCoachOrganize', 'CoachOrganizeController@getPageCoachOrganize');
@@ -311,9 +316,12 @@
              * 优惠券模块　coupon模块
              */
             
+            
             Route::post('getPageCoupon', 'CouponController@getPageCoupon');
             
             Route::get('getcoachcoupon', 'CouponController@getCouponByCoachId');
+
+            Route::get('getAppoCoupon', 'CouponController@getAppoCoupon');
             
             Route::post('updateweight', 'CoachOrganizeController@updateWeight');
             

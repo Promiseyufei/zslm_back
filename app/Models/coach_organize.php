@@ -35,11 +35,13 @@
             return DB::table(self::$sTableName)->where('is_delete', 0)->where('id', $id)->first(['coach_name']);
         }
         
+
+        //获取后台辅导机构列表信息
         public static function getCoachPageMsg(array $val = [])
         {
             
             $handle = DB::table(self::$sTableName)->where('is_delete', 0);
-            $sort_type = [0 => ['is_show', 'desc'], 1 => ['is_show', 'asc'], 2 => ['update_time', 'desc']];
+            $sort_type = [0 => ['weight', 'asc'], 1 => ['weight', 'desc'], 2 => ['update_time', 'desc']];
             if (isset($val['soachNameKeyword'])) $handle = $handle->where('coach_name', 'like', '%' . $val['soachNameKeyword'] . '%');
             if ($val['showType'] != 2)
                 self::judgeScreenState($val['showType'], 'is_show', $handle);
@@ -49,6 +51,7 @@
                 self::judgeScreenState($val['couponsType'], 'if_coupons', $handle);
             if ($val['moneyType'] != 2)
                 self::judgeScreenState($val['moneyType'], 'if_back_money', $handle);
+
             $count = $handle->count();
             
             $get_page_msg = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])
@@ -110,10 +113,10 @@
         }
         
         
-        public static function updateCoach(array $createCoachMsg = [])
+        public static function updateCoach($id, array $createCoachMsg = [])
         {
             
-            return DB::table(self::$sTableName)->update($createCoachMsg);
+            return DB::table(self::$sTableName)->where('id', $id)->update($createCoachMsg);
         }
         
         
@@ -239,5 +242,18 @@
             return DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->where('father_id',0)->get(['id','coach_name','logo_name','cover_name']);
         
         }
+
+
+        public static function updateCoachTime($coachId, $nowTime) {
+            return DB::table(self::$sTableName)->where('id', $coachId)->update(['update_time' => $nowTime]);
+        }
+
+        public static function getCoachLogoOrCoverName($id, string $name) {
+            return DB::table(self::$sTableName)->where('id', $id)->value($name);
+        }
+
+
+
+
         
     }

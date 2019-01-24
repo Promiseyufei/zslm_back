@@ -38,7 +38,7 @@
                 ->join(self::$sTableName, 'coach_organize.id', '=', self::$sTableName . '.coach_id')
                 ->where(self::$sTableName . '.coach_id', $request->id)
                 ->where('coach_organize.is_delete', 0)
-                ->get([self::$sTableName . '.id', 'coach_name', 'name', 'is_show', 'coach_organize.weight']);
+                ->get([self::$sTableName . '.id', 'coach_name', 'name', self::$sTableName . '.is_enable']);
             return $handle;
         }
     
@@ -57,10 +57,15 @@
             }
         }
         
-        
+        //获得指定的辅导机构的所有优惠券信息（分页）
         public static function getcoachAppiCount(array $condition = [])
         {
             return DB::table('coach_organize')->where($condition)->count();
+        }
+
+        //获得指定的辅导机构的所有优惠券信息
+        public static function getAppoinCoachAllCoupon($coachId, array $msgArr = []) {
+            return DB::table(self::$sTableName)->where("coach_id", $coachId)->select(...$msgArr)->get();
         }
         
         public static function getCoachAppointCoupon($coachId = 0, $pageCount, $pageNumber)
@@ -112,6 +117,10 @@
         public static function getCouponName($coupon_id)
         {
             return DB::table(self::$sTableName)->whereIn('id', $coupon_id)->where('is_enable', 0)->get(['name']);
+        }
+
+        public static function getCouponApp($couponId) {
+            return DB::table(self::$sTableName)->where('id', $couponId)->first();
         }
         
         

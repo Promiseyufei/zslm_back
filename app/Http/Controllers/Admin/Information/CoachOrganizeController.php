@@ -12,6 +12,7 @@ use App\Http\Requests\CoachCreateRequest;
 use App\Http\Requests\CoachUpdateRequest;
 use App\Http\Controllers\Controller;
 use App\Models\dict_region as dictRegion;
+use App\Models\zslm_coupon as ZslmCoupon;
 use Illuminate\Http\Request;
 use App\Models\dict as Dict;
 use Storage;
@@ -109,8 +110,8 @@ class CoachOrganizeController extends Controller
         if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
         
         $data = CoachOrganize::getCoachPageMsg($request->all());
-        $coachs_msg = $data[0]->toArray();
-        $this->setProvice($coachs_msg);
+        $data[0] = $data[0]->toArray();
+        $this->setProvice($data[0]);
 
         // $province = $this->getMajorProvincesAndCities($request);
 
@@ -124,7 +125,7 @@ class CoachOrganizeController extends Controller
         //     $coachs_msg[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
         // }
 
-        return $coachs_msg ? responseToJson(0, '', $data) : responseToJson(1, '查询失败');
+        return count($data[0]) >= 0 ? responseToJson(0, '', $data) : responseToJson(1, '查询失败');
 
 
 
@@ -545,6 +546,10 @@ class CoachOrganizeController extends Controller
             return responseToJson('1','no id or id is not number');
         
         $one = CoachOrganize::getOne($request->id);
+        if(!empty($one->logo_name))
+            $one->coach_logo_img_name = splicingImgStr('admin', 'info', $one->logo_name);
+        if(!empty($one->cover_name))
+            $one->coach_cover_img_name = splicingImgStr('admin', 'info', $one->cover_name);
         
         return sizeof($one) == 1 ? responseToJson(0,'success',$one) : responseToJson(1,'no date');
         
@@ -707,16 +712,26 @@ class CoachOrganizeController extends Controller
             responseToJson(1,'update error please try again');
     }
     
+
+
+
+    /**
+     * 更新辅导机构主要信息
+     */
     public function updateCoach(Request $request){
     
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
     
         if(!isset($request->id)) return responseToJson(1, 'no id');
-        
-        $cover_handle = $request->file('coachCover');
-        $logo_handle  = $request->file('coachLogo');
-        $cover_name = getFileName('coach', $cover_handle->getClientOriginalExtension());
-        $logo_name = getFileName('coach', $logo_handle->getClientOriginalExtension());
+
+        $logo_file_handle = !empty($request->file('logo_img')) ? $request->file('logo_img') : null;
+        $cover_file_handle = !empty($request->file('cover_img')) ? $request->file('cover_img') : null;
+
+        // $cover_handle = $request->file('coachCover');
+        // $logo_handle  = $request->file('coachLogo');
+        // $cover_name = getFileName('coach', $cover_handle->getClientOriginalExtension());
+        // $logo_name = getFileName('coach', $logo_handle->getClientOriginalExtension());
+
         $msg = [
             'coach_name'    => trim($request->coach_name),
             'province'      => $request->provice,
@@ -727,30 +742,104 @@ class CoachOrganizeController extends Controller
             'if_coupons'    => $request->if_coupons,
             'if_back_money' => $request->if_back_money,
             'coach_type'    => $request->coach_type,
-            'cover_name'    => $cover_name,
-            'logo_name'     => $logo_name
+            'logo_alt'      => trim($request->logo_img_describe),
+            'cover_alt'     => trim($request->cover_img_describe),
+            'update_time'    => time()
         ];
+
+        //修改logo图片名称
+        if($is_update_logo_name_bool = (!empty($request->logo_img_name) && $logo_file_handle == null)) {
+            $coach_logo_old_name = CoachOrganize::getCoachLogoOrCoverName($request->id, 'logo_name');
+            $arr = strChangeArr($coach_logo_old_name, '.');
+            $coach_logo_new_name = $request->logo_img_name . '.' . end($arr);
+            $msg['logo_name'] = trim($coach_logo_new_name);
+        }
+        else if($logo_file_handle != null) {
+            $logo_img_name = ($logo_file_handle != null) 
+            ? (!empty($request->logo_img_name) 
+            ? trim($request->logo_img_name) . '.' . $logo_file_handle->getClientOriginalExtension() 
+            : getFileName('coach', $logo_file_handle->getClientOriginalExtension())) : null;
+            $msg['logo_name'] = $logo_img_name;
+        } 
+
+        //修改cover图片名称
+        if($is_update_cover_name_bool = (!empty($request->cover_img_name) && $cover_file_handle == null)) {
+            $coach_cover_old_name = CoachOrganize::getCoachLogoOrCoverName($request->id, 'cover_name');
+            $arr = strChangeArr($coach_cover_old_name, '.');
+            $coach_cover_new_name = $request->cover_img_name . '.' . end($arr);
+            $msg['cover_name'] = trim($coach_cover_new_name);
+        }
+        else if($cover_file_handle != null) {
+            $cover_img_name = ($cover_file_handle != null) 
+            ? (!empty($request->cover_img_name) 
+            ? trim($request->cover_img_name) . '.' . $cover_file_handle->getClientOriginalExtension() 
+            : getFileName('coach', $cover_file_handle->getClientOriginalExtension())) : null;
+            $msg['cover_name'] = $cover_img_name;
+        } 
     
         try {
             DB::beginTransaction();
-        
-            $is_create = CoachOrganize::updateCoach($msg);
-            $is_create_cover = $this->createDirImg($cover_name, $cover_handle);
-            $is_create_logo = $this->createDirImg($logo_name, $logo_handle);
-            
-            if($is_create > 0 && $is_create_cover == true && $is_create_logo == true) {
-                DB::commit();
-                return responseToJson(0, '新建成功',$is_create);
+            $is_create = CoachOrganize::updateCoach($request->id, $msg);
+            if($is_update_logo_name_bool) $is_logo_update = updateDirImgName($coach_logo_old_name, $coach_logo_new_name, 'info', 'admin/info');
+            if($logo_file_handle != null) $is_create_logo_img = createDirImg($logo_img_name, $logo_file_handle, 'info');
+            if($is_update_cover_name_bool) $is_cover_update = updateDirImgName($coach_cover_old_name, $coach_cover_new_name, 'info', 'admin/info');
+            if($cover_file_handle != null) $is_create_cover_img = createDirImg($cover_img_name, $cover_file_handle, 'info');
+
+            if($is_create == 1) {
+                if(((!empty($is_logo_update) && $is_logo_update == true) || (!empty($is_create_logo_img) && $is_create_logo_img == true)) || (!empty($is_cover_update) && $is_cover_update == true) || (!empty($is_create_cover_img) && $is_create_cover_img == true)) {
+                    DB::commit();
+                    return responseToJson(0, '修改成功',$is_create);
+                }
+                else throw new \Exception('修改失败');
             }
-            else if(is_array($is_create_cover) && $is_create_cover[0] == 1)
-                throw new \Exception($is_create_cover[1]);
-            else if(is_array($is_create_logo) && $is_create_logo[0] == 1)
-                throw new \Exception('上传失败');
+            else throw new \Exception('修改失败');
+            // $is_create_cover = $this->createDirImg($cover_name, $cover_handle);
+            // $is_create_logo = $this->createDirImg($logo_name, $logo_handle);
+            
+            // if($is_create > 0 && $is_create_cover == true && $is_create_logo == true) {
+            //     DB::commit();
+            //     return responseToJson(0, '新建成功',$is_create);
+            // }
+            // else if(is_array($is_create_cover) && $is_create_cover[0] == 1)
+            //     throw new \Exception($is_create_cover[1]);
+            // else if(is_array($is_create_logo) && $is_create_logo[0] == 1)
+            //     throw new \Exception('上传失败');
         }catch(\Exception $e) {
             DB::rollback();//事务回滚
             return responseToJson(1, $e->getMessage());
         }
         
+    }
+
+
+
+    //更新辅导机构的更新时间
+    public function updateCoachTime(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $coach_id = (isset($request->coachId) && is_numeric($request->coachId)) ? $request->coachId : 0;
+
+        if($coach_id != 0) {
+            $now_time = time();
+            $is_update = CoachOrganize::updateCoachTime($coach_id, $now_time);
+            return $is_update ? responseToJson(0, '更新成功', date("Y-m-d H:i:s",$now_time)) : responseToJson(1, '更新失败');
+        }
+        else return responseToJson(1, '参数错误');
+    }
+
+
+
+    //获取指定辅导机构的优惠劵
+    public function getAppointCoachCoupon(Request $request) {
+        if(!$request->isMethod('get')) return responseToJson(2, '请求方式错误');
+
+        $coach_id = (isset($request->coachId) && is_numeric($request->coachId)) ? $request->coachId : 0;
+
+        $coupon_arr = ZslmCoupon::getAppoinCoachAllCoupon($coach_id, ['id', 'name', 'type', 'is_enable'])->map(function($item) {
+            $item->type = $item->type === 0 ? '满减型' : $item->type === 1 ? '优惠型' : '未设置';
+            return $item;
+        })->toArray();
+
+        return count($coupon_arr) >= 0 ? responseToJson(0, 'success', $coupon_arr) : responseToJson(1, 'error');
     }
 
 }
