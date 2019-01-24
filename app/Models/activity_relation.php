@@ -24,10 +24,11 @@ class activity_relation
      * 设置指定活动的主办院校
      */
     public static function setAppointHostMajor($activityId, $majorId) {
+
         switch(self::selectExistenceActivity($activityId))
         {
             case 0:
-                return DB::table(self::$sTableName)->insertGetId(['host_major_id' => $majorId]);
+                return DB::table(self::$sTableName)->insertGetId(['host_major_id' => $majorId, 'activity_id' => $activityId]);
                 break;
             default :
                 return DB::table(self::$sTableName)->where('activity_id', $activityId)->update(['host_major_id' => $majorId]);

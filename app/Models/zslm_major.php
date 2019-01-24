@@ -178,16 +178,22 @@
         
         public static function getAutoRecommendMajors($recomMajorCount = 8)
         {
-            $handle = DB::table(self::$sTableName)->where([
+            // $handle = DB::table(self::$sTableName)->where([
+            //     ['is_delete', '=', 0],
+            //     ['is_show', '=', 0],
+            //     ['if_recommended', '=', 0]
+            // ]);
+            // if ($handle->count() < $recomMajorCount) {
+            //     return $handle->orderBy('weight', 'desc')->pluck('id');
+            // } else {
+            //     return $handle->orderBy('weight', 'desc')->skip($recomMajorCount)->pluck('id');
+            // }
+            return DB::table(self::$sTableName)->where([
                 ['is_delete', '=', 0],
                 ['is_show', '=', 0],
                 ['if_recommended', '=', 0]
-            ]);
-            if ($handle->count() < $recomMajorCount) {
-                return $handle->orderBy('weight', 'desc')->pluck('id');
-            } else {
-                return $handle->orderBy('weight', 'desc')->limit($recomMajorCount)->pluck('id');
-            }
+
+            ])->orderBy('weight', 'desc')->orderBy('update_time','desc')->limit($recomMajorCount)->pluck('id');
         }
         
         

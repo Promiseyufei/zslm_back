@@ -19,6 +19,9 @@ use App\Models\dict_region as dictRegion;
 use App\Models\zslm_activitys;
 use App\Models\zslm_major as ZslmMajor;
 use App\Models\news_users as NewsUsers;
+use App\Models\user_follow_major as UserFollowMajor;
+use App\Models\dynamic_news as DynamicNews;
+
 use App\Http\Controllers\Controller;
 use App\Models\zslm_major;
 use Illuminate\Http\Request;
@@ -106,6 +109,9 @@ class ActivityController extends Controller
             
         }
     }
+
+
+
     
     private function setTime(array &$msg = []) {
         
@@ -113,15 +119,20 @@ class ActivityController extends Controller
         foreach($msg as $key => $item) {
             
             $msg[$key]->begin_time = date("Y-m-d",$item->begin_time);
-            $msg[$key]->end_time =  date("Y-m-d",$item->end_time);;
+            $msg[$key]->end_time =  date("Y-m-d",$item->end_time);
             
         }
     }
+
+
+
     
     public function getMajorP(){
         return getMajorProvincesAndCity();
     }
     
+
+
     public function getActivityPageMessage(Request $request) {
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式失败');
     
@@ -144,6 +155,10 @@ class ActivityController extends Controller
         $this->setProvice($get_msg);
         return $get_msg ? responseToJson(0, '', [$get_msg,$data[1]]) : responseToJson(1, '没有数据');
     }
+
+
+
+
     
     public function getActivityAll(Request $request) {
         if(!$request->isMethod('get')) return responseToJson(2, '请求方式失败');
@@ -168,6 +183,9 @@ class ActivityController extends Controller
         return $get_msg ? responseToJson(0, '', [$get_msg,$data[1]]) : responseToJson(1, '没有数据');
     }
     
+
+
+
     public function getActivityMessage(Request $request) {
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式失败');
         
@@ -185,8 +203,13 @@ class ActivityController extends Controller
         ];
         $validator = Validator::make($request->all(), $rules, $message);
         if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
+
         $data =  ZslmActivitys::getActivityMsg($request->all());
-        return sizeof($data[0])>0 ? responseToJson(0, '', $data) : responseToJson(1, '没有数据');
+        if( sizeof($data[0])>0)
+            foreach($data[0] as $key => $item) {
+                $data[0][$key]->update_time  = date("Y-m-d", $item->update_time);
+            }
+        return sizeof($data[0])>=0 ? responseToJson(0, '', $data) : responseToJson(1, '没有数据');
     }
 
 
@@ -239,9 +262,12 @@ class ActivityController extends Controller
         if(!$request->isMethod('get')) return responseToJson(2, '请求方式错误');
         if(!isset($request->id) &&  !is_numeric($request->id))
             return responseToJson(0, 'no id');
-        $data =  ZslmActivitys::getOneActivity($request->id);
-        $get_msg =$data->toArray();
-        $this->setTime($get_msg);
+        $get_msg = ZslmActivitys::getOneActivity($request->id);
+        $get_msg->begin_time = date("Y-m-d", $get_msg->begin_time);
+        $get_msg->end_time =  date("Y-m-d", $get_msg->end_time);
+        $get_msg->active_cover_img_name = $get_msg->active_img;
+        $get_msg->active_img = splicingImgStr('admin', 'info', $get_msg->active_img);
+
         return $get_msg ? responseToJson(0, '', $get_msg) : responseToJson(1, '没有数据');
     }
 
@@ -365,6 +391,9 @@ class ActivityController extends Controller
 
     }
 
+
+
+    //设置活动的权重
     public  function updateActivityWeight(Request $request){
         if(!$request->isMethod('post'))
             return responseToJson(1,'request error');
@@ -373,10 +402,12 @@ class ActivityController extends Controller
         if(!isset($request->showWeight) && !is_numeric($request->showWeight))
             return responseToJson(1,'no showWeight or showWeight is not number');
         
-        $result = ZslmActivitys::setWeight($request->id,$request->showWeight);
-        return  $result == 1 ? responseToJson(0,'success') : responseToJson(1,'success');
+        $result = ZslmMajor::setAppiMajorState(['major_id' => $request->id,  'type' => 0, 'state' => $request->showWeight]);
+        return  $result ? responseToJson(0,'success') : responseToJson(1,'error');
     }
     
+
+    //设置活动的展示状态
     public function updateActivityShow(Request $request){
         if(!$request->isMethod('post'))
             return responseToJson(1,'request error');
@@ -389,6 +420,9 @@ class ActivityController extends Controller
         return  $result == 1 ? responseToJson(0,'success') : responseToJson(1,'success');
     }
     
+
+
+    //设置活动的推荐状态
     public function updateActivityRec(Request $request){
         if(!$request->isMethod('post'))
             return responseToJson(1,'request error');
@@ -532,8 +566,10 @@ class ActivityController extends Controller
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         try {
             DB::beginTransaction();
-            $file_handle = $request->file('activeImg');
-            $img_name = getFileName('activity', $file_handle->getClientOriginalExtension());
+            $file_handle = $request->file('activityCoverImg');
+            if(empty($file_handle)) return responseToJson(1, '创建活动需要活动封面，请上传活动封面。');
+
+            $img_name = trim($request->coverImgName) == '' ? getFileName('activity', $file_handle->getClientOriginalExtension()) : trim($request->coverImgName) . '.' . $file_handle->getClientOriginalExtension();
             $create_msg = [
                 'active_name'    => trim($request->activityName),
                 'active_type'    => $request->activityType,
@@ -544,12 +580,14 @@ class ActivityController extends Controller
                 'end_time'       => strtotime($request->endTime),
                 'sign_up_state'  => $request->signUpState,
                 'active_img'     => $img_name,
-                'create_time'    => time()
+                'create_time'    => time(),
+                'active_alt'     => $request->coverImgDescribe,
+                'is_delete'      => 0
             ];
     
             $is_create = ZslmActivitys::createAppointActivityMsg($create_msg);
 
-            $is_create_img = $this->createDirImg($img_name, $file_handle);
+            $is_create_img = createDirImg($img_name, $file_handle, 'info');
 
             if($is_create && ($is_create_img === true)) {
                 DB::commit();
@@ -559,20 +597,24 @@ class ActivityController extends Controller
                 throw new \Exception($is_create_img[1]);
             }
             else throw new \Exception('上传失败');
-
         } catch(\Exception $e)  {
             DB::rollback();//事务回滚
             return responseToJson(1, $e->getMessage());
         }
     }
     
+
+    //更新活动主要信息
     public function updateActivity(ActivityCreateRequest $request) {
         
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         try {
             DB::beginTransaction();
-            $file_handle = $request->file('activeImg');
-            $img_name = getFileName('activity', $file_handle->getClientOriginalExtension());
+            $file_handle = !empty($request->file('activityCoverImg')) ? $request->file('activityCoverImg') : null;
+            $img_name = ($file_handle != null) 
+                ? (!empty($request->coverImgName) 
+                ? trim($request->coverImgName) . '.' . $file_handle->getClientOriginalExtension() 
+                : getFileName('activity', $file_handle->getClientOriginalExtension())) : null;
             $create_msg = [
                 'active_name'    => trim($request->activityName),
                 'active_type'    => $request->activityType,
@@ -582,22 +624,44 @@ class ActivityController extends Controller
                 'begin_time'     => strtotime($request->beginTime),
                 'end_time'       => strtotime($request->endTime),
                 'sign_up_state'  => $request->signUpState,
-                'active_img'     => $img_name,
+                // 'active_img'     => $img_name,
                 'update_time'    => time()
             ];
             
+            //修改图片alt
+            if(trim($request->coverImgDescribe) !== '') {
+                $create_msg['active_alt'] = trim($request->coverImgDescribe);
+            }
+            
+            //修改图片名称
+            if($is_update_cover_name_bool = (!empty($request->coverImgName) && $file_handle == null)) {
+                $activity_cover_old_name = ZslmActivitys::getActivityCoverName($request->id);
+                $arr = strChangeArr($activity_cover_old_name, '.');
+                $activity_cover_new_name = $request->coverImgName . '.' . end($arr);
+                $create_msg['active_img'] = trim($activity_cover_new_name);
+            }
+            
+            //是否需要上传新的图片，并设置名字
+            if($file_handle != null) {
+                $create_msg['active_img'] = $img_name;
+            }
+            
             $is_create = ZslmActivitys::updateMsg($request->id,$create_msg);
             
-            $is_create_img = $this->createDirImg($img_name, $file_handle);
             
-            if($is_create == 1 && ($is_create_img === true)) {
-                DB::commit();
-                return responseToJson(0, '上传成功',$is_create);
+            if($is_update_cover_name_bool) $is_update = updateDirImgName($activity_cover_old_name, $activity_cover_new_name, 'info', 'admin/info');
+            // dd($is_update);
+
+            if($file_handle != null) $is_create_img = createDirImg($img_name, $file_handle, 'info');
+            
+            if($is_create == 1) {
+                if((!empty($is_update) && $is_update == true) || (!empty($is_create_img) && $is_create_img == true)) {
+                    DB::commit();
+                    return responseToJson(0, '修改成功',$is_create);
+                }
+                else throw new \Exception('修改失败');
             }
-            else if(is_array($is_create_img) && $is_create_img[0] == 1) {
-                throw new \Exception($is_create_img[1]);
-            }
-            else throw new \Exception('上传失败');
+            else throw new \Exception('修改失败');
             
         } catch(\Exception $e)  {
             DB::rollback();//事务回滚
@@ -605,10 +669,10 @@ class ActivityController extends Controller
         }
     }
     
+
+
+    //更新活动的title等三个字段
     public function updateTiltle(Request $request){
-        
-        
-        
         if(!isset($request->title)){
             return responseToJson(1,'no title');
         }else if(!isset($request->keywords)){
@@ -619,6 +683,7 @@ class ActivityController extends Controller
             return responseToJson(1,'no id');
         }
         $result = ZslmActivitys::setTKDById($request);
+        return responseToJson(0, '', $result);
         if($result == 1){
             return responseToJson(0,'success');
         }else{
@@ -627,6 +692,8 @@ class ActivityController extends Controller
     }
     
     
+
+    //更新活动的活动介绍
     public function updateIntroduce(Request $request){
         if(!isset($request->introduce)){
             return responseToJson(1,'no title');
@@ -646,11 +713,11 @@ class ActivityController extends Controller
             return responseToJson(1,'request error');
         
         $major = dictMajorType::getAllSonMajor();
-        $provice = dictRegion::getProvice();
+        // $provice = dictRegion::getProvice();
         $city = dictRegion::getCity();
         $type = dict_activity_type::getType();
-        if(sizeof($major)>0&&sizeof($provice)>0 && sizeof($city)>0 )
-            return responseToJson(0,'success',['major'=>$major,'provice'=>$provice,'city'=>$city,'type'=>$type]);
+        if(sizeof($major)>0&&sizeof($type)>0 && sizeof($city)>0 )
+            return responseToJson(0,'success',['major'=>$major, 'city'=>$city, 'type'=>$type]);
         else
             return responseToJson(1,'error');
     }
@@ -872,8 +939,8 @@ class ActivityController extends Controller
      */
     public function setHostMajor(Request $request) {
         if(!$request->isMethod('post')) return responseToJson(0, '请求方式错误');
-        $activity_id = (isset($request->activityId) && is_numberic($request->activityId)) ? $request->activityId : 0;
-        $major_id = (isset($request->majorId) && is_numberic($request->majorId)) ? $request->majorId : 0;
+        $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
+        $major_id = (is_numeric($request->majorId)) ? $request->majorId : 0;
 
         $is_set = ActivityRelation::setAppointHostMajor($activity_id, $major_id);
         return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
@@ -883,12 +950,11 @@ class ActivityController extends Controller
     
 
     /**
-     * @api {post} admin/information/sendActivityDynamic 活动作为院校动态更新推送给关注了主办院校的用户（插入消息表，并和用户进行关联，推送到个人中心－院校动态中）/活动作为新消息内容发送给关注了主办院校的用户（插入消息表，并和用户关联，推送到消息中心中）
+     * @api {post} admin/information/sendActivityDynamic 活动作为新消息内容推送给关注了主办院校的用户
      * @apiGroup information
      *
      * @apiParam {Number} activityId 活动的id
-     * @apiParam {Number} majorId 主办院校id
-     * @apiParam {Number} newOrDyna 设置类别(0,作为院校动态；1作为新消息)
+     * @apiParam {String} contents 附加内容
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -915,29 +981,30 @@ class ActivityController extends Controller
     public function sendActivityDynamic(Request $request) {
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
-     
-        $major_id = (isset($request->majorId) && is_numeric($request->majorId)) ? $request->majorId : 0;
-        $new_or_dyna = $request->newOrDyna;
-      
-        if($activity_id==0 || $major_id==0 || ($new_or_dyna < 0)) return responseToJson(1, '参数错误');
+        if($activity_id == 0) return responseToJson(1, '参数错误');
+        $major_id = ZslmActivitys::getHostMajorImg($activity_id)->id;
+        if(empty($major_id)) return responseToJson(1, '该活动还没有设置主办院校');
 
         try {
             DB::beginTransaction();
 
             $activity_msg = ZslmActivitys::getAppointActivityMsg($activity_id, ['active_name', 'introduce']);
 
-            $type = $new_or_dyna ? 2 : 3;
             $create_news_id = News::createNews([
-                'carrier'     => 1,
-                'news_title'  => $activity_msg->active_name,
-                'context'     =>    $request->contents.((mb_strlen($activity_msg->introduce, 'utf-8') > 20) ? (mb_substr($activity_msg->introduce, 0, 20, 'gb2312') . '...') : $activity_msg->introduce),
-                'type'        => $type,
-                'create_time' => time()
+                'carrier'      => 1,
+                'act_major_id' => $major_id,
+                'news_title'   => trim($request->contents) == '' ? $activity_msg->active_name : trim($request->contents),
+                'context'      => ((mb_strlen($activity_msg->introduce, 'utf-8') > 40) ? (mb_substr($activity_msg->introduce, 0, 40, 'gb2312') . '...') : $activity_msg->introduce),
+                'type'         => !empty($request->type) ? $request->type : 1,
+                'url'          => $request->url,
+                'create_time'  => time(),
+                'is_delete'    => 0,
+                'success'      => 1
             ]);
-            $all_users_id = UserAccounts::getAllUsersId()->toArray();
+            $all_users_id = UserFollowMajor::getFollowMajorUsers($major_id);
             $time = time();
             $data_arr = [];
-            if(is_array($all_users_id) && !empty($all_users_id) && $create_news_id > 0) {
+            if($create_news_id > 0) {
                 foreach($all_users_id as $key => $user_id) {
                     array_push($data_arr, [
                         'news_id' => $create_news_id,
@@ -956,12 +1023,71 @@ class ActivityController extends Controller
                     throw new \Exception('发送失败');
             }
             else
-                throw new \Exception('获得参数失败');
+                throw new \Exception('插入消息失败');
         } catch(\Exception $e) {
             DB::rollback();//事务回滚
             return responseToJson(1, $e->getMessage());
         }
+    }
 
+    /**
+     * @api {post} admin/information/sendActivityDynamic 活动作为院校动态更新推送给关注了主办院校的用户
+     * @apiGroup information
+     *
+     * @apiParam {Number} activityId 活动的id
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "设置成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function setActivitydynamic(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
+
+        if($activity_id == 0) return responseToJson(1, '参数错误');
+        $major_id = ZslmActivitys::getHostMajorImg($activity_id)->id;
+        if(empty($major_id)) return responseToJson(1, '该活动还没有设置主办院校');
+
+        $follow_major_id_arr = UserFollowMajor::getFollowMajorUsers($major_id);
+
+        // if(is_array($follow_major_id_arr) && count($follow_major_id_arr) < 1) return responseToJson(1, '没有用户关注该活动的主办院校');
+        try {
+            $time = time();
+            $data_arr = [];
+            foreach($follow_major_id_arr as $key => $user_id) {
+                array_push($data_arr, [
+                    'user_id' => $user_id,
+                    'content_id' => $activity_id,
+                    'content_type' => 2,
+                    'status' => 0,
+                    'create_time' => $time
+                ]);
+            } 
+            // return responseToJson(0, '发送成功', $follow_major_id_arr);
+            $is_create = DynamicNews::setDynamic($data_arr);
+            if($is_create) return responseToJson(0, '发送成功');
+            else throw new \Exception('发送失败');
+        }catch(\Exception $e) {
+            return responseToJson(1, $e->getMessage());
+        }
     }
 
 
@@ -1065,6 +1191,72 @@ class ActivityController extends Controller
 
 
     /**
+     * 取消指定活动的某一推荐活动
+     * acId 指定活动id
+     * cancelAcId 取消推荐的活动id
+     */
+    public function cancelAppointRecommendActivity(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求防水错误');
+        $activity_id = !empty($request->acId) && is_numeric($request->acId) ? $request->acId : null;
+        $cancel_ac_id = !empty($request->cancelAcId) && is_numeric($request->cancelAcId) ? $request->cancelAcId : null;
+        $relation_activity_arr = strChangeArr(ActivityRelation::getAppointContent($activity_id, 'relation_activity'), ',');
+        if($relation_activity_arr == 0 || count($relation_activity_arr) == 0){
+            return responseToJson(1, '暂无关联活动信息');
+        }
+        $relation_activity_str = strChangeArr(deleteArrValue($relation_activity_arr, $cancel_ac_id), ',');
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'relation_activity', $relation_activity_str);
+        return $is_set ? responseToJson(0, '取消推荐成功') : responseToJson(1, '取消推荐失败');
+    }
+
+
+    /**
+     * 取消指定活动的某一推荐专业
+     * acId 指定活动id
+     * cancelMaId 取消推荐的专业id
+     */
+    public function cancelAppointRecommendMajor(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求防水错误');
+        $activity_id = !empty($request->acId) && is_numeric($request->acId) ? $request->acId : null;
+        $cancel_ma_id = !empty($request->cancelMaId) && is_numeric($request->cancelMaId) ? $request->cancelMaId : null;
+        $relation_activity_arr = strChangeArr(ActivityRelation::getAppointContent($activity_id, 'recommend_id'), ',');
+        if($relation_activity_arr == 0 || count($relation_activity_arr) == 0){
+            return responseToJson(1, '暂无关联活动信息');
+        }
+        $relation_activity_str = strChangeArr(deleteArrValue($relation_activity_arr, $cancel_ma_id), ',');
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'recommend_id', $relation_activity_str);
+        return $is_set ? responseToJson(0, '取消推荐成功') : responseToJson(1, '取消推荐失败');
+    }
+
+
+
+    /**
+     * 取消指定活动的所有推荐活动
+     */
+    public function cancelAppointActicityAllRe(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $activity_id = !empty($request->acId) && is_numeric($request->acId) ? $request->acId : null;
+
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'relation_activity', '');
+
+        return $is_set ? responseToJson(0, '清空推荐活动成功') : responseToJson(1, '清空推荐活动失败');
+
+    }
+
+    /**
+     * 取消指定活动的所有推荐院校专业
+     */
+    public function cancelAppointMajorAllRe(Request $request) {
+
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $activity_id = !empty($request->acId) && is_numeric($request->acId) ? $request->acId : null;
+    
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'recommend_id', '');
+    
+        return $is_set ? responseToJson(0, '清空推荐院校专业成功') : responseToJson(1, '清空推荐院校专业失败'); 
+    }
+
+
+    /**
      * @api {post} admin/information/setAutomaticRecActivitys 自动设置推荐活动
      *
      * @apiGroup information
@@ -1101,15 +1293,13 @@ class ActivityController extends Controller
 
         $get_activits_id_arr = ZslmActivitys::getAutoRecommendActivitys($recom_activity_count);
 
+        if(!is_array($get_activits_id_arr)) $get_activits_id_arr = $get_activits_id_arr->toArray();
+
         if(count($get_activits_id_arr) < 1) return responseToJson(1, '暂无能够设置的活动');
-      
-        $data = '';
-        $lenght = sizeof($get_activits_id_arr);
-        for($i = 0;$i< $lenght;$i++){
-            $data = $data.$get_activits_id_arr[$i].',';
-        }
-        $data = $data.$get_activits_id_arr[$lenght-1];
-        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'relation_activity',$data);
+
+        $get_activity_id_str = strChangeArr($get_activits_id_arr, ',');
+
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'relation_activity', $get_activity_id_str);
 
         return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
 
@@ -1168,6 +1358,23 @@ class ActivityController extends Controller
 
 
 
+
+    
+    public function getImg(Request $request){
+        if(!$request->isMethod('get'))
+            return responseToJson(1,'request error');
+        if(!isset($request->id) && !is_numeric($request->id))
+            return responseToJson(1,'no id or id is not number');
+
+
+        $img = ZslmActivitys::getHostMajorImg($request->id);
+
+        $img->magor_logo_name =  splicingImgStr('admin', 'info', $img->magor_logo_name);
+       return responseToJson(0,'success',$img);
+    }
+
+
+
     /**
      * @api {post} admin/information/setAutomaticRecMajors 自动设置推荐院校
      *
@@ -1197,16 +1404,6 @@ class ActivityController extends Controller
      *        "msg": '请求方式错误'
      *     }
      */
-    
-    public function getImg(Request $request){
-        if(!$request->isMethod('get'))
-            return responseToJson(1,'request error');
-        if(!isset($request->id) && !is_numeric($request->id))
-            return responseToJson(1,'no id or id is not number');
-       $img = zslm_major::getImg($request->id);
-       return responseToJson(0,'success',$img);
-    }
-    
     public function setAutomaticRecMajors(Request $request) {
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
@@ -1215,19 +1412,20 @@ class ActivityController extends Controller
 
         $get_major_id_arr = ZslmMajor::getAutoRecommendMajors($recom_major_count);
 
-        if(count($get_major_id_arr) < 1) return responseToJson(1, '暂无能够设置的院校');
-    
-        $data = '';
-        $lenght = sizeof($get_major_id_arr);
-        for($i = 0;$i< $lenght;$i++){
-            $data = $data.$get_major_id_arr[$i].',';
-        }
-        $data = $data.$get_major_id_arr[$lenght-1];
+        if(!is_array($get_major_id_arr)) $get_major_id_arr = $get_major_id_arr->toArray();
 
-        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'recommend_id', $data);
+        if(count($get_major_id_arr) < 1) return responseToJson(1, '暂无能够设置的院校');
+
+        $get_major_id_str = strChangeArr($get_major_id_arr, ',');
+
+        $is_set = ActivityRelation::setRecommendActivitys($activity_id, 'recommend_id', $get_major_id_str);
 
         return $is_set ? responseToJson(0, '设置成功') : responseToJson(1, '设置失败');
     }
+    
+
+
+
     public function getGuanlianById(Request $request){
         if(!$request->isMethod('get'))
             return responseToJson(1,'请求错误');
