@@ -24,21 +24,18 @@ class news
 
     public static function selectAllNewsMsg($keywords, $startTime, $endTime, $pageCount, $pageNum) {
 
-        $handle = DB::table(self::$sTableName)
-            ->where('is_delete', 0);
-
-        // if($keywords !== '') {
-        //     $handle = $handle->where('news_title', 'like', '%' . $keywords . '%')
-        //     ->orWhere('context', 'like', '%' . $keywords . '%');
-        // }
-        
-        if($startTime != 0 && $endTime == 0) 
-            $handle = $handle->where('create_time', '>', $startTime);
+        $handle = DB::table(self::$sTableName)->where('is_delete', 0);
+           
+        if($startTime != 0 && $endTime == 0) {
+            $handle = $handle->where('create_time', '>=', $startTime);
+        }
         else if($startTime == 0 && $endTime != 0) 
-            $handle = $handle->where('create_time', '<', $endTime);
+            $handle = $handle->where('create_time', '<=', $endTime);
         else if($startTime != 0 && $endTime != 0) 
             $handle = $handle->whereBetween('create_time', [$startTime, $endTime]);
         
+        $handle = $handle->where('context', 'like', '%' . $keywords . '%');
+
         $total = $handle->count();
 
         $his_news = $handle->orderBy('create_time', 'desc')

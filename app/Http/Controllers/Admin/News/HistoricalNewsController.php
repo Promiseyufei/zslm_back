@@ -66,16 +66,29 @@ class HistoricalNewsController extends Controller
 
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $keywords = (isset($request->newTitleKeywords) && is_string($request->newTitleKeywords)) ? trim($request->newTitleKeywords) : '';
-        $start_time = isset($request->startTime) ? strtotime($request->startTime) : 0;
-        // var_dump(date("Y-m-d",$start_time+1*24*60*60));
-        $end_time = isset($request->endTime) ? strtotime($request->endTime) : 0;
+        $start_time = !empty($request->startTime) ? strtotime($request->startTime) : 0;
+        // dd($start_time);
+        // dd(date("Y-m-d",$start_time+1*24*60*60));
+
+        $end_time = !empty($request->endTime) ? strtotime($request->endTime) : 0;
+        // dd($end_time);
         $page_count = (isset($request->pageCount) && is_numeric($request->pageCount)) ? $request->pageCount : 0;
         $page_num = (isset($request->pageNumber) && is_numeric($request->pageNumber)) ? $request->pageNumber : -1;
         // if($keywords == '' || $start_time == 0 || $end_time == 0 || ($start_time > $end_time) || $page_count == 0 || $page_num < 0) return responseToJson(1, '参数错误');
-        if(($start_time > $end_time) || $page_count == 0 || $page_num < 0) return responseToJson(1, '参数错误');
+        if($page_count == 0 || $page_num < 0) return responseToJson(1, '参数错误');
         $get_all_news_msg = News::selectAllNewsMsg($keywords, $start_time, $end_time, $page_count, $page_num);
 
-        return ((is_array($get_all_news_msg['his_news']) || is_object($get_all_news_msg['his_news'])) && !empty($get_all_news_msg['his_news'])) ? responseToJson(0, '', $get_all_news_msg) : responseToJson(1, '查询失败');
+        if(!empty($get_all_news_msg['his_news'])) 
+            foreach($get_all_news_msg['his_news'] as $key => $item) {
+                // 1：个人助手类；2：系统消息类；3：院校动态类（只能发站内信））
+                // （0：短信形式；1：站内信形式；2：短信+站内信）
+                // (0失败，1成功)
+                $get_all_news_msg['his_news'][$key]->type = ($item->type == 1) ? '个人助手类' : ($item->type == 2 ? '系统消息类' : '默认类型');
+                $get_all_news_msg['his_news'][$key]->carrier = ($item->carrier == 0) ? '短信' : ($item->carrier == 1 ? '站内信' : '短信、站内信');
+                $get_all_news_msg['his_news'][$key]->success = $item->success == 0 ? '成功' : '失败';
+            }
+
+        return ((is_array($get_all_news_msg['his_news']) || is_object($get_all_news_msg['his_news']))) ? responseToJson(0, '', $get_all_news_msg) : responseToJson(1, '查询失败');
 
 
 
