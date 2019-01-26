@@ -487,6 +487,13 @@ function changeStringToInt($val){
 
 
 
+
+    //返回图片路径
+    /**
+     * $direction admin
+     * $range info
+     * 
+     */
     function splicingImgStr($direction, $range, $name) {
         return 'http://' . $_SERVER['HTTP_HOST'] . '/storage/' . $direction . '/' . $range . '/' . $name;
     }
