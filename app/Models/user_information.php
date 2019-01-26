@@ -37,7 +37,7 @@
                     $queryString = " zslm_activitys.active_name like '$phone'
                         and user_name like '$name'
                         and real_name like '$realname'";
-                    return self::getActiveUser($queryString,$page,$pageSize);
+                    return self::getActiveUser($queryString,$page,$pageSize,$sorting);
                     break;
                 case 1:
                     $queryString = " z_name like '$phone'
@@ -61,14 +61,20 @@
             }
         }
         
-        public static function getActiveUser($queryString,$page,$pageSize){
+        public static function getActiveUser($queryString,$page,$pageSize,$sorting){
+            
+            $orderby = 'active_name';
+            if($sorting == 'else'){
+                $orderby = 'user_account_id';
+                $sorting = 'asc';
+            }
             
             $result =  DB::table(self::$sTableName)->where('user_information.is_delete',0)
                 ->join('user_activitys','user_activitys.user_id','=', 'user_information.id')
                 ->join('zslm_activitys','zslm_activitys.id','=', 'user_activitys.activity_id')
                 ->join('user_accounts','user_accounts.id', '=' ,'user_information.user_account_id')
                 ->whereRaw($queryString)
-                ->orderBy('user_information.create_time')
+                ->orderBy($orderby,$sorting)
                 ->offset(($page-1)*$pageSize)
                 ->limit($pageSize)
                 ->get(['activity_id','active_name','user_account_id',
@@ -89,15 +95,19 @@
         }
         
         public static function getMajorUser($queryString,$page,$pageSize,$sorting = 'desc'){
-            
-            
+    
+            $orderby = 'z_name';
+            if($sorting == 'else'){
+                $orderby = 'user_account_id';
+                $sorting = 'asc';
+            }
             $result =  DB::table(self::$sTableName)->where('user_information.is_delete',0)
                 ->join('user_follow_major','user_follow_major.user_id','=', 'user_information.user_account_id')
                 ->join('zslm_major','zslm_major.id','=', 'user_follow_major.major_id')
                 ->join('user_accounts','user_accounts.id', '=' ,'user_information.user_account_id')
                 ->where('is_focus',0)
                 ->whereRaw($queryString)
-                ->orderBy('user_information.create_time',$sorting)
+                ->orderBy($orderby,$sorting)
                 ->offset(($page-1)*$pageSize)
                 ->limit($pageSize)
                 ->get(['z_name','user_account_id', 'user_name',
@@ -113,8 +123,12 @@
             return [$result,$count];
         }
         
-        public static function getCouponUser($queryString,$page,$pageSize){
-            
+        public static function getCouponUser($queryString,$page,$pageSize,$sorting){
+            $orderby = 'zslm_coupon.name';
+            if($sorting == 'else'){
+                $sorting = 'asc';
+                $orderby = 'user_account_id';
+            }
             $result =  DB::table(self::$sTableName)->where('user_information.is_delete',0)
                 ->join('user_coupon','user_coupon.user_id','=', 'user_information.user_account_id')
                 ->join('zslm_coupon','zslm_coupon.id','=', 'user_coupon.coupon_id')
@@ -122,7 +136,7 @@
                 ->where('is_enable',0)
                 ->where('user_coupon.is_delete',0)
                 ->whereRaw($queryString)
-                ->orderBy('user_information.create_time')
+                ->orderBy($orderby,$sorting)
                 ->offset(($page-1)*$pageSize)
                 ->limit($pageSize)
                 ->get(['coupon_id','zslm_coupon.name','user_account_id',
@@ -152,7 +166,8 @@
         }
         
         public static function getUser($queryString,$page,$pageSize,$sorting){
-     
+         
+            
             $result =  DB::table(self::$sTableName)->where('user_information.is_delete',0)
                 ->join('user_accounts','user_accounts.id', '=' ,'user_information.user_account_id')
                 ->whereRaw($queryString)

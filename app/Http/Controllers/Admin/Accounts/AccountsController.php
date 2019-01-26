@@ -30,7 +30,13 @@ class AccountsController extends AccountControllerBase
         $sorting = isset($request->sorting) ? $request->sorting : '';
         $sorting = $sorting == '' ? 0 : $sorting;
     
-        $sorting = $sorting == 0 ? 'desc' : 'asc';
+        if($sorting == 0)
+            $sorting = 'asc';
+        else if($sorting == 1)
+            $sorting ='desc';
+        else
+            $sorting = 'else';
+    
         $result = UserInformation::getInformation($name,$active,$realname,$request->page,$request->pageSize,0,$sorting);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
@@ -44,8 +50,14 @@ class AccountsController extends AccountControllerBase
         $realname = isset($request->realname) ? $request->realname : '';
         $sorting = isset($request->sorting) ? $request->sorting : '';
         $sorting = $sorting == '' ? 0 : $sorting;
-    
-        $sorting = $sorting == 0 ? 'desc' : 'asc';
+        
+        if($sorting == 0)
+            $sorting = 'asc';
+        else if($sorting == 1)
+            $sorting ='desc';
+        else
+            $sorting = 'else';
+        
         $result = UserInformation::getInformation($name,$major,$realname,$request->page,$request->pageSize,1,$sorting);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
@@ -61,7 +73,13 @@ class AccountsController extends AccountControllerBase
         $sorting = isset($request->sorting) ? $request->sorting : '';
         $sorting = $sorting == '' ? 0 : $sorting;
     
-        $sorting = $sorting == 0 ? 'desc' : 'asc';
+        
+        if($sorting == 0)
+            $sorting = 'asc';
+        else if($sorting == 1)
+            $sorting ='desc';
+        else
+            $sorting = 'else';
         $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,2,$sorting);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
@@ -74,9 +92,8 @@ class AccountsController extends AccountControllerBase
         $realname = isset($request->realname) ? $request->realname : '';
         $sorting =  isset($request->sorting) ? $request->sorting : '';
         $sorting = $sorting == '' ? 0 : $sorting;
-        
         $sorting = $sorting == 0 ? 'desc' : 'asc';
-        
+   
         $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,3,$sorting);
         $id = [];
         
@@ -159,7 +176,7 @@ class AccountsController extends AccountControllerBase
         
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
-        
+        $user->head_portrait = splicingImgStr('front','user',$user->head_portrait);
         return !empty($user) ? responseToJson(0,'success',[$user,$activity_names]) : responseToJson(1,'no data');
     }
     
@@ -190,7 +207,7 @@ class AccountsController extends AccountControllerBase
         }
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
-        
+        $user->head_portrait = splicingImgStr('front','user',$user->head_portrait);
         return !empty($user) ? responseToJson(0,'success',[$user,$major_names]) : responseToJson(1,'no data');
     }
     
@@ -220,6 +237,7 @@ class AccountsController extends AccountControllerBase
         }
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
+        $user->head_portrait = splicingImgStr('front','user',$user->head_portrait);
         return !empty($user) ? responseToJson(0,'success',[$user,$coupon_names]) : responseToJson(1,'no data');
     }
     
@@ -256,6 +274,7 @@ class AccountsController extends AccountControllerBase
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
         $user->schooling_id = $school_arr[$user->schooling_id];
+        $user->head_portrait = splicingImgStr('front','user',$user->head_portrait);
         $activity_names = $this->getActivityNames($request);
         $major_names = $this->getMajorNames($request);
         $coupon_names = $this->getCouponNames($request);

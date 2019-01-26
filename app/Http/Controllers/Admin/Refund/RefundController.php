@@ -93,6 +93,20 @@ class RefundController extends Controller
         if(!isset($request->id) && !is_numeric($request->id))
             return responseToJson(1,'no id or id is not number');
         $data = RefundApply::getOne($request->id);
+ 
+        $real_imgs = '';
+        if($data[0]->imgs != ''){
+            $imgs = explode(',',$data[0]->imgs);
+            
+            for($i = 0;$i<sizeof($imgs);$i++){
+                $imgs[$i]= splicingImgStr('front','user',$imgs[$i]);
+                $real_imgs.=$imgs[$i].',';
+            }
+            $real_imgs = rtrim($real_imgs, ',');
+            $data[0]->imgs = $real_imgs;
+        }
+        
+        
         if(sizeof($data) == 1){
             return responseToJson(0,'success',$data);
         }else{

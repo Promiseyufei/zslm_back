@@ -69,6 +69,31 @@
 
             
         }
+    
+        public static function getOneMajorFile(Request $request){
+                $queryWhere = self::$sTableName.'.is_delete = 0 and zslm_major.id = '.$request->majorId;
+        
+            $searchData=DB::table(self::$sTableName)
+                ->whereRaw($queryWhere)
+                ->join('zslm_major',self::$sTableName.'.major_id','=','zslm_major.id')
+                ->get([self::$sTableName.'.id',
+                    'show_weight',
+                    'file_name',
+                    'file_type',
+                    'file_year',
+                    self::$sTableName.'.is_show',
+                    self::$sTableName.'.create_time',
+                    'z_name',
+                    'show_weight',
+                    'file_alt',
+                    'file_url']);
+        
+        
+        
+            return empty($searchData) ? null:$searchData;
+        
+        
+        }
         
         public static function getCountData(){
             $countNum = DB::table(self::$sTableName)->where('is_delete',0)->count('id');
@@ -109,7 +134,13 @@
                     'file_url'=>$request->file_url]);
             return $insertResult;
         }
-        
+    
+        /**
+         * 更新文件
+         * @param Request $request
+         *
+         * @return mixed
+         */
         public static function updateFile(Request $request){
             $updateResult = DB::table(self::$sTableName)
                 ->where('id',$request->fileId)
@@ -117,10 +148,33 @@
                     'file_type'=>$request->fileType,
                     'file_alt'=>$request->fileDescribe,
                     'is_show'=>$request->isShow,
+                    'file_year'=>$request->fileYear,
                     'update_time'=>time()]);
             return $updateResult;
         }
+    
+        /**
+         * 删除该院校的所有有关文件
+         * @param Request $request
+         *
+         * @return mixed
+         */
         
+        public static function deletetMajorAllFiles(Request $request){
+            $result =DB::table(self::$sTableName)->where('major_id',$request->mid)->update(['is_delete'=>1]);
+        }
+    
+        /**
+         * 检查一个院校的所有文件是否删除，返回值为0则成功，否则不成功需要回滚
+         *
+         * @param Request $request
+         *
+         * @return mixed
+         */
+        public static  function checkAllDel($id){
+            $count = DB::table(self::$sTableName)->where('major_id',$id)->where('is_delete',0)->count('id');
+            return $count;
+        }
         public static function delteFile(Request $request){
             $fileId = $request->fileId;
             $updateResult = DB::table(self::$sTableName)->whereIn('id',$fileId)->update(['is_delete'=>1]);

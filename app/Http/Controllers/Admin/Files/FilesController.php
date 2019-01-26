@@ -88,7 +88,18 @@ class FilesController extends Controller
         
         $serachData = MajorFiles::getUploadFile($request);
         $zhaosheng = MajorFiles::getCountZhaos();
+        for($i = 0;$i<sizeof($serachData[0]);$i++){
+            $serachData[0][$i]->create_time = date('Y-m-d', $serachData[0][$i]->create_time);
+        }
         return $serachData != null ? responseToJson(0,'success',['data'=>$serachData[0],'dataCount'=>$serachData[1],'zhaos'=>$zhaosheng]) : responseToJson(1,'no data');
+    }
+    
+    public  function getOneMajorFile(Request $request){
+        if(!isset($request->majorId) || !is_numeric(intval($request->majorId)))
+            return responseToJson(1,FORMAT_ERROR);
+        
+        $serachData = MajorFiles::getOneMajorFile($request);
+        return responseToJson(0,"success",['data'=> $serachData]);
     }
     
     public function info(){
@@ -263,6 +274,27 @@ class FilesController extends Controller
 //            return responseToJson(1,'upload error');
 //        }
     }
+    
+    public function deleteMajorAllF(Request $request){
+        
+        if(!isset($request->mid) || !is_numeric(intval($request->mid))){
+            return responseToJson(1,'院校专业id错误');
+        }
+        DB::beginTransaction();
+        
+        MajorFiles::deletetMajorAllFiles($request);
+        
+        $check = MajorFiles::checkAllDel($request->mid);
+        if($check == 0){
+            DB::commit();
+            return responseToJson(0,"success");
+        }else{
+            DB::rollBack();
+            return responseToJson(1,"删除失败");
+        }
+        
+    }
+    
     
     public function updateShowWeight(Request $request){
         if(!$request->isMethod('post'))
