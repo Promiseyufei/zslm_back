@@ -112,6 +112,9 @@
             Route::any('test', 'FilesController@getMajorByRegion');
             Route::get('getmajorbypro', 'FilesController@getMajorByRegion');
             Route::post('updatefile', 'FilesController@updateFile');
+            Route::get('getonemajorfile', 'FilesController@getOneMajorFile');
+            Route::post('deletemajorallf', 'FilesController@deleteMajorAllF');
+            
 //        getMajorByRegion
         });
         
@@ -384,6 +387,8 @@
             
             Route::post('getAppointInfoRecommendRead', 'InformationController@getAppointInfoRecommendRead');
             Route::post('delinfos', 'InformationController@delInfos');
+            Route::post('delappoinrelevantmajor', 'InformationController@delAppoinRelevantMajor');
+            
             
         });
         

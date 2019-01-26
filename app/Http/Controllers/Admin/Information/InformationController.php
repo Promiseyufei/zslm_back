@@ -6,7 +6,8 @@
 
 namespace App\Http\Controllers\Admin\Information;
 
-
+use Illuminate\Support\Facades\Storage;
+use App\Models\information_major;
 use App\Models\information_relation as InfomationRelation;
 use App\Models\information_major as InformationMajor;
 use App\Models\user_follow_major as UserFollowMajor;
@@ -239,6 +240,19 @@ class InformationController extends Controller
 
     }
 
+    public function delAppoinRelevantMajor(Request $request){
+        if(!isset($request->infoId) || !is_numeric(intval($request->infoId)))
+            return responseToJson(1,"消息id错误");
+        if(!isset($request->majorId) || !is_numeric(intval($request->majorId)))
+            return responseToJson(1,"院校id错误");
+        
+        
+       $result = information_major::delAppoinRelevantMajor($request->infoId,$request->majorId);
+       if($result == 1)
+           return responseToJson(0,'success');
+       else
+           return responseToJson(1,'删除失败');
+    }
 
 
     /**
@@ -556,14 +570,17 @@ class InformationController extends Controller
         
         if($info_id == 0) return responseToJson(1, '参数错误');
         
-        $re_major_arr = InformationMajor::selectAppointRelation($info_id)->toArray();
+        $re_major_arr = InformationMajor::selectAppointRelation($info_id);
+        if($re_major_arr != null)
+            $re_major_arr = $re_major_arr->toArray();
         
-        $major_arr = ZslmMajor::getAllDictMajor(1, $re_major_arr)->toArray();
-        
-        foreach($major_arr as $key => $item) {
-            $major_arr[$key]->magor_logo_name =  $item->magor_logo_name;
+        $major_arr = ZslmMajor::getAllDictMajor(1, $re_major_arr);
+        if($major_arr != null){
+            $major_arr = $major_arr->toArray();
+            foreach($major_arr as $key => $item) {
+                $major_arr[$key]->magor_logo_name =  $item->magor_logo_name;
+            }
         }
-        
         return is_array($major_arr) ? responseToJson(0, '', $major_arr) : responseToJson(1, '未查询到相关院校专业信息');
     }
     // public function delAppointInfoRelevantMajor(Request $request) {
