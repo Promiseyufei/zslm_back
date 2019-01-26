@@ -13,6 +13,9 @@ use App\Http\Requests\CoachUpdateRequest;
 use App\Http\Controllers\Controller;
 use App\Models\dict_region as dictRegion;
 use App\Models\zslm_coupon as ZslmCoupon;
+use App\Models\zslm_activitys as ZslmActivitys;
+use App\Models\dict_activity_type as DictActivityType;
+use App\Models\system_setup as SystemSetup;
 use Illuminate\Http\Request;
 use App\Models\dict as Dict;
 use Storage;
@@ -722,7 +725,9 @@ class CoachOrganizeController extends Controller
     
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
     
-        if(!isset($request->id)) return responseToJson(1, 'no id');
+        $coach_id = (!empty($request->id) && $request->id > 0) ? $request->id : 0;
+        // return responseToJson(0, '', $coach_id);
+        // if(!isset($request->id)) return responseToJson(1, 'no id');
 
         $logo_file_handle = !empty($request->file('logo_img')) ? $request->file('logo_img') : null;
         $cover_file_handle = !empty($request->file('cover_img')) ? $request->file('cover_img') : null;
@@ -779,16 +784,23 @@ class CoachOrganizeController extends Controller
     
         try {
             DB::beginTransaction();
-            $is_create = CoachOrganize::updateCoach($request->id, $msg);
+            if($coach_id != 0) {
+                $is_create = CoachOrganize::updateCoach($request->id, $msg);
+            }
+            else if($coach_id == 0) {
+                $msg['create_time'] = time();
+                $is_create = CoachOrganize::createCoach($msg);
+            }
             if($is_update_logo_name_bool) $is_logo_update = updateDirImgName($coach_logo_old_name, $coach_logo_new_name, 'info', 'admin/info');
             if($logo_file_handle != null) $is_create_logo_img = createDirImg($logo_img_name, $logo_file_handle, 'info');
             if($is_update_cover_name_bool) $is_cover_update = updateDirImgName($coach_cover_old_name, $coach_cover_new_name, 'info', 'admin/info');
             if($cover_file_handle != null) $is_create_cover_img = createDirImg($cover_img_name, $cover_file_handle, 'info');
 
-            if($is_create == 1) {
+            if($is_create) {
                 if(((!empty($is_logo_update) && $is_logo_update == true) || (!empty($is_create_logo_img) && $is_create_logo_img == true)) || (!empty($is_cover_update) && $is_cover_update == true) || (!empty($is_create_cover_img) && $is_create_cover_img == true)) {
                     DB::commit();
-                    return responseToJson(0, '修改成功',$is_create);
+                    
+                    return $coach_id == 0 ? responseToJson(0, '添加成功',$is_create) : responseToJson(0, '修改成功');
                 }
                 else throw new \Exception('修改失败');
             }
@@ -841,5 +853,92 @@ class CoachOrganizeController extends Controller
 
         return count($coupon_arr) >= 0 ? responseToJson(0, 'success', $coupon_arr) : responseToJson(1, 'error');
     }
+
+
+
+    /**
+     * 获得指定辅导机构的相关活动信息
+     * $coachId
+     */
+    public function getAppoinCoachRelevantActivity(Request $request) {
+        if(!$request->isMethod('get')) return responseToJson(2, 'request type error');
+        $coach_id = !empty($request->coachId) && is_numeric($request->coachId) ? $request->coachId : null;
+        if($coach_id == null) return responseToJson(1, '参数错误');
+        $relevan_activity_id_arr = CoachOrganize::getCoachLogoOrCoverName($coach_id, 'coach_id');
+        $relevan_activity_id_arr = ($relevan_activity_id_arr != null || $relevan_activity_id_arr != 0) ? strChangeArr($relevan_activity_id_arr, ',') : [];
+        if(count($relevan_activity_id_arr) < 1) return responseToJson(0, '', $relevan_activity_id_arr);
+        $relevan_activity_id_arr = ZslmActivitys::getActiveByids($relevan_activity_id_arr)->toArray();
+        $activity_type_arr = DictActivityType::getType()->toArray();
+        foreach($relevan_activity_id_arr as $key => $item) {
+            $relevan_activity_id_arr[$key]->create_time = date("Y-m-d H:i:s",$item->create_time);
+            foreach ($activity_type_arr as $keys => $value) 
+                if($item->active_type == $value->id) $relevan_activity_id_arr[$key]->active_type = $value->name;
+        }
+        return responseToJson(0, '', $relevan_activity_id_arr);
+    }
+
+
+    /**
+     * 取消辅导机构的指定相关活动推荐
+     */
+    public function cancelRelevanActivity(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, 'request type error');
+        
+        if(!isset($request->coachId)) return responseToJson(1, 'no coachId');
+        if(!isset($request->activityId)) 
+            return responseToJson(1, 'no activityId');
+            
+        $activity_id_arr = strChangeArr(CoachOrganize::getCoachLogoOrCoverName($request->coachId, 'coach_id'), ',');
+        if(empty($activity_id_arr) || count($activity_id_arr) < 1) return responseToJson(1, '该辅导机构为关联相关活动，操作错误');
+        
+        $is_update = CoachOrganize::updateCoach($request->coachId, ['coach_id' => strChangeArr(deleteArrValue($activity_id_arr, $request->activityId), ','), 'update_time' => time()]);
+        return $is_update ? responseToJson(0, '取消成功') : responseToJson(1, '取消失败');
+    }
+
+
+    /**
+     * 取消指定辅导机构的所有相关活动推荐
+     */
+    public function cancelAllReActivity(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, 'request type error');
+        if(!isset($request->coachId)) return responseToJson(1, 'no coachId');
+        $is_update = CoachOrganize::updateCoach($request->coachId, ['coach_id' => '', 'update_time' => time()]);
+        return $is_update ? responseToJson(0, '取消成功') : responseToJson(1, '取消失败');
+    }
+
+
+
+    /**
+     * 设置指定辅导机构的相关活动推荐
+     * coachId
+     * acIdArr
+     */
+    public function setCoachActivity(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, 'request type error');
+        if(!isset($request->coachId)) return responseToJson(1, 'no coachId');
+        if(!isset($request->acIdArr) || (!is_array($request->acIdArr) && count($request->acIdArr) < 1)) return responseToJson(1, 'no Activity Array');
+
+        $sys_count = SystemSetup::getContent('coach_choice_activity');
+
+
+        if(count($request->acIdArr) > $sys_count) return responseToJson(1, '选择的关联活动数大于最多关联数');
+        $coach_id = CoachOrganize::getCoachLogoOrCoverName($request->coachId, 'coach_id');
+
+        $coach_ac_arr = ($coach_id != '' || $coach_id!= null) ? strChangeArr($coach_id, ',') : [];
+        $arr = array_keys(array_flip($request->acIdArr)+array_flip($coach_ac_arr));
+        // $arr = array_intersect($request->acIdArr, $coach_ac_arr);
+        $arr = count($arr) > $sys_count ? array_slice($arr, 0, $sys_count) : $arr;
+
+        // return responseToJson(0, '', $arr);
+
+        $is_set = CoachOrganize::updateCoach($request->coachId, ['coach_id' => strChangeArr($arr, ','), 'update_time' => time()]);
+
+        return $is_set ? responseToJson(0, '添加成功') : responseToJson(1, '添加失败');
+
+
+
+    }
+
+
 
 }

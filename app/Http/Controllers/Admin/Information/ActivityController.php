@@ -12,6 +12,7 @@ use App\Models\dict_activity_type;
 use App\Models\dict_major_type as dictMajorType;
 use App\Models\zslm_activitys as ZslmActivitys;
 use App\Models\user_accounts as UserAccounts;
+// use App\Models\dict_region as DictRegion;
 use App\Http\Requests\ActivityCreateRequest;
 use App\Http\Requests\ActivityUpdateRequest;
 use App\Models\system_setup as SystemSetup;
@@ -213,6 +214,8 @@ class ActivityController extends Controller
     }
 
 
+
+
     /**
      * @api {post} admin/information/getActivityPageCount 获取活动列表页分页数据总数
      * @apiGroup information
@@ -394,7 +397,7 @@ class ActivityController extends Controller
 
 
     //设置活动的权重
-    public  function updateActivityWeight(Request $request){
+    public function updateActivityWeight(Request $request){
         if(!$request->isMethod('post'))
             return responseToJson(1,'request error');
         if(!isset($request->id) && !is_numeric($request->id))
@@ -402,7 +405,7 @@ class ActivityController extends Controller
         if(!isset($request->showWeight) && !is_numeric($request->showWeight))
             return responseToJson(1,'no showWeight or showWeight is not number');
         
-        $result = ZslmMajor::setAppiMajorState(['major_id' => $request->id,  'type' => 0, 'state' => $request->showWeight]);
+        $result = ZslmActivitys::setWeight($request->id, $request->showWeight);
         return  $result ? responseToJson(0,'success') : responseToJson(1,'error');
     }
     
@@ -781,6 +784,15 @@ class ActivityController extends Controller
         return responseToJson(0, '', Dict::getActivityType());
     }
 
+
+    /**\
+     * 获得活动类型和市字典
+     */
+    public function getAcTypeAndCity() {
+        $type = Dict::getActivityType()->toArray();
+        $city = dictRegion::getCity()->toArray();
+        return responseToJson(0, '', ['acType' => $type, 'city' => $city]);
+    }
 
     /**
      * @api {post} admin/information/getMajorType 获得专业类型字典
@@ -1471,6 +1483,73 @@ class ActivityController extends Controller
         }
         return responseToJson(0,'success',[$activeObj,$majorObj]);
         
+    }
+
+
+
+
+    /**
+     * 辅导机构中设置相关活动时添加活动页面查询活动列表接口
+     *  name
+     *  showstate
+     *  recommendedState
+     *  signState
+     *  actType
+     *  city
+     *  pageNumber
+     *  pagecount
+     *  sortType
+     */
+    public function getCoachRecommendAc(Request $request) {
+        if(!$request->isMethod('get')) return responseToJson(2, '请求方式失败');
+        
+        $rules = [
+            'name' =>'nullable|string|max:255',
+            'showstate' => 'numeric',
+            'recommendedState' => 'numeric',
+            'signState' => 'numeric',
+            'actType' => 'numeric',
+            'city' => 'numeric',
+            'pageNumber' => 'numeric',
+            'pagecount' => 'numeric',
+            'sortType'  => 'numeric'
+        ];
+        
+        $message = [
+            'name.max' =>'搜索关键字超过最大长度',
+            'showstate.*'             => '参数错误',
+            'recommendedState.*'            => '参数错误',
+            'signState.*'             => '参数错误',
+            'actType.*'             => '参数错误',
+            'city.*'             => '参数错误',
+            'pageNumber.*'             => '参数错误',
+            'pagecount.*'             => '参数错误',
+            'sortType.*'             => '参数错误',
+        ];
+        $validator = Validator::make($request->all(), $rules, $message);
+        if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
+
+        $ac_arr = ZslmActivitys::getCoachRecommendAc($request->all());
+        
+        if(empty($ac_arr[0]) || count($ac_arr[0]->toArray()) < 1) return responseToJson(0, '没有数据', $ac_arr);
+        $ac_arr[0] = $ac_arr[0]->toArray(); 
+        
+        $type = Dict::getActivityType()->toArray();
+        $city = dictRegion::getAllArea()->toArray();
+
+        foreach($ac_arr[0] as $key => $item) {
+            foreach($type as $keys => $value) {
+                if($item->active_type == $value->id) $ac_arr[0][$key]->active_type = $value->name;
+            }
+            foreach($city as $keses => $values) {
+                if($item->province == $values->id) $ac_arr[0][$key]->province = $values->name;
+            }
+            $ac_arr[0][$key]->show_state = $item->show_state ? '不展示' : '展示';
+            $ac_arr[0][$key]->recommended_state = $item->recommended_state ? '不推荐' : '推荐';
+            $ac_arr[0][$key]->sign_up_state = $item->sign_up_state ? '可设提醒' : '可报名';
+        }
+
+        return responseToJson(0, '', $ac_arr);
     }
     
 

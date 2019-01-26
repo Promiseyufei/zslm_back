@@ -79,6 +79,55 @@ class zslm_activitys
                 'dict_activity_type.name']);
         return count($get_page_msg )>= 0 ? [$get_page_msg,$count] : false;
     }
+
+
+
+    /**
+     * 辅导机构中设置相关活动时添加活动页面查询活动列表接口
+     *  name
+     *  showstate
+     *  recommendedState
+     *  signState
+     *  actType
+     *  city
+     *  pageNumber
+     *  pagecount
+     */
+    public static function getCoachRecommendAc(array $val = []) {
+        $handle = DB::table(self::$sTableName)
+            ->leftJoin('activity_relation',  self::$sTableName.'.id' , '=','activity_relation.activity_id')
+            ->leftJoin('zslm_major', 'zslm_major.id', '=','activity_relation.host_major_id')
+            ->where(self::$sTableName.'.is_delete',0);
+        $sort_type = [0=>[self::$sTableName . '.show_weight','asc'], 1=>[self::$sTableName . '.show_weight','desc'], 2=>[self::$sTableName . '.update_time','desc']];
+        if(isset($val['name'])) $handle = $handle->where('active_name', 'like', '%' . $val['name'] . '%');
+        if($val['showstate'] != 2){
+            self::judgeScreenState($val['showstate'], 'show_state', $handle);
+            self::judgeScreenState($val['showstate'], 'show_state', $handle);
+        }
+        if($val['recommendedState'] != 2){
+            self::judgeScreenState($val['recommendedState'], 'recommended_state', $handle);
+            self::judgeScreenState($val['recommendedState'], 'recommended_state', $handle);
+        }
+        if($val['signState'] != 2){
+            self::judgeScreenState($val['signState'], 'sign_up_state', $handle);
+            self::judgeScreenState($val['signState'], 'sign_up_state', $handle);
+        }
+        if($val['actType'] != 0) $handle = $handle->where('active_type', $val['actType']);
+        if($val['city'] != 0) $handle = $handle->where('province', $val['city']);
+
+        $count = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])->count();
+    
+ 
+        $get_page_msg = $handle->orderBy($sort_type[$val['sortType']][0], $sort_type[$val['sortType']][1])
+        ->offset($val['pagecount'] * ($val['pageNumber']-1))
+        ->limit($val['pagecount'])->get([self::$sTableName.'.id','active_name','active_type',
+                self::$sTableName.'.province','z_name','sign_up_state',
+                self::$sTableName.'.show_state',self::$sTableName.'.recommended_state']);
+        return count($get_page_msg )>= 0 ? [$get_page_msg,$count] : false;
+    }
+
+
+
     
     public static function getActivityAll(array $val = []) {
         
@@ -188,7 +237,7 @@ class zslm_activitys
     public static function setWeight ($id,$weight){
         return DB::table(self::$sTableName)
             ->where('id', $id)
-            ->update(['show_weight'=>$weight]);
+            ->update(['show_weight'=>$weight, 'update_time' => time()]);
     }
 
     
@@ -196,13 +245,13 @@ class zslm_activitys
     public static function setShow ($id,$weight){
         return DB::table(self::$sTableName)
             ->where('id', $id)
-            ->update(['show_state'=>$weight]);
+            ->update(['show_state'=>$weight, 'update_time' => time()]);
     }
     
     public static function setRec ($id,$rec){
         return DB::table(self::$sTableName)
             ->where('id', $id)
-            ->update(['recommended_state'=>$rec]);
+            ->update(['recommended_state'=>$rec, 'update_time' => time()]);
     }
     /**
      * setTKDByid

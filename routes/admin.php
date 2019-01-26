@@ -205,6 +205,10 @@
             Route::post('cancelAppointMajorAllRe', 'ActivityController@cancelAppointMajorAllRe');
             
             Route::get('getActivityAll', 'ActivityController@getActivityAll');
+
+            Route::get('getCoachRecommendAc', 'ActivityController@getCoachRecommendAc');
+
+            Route::get('getAcTypeAndCity', 'ActivityController@getAcTypeAndCity');
             
             Route::get('getguanlian', 'ActivityController@getGuanlianById');
             
@@ -271,8 +275,17 @@
              * 辅导机构　
              */
             
+            
+
+            Route::post('setCoachActivity', 'CoachOrganizeController@setCoachActivity');
 
             Route::post('updateCoachTime', 'CoachOrganizeController@updateCoachTime');
+
+            Route::post('cancelAllReActivity', 'CoachOrganizeController@cancelAllReActivity');
+
+            Route::post('cancelRelevanActivity', 'CoachOrganizeController@cancelRelevanActivity');
+            
+            Route::get('getAppoinCoachRelevantActivity', 'CoachOrganizeController@getAppoinCoachRelevantActivity');
 
             Route::get('getAppointCoachCoupon', 'CoachOrganizeController@getAppointCoachCoupon');
 
