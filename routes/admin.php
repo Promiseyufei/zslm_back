@@ -192,8 +192,6 @@
              */
     
             
-            
-            
             Route::post('cancelAppointRecommendActivity', 'ActivityController@cancelAppointRecommendActivity');
 
             Route::post('setActivitydynamic', 'ActivityController@setActivitydynamic');
@@ -362,6 +360,8 @@
              * 资讯模块　information模块
              */
             
+            Route::post('setInformationdynamic', 'InformationController@setInformationdynamic');
+
             Route::post('getInfoPageMsg', 'InformationController@getInfoPageMsg');
             
             Route::post('getInfoPageCount', 'InformationController@getInfoPageCount');

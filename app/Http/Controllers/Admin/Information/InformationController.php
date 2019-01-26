@@ -13,6 +13,7 @@ use App\Models\information_major as InformationMajor;
 use App\Models\user_follow_major as UserFollowMajor;
 use App\Models\zslm_information as ZslmInformation;
 use App\Models\system_setup as SystemSetup;
+use App\Models\dynamic_news as DynamicNews;
 use App\Http\Requests\InfoCreateRequest;
 use App\Http\Requests\InfoUpdateRequest;
 use App\Models\zslm_information;
@@ -532,7 +533,6 @@ class InformationController extends Controller
         $re_info_arr = InformationMajor::selectAppointRelation($info_id)->toArray();
 
         $major_id_arr = array_diff($major_id_arr, $re_info_arr);  //返回差集
-        
 
         $relevan_id = InformationMajor::setAppointRelevantMajor($info_id, $major_id_arr);
 
@@ -648,16 +648,76 @@ class InformationController extends Controller
     }
 
 
+    /**
+     * @api {post} admin/information/setInformationdynamic 活动作为院校动态更新推送给关注了主办院校的用户
+     * @apiGroup information
+     *
+     * @apiParam {Number} infoId 咨询的id
+     *
+     * @apiSuccessExample　{json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     * "code": 0,
+     * "msg": "设置成功"
+     * }
+     *
+     * @apiError　{Object[]} error　 这里是失败时返回实例
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 40x
+     *     {
+     *       "code": "1",
+     *        "msg": '更新失败/参数错误'
+     *     }
+     *
+     *      HTTP/1.1 5xx
+     *     {
+     *       "code": "2",
+     *        "msg": '请求方式错误'
+     *     }
+     */
+    public function setInformationdynamic(Request $request) {
+        if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
+        $info_id = (isset($request->infoId) && is_numeric($request->infoId)) ? $request->infoId : 0;
 
+        if($info_id == 0) return responseToJson(1, '参数错误');
+        $major_id_arr = InformationMajor::selectAppointRelation($info_id)->toArray();
+        if(empty($major_id_arr) || count($major_id_arr) < 1) return responseToJson(1, '该咨询还没有设置相关院校');
+
+        $follow_major_id_arr = UserFollowMajor::getAppointMajorRelevantUser($major_id_arr);
+
+        // if(is_array($follow_major_id_arr) && count($follow_major_id_arr) < 1) return responseToJson(1, '没有用户关注该活动的主办院校');
+        try {
+            $time = time();
+            $data_arr = [];
+            foreach($follow_major_id_arr as $key => $user_id) {
+                array_push($data_arr, [
+                    'user_id' => $user_id,
+                    'content_id' => $info_id,
+                    'content_type' => 1,
+                    'status' => 0,
+                    'create_time' => $time
+                ]);
+            } 
+            // return responseToJson(0, '发送成功', $follow_major_id_arr);
+            $is_create = DynamicNews::setDynamic($data_arr);
+            if($is_create) return responseToJson(0, '发送成功', $follow_major_id_arr);
+            else throw new \Exception('发送失败');
+        }catch(\Exception $e) {
+            return responseToJson(1, $e->getMessage());
+        }
+    }
 
 
 
     /**
-     * @api {post} admin/information/sendInfoDynamic 设置指定资讯作为院校动态更新推送给关注了相关院校的用户（插入消息表，并和用户进行关联，推送到个人中心－院校动态中）/资讯作为新消息内容发送给关注了主办院校的用户（插入消息表，并和用户关联，推送到消息中心中）
+     * @api {post} admin/information/sendInfoDynamic 设置指定资讯作为新消息更新推送给关注了相关院校的用户
      * @apiGroup information
      *
      * @apiParam {Number} infoId 活动的id
-     * @apiParam {Number} newOrDyna 设置类别(0作为院校动态；1作为新消息)
+     * @apiParam {String} contexts 
+     * @apiParam {String} url 
+     * 
      *
      * @apiSuccessExample　{json} Success-Response:
      * HTTP/1.1 200 OK
@@ -686,9 +746,9 @@ class InformationController extends Controller
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
 
         $info_id = (($request->infoId ?? false) && is_numeric($request->infoId)) ? $request->infoId : 0;
-        $new_or_dyna = is_numeric($request->newOrDyna) ? $request->newOrDyna : -1;
+        // $new_or_dyna = is_numeric($request->newOrDyna) ? $request->newOrDyna : -1;
 
-        if(empty($info_id) || $new_or_dyna < 0) return responseToJson(1, '参数错误');
+        // if(empty($info_id) || $new_or_dyna < 0) return responseToJson(1, '参数错误');
 
         $appoint_major_arr = InformationMajor::selectAppointRelation($info_id)->toArray();
         
@@ -697,7 +757,7 @@ class InformationController extends Controller
         
         $app_users = UserFollowMajor::getAppointMajorRelevantUser($appoint_major_arr)->toArray();
         
-        if(count($app_users) < 1) return responseToJson(1, '暂无指定的用户');
+        if(count($app_users) < 1) return responseToJson(1, '当前没有关注这些相关院校的用户');
         
         //通过院校专业id获得所有的用户id，然后进行去重
         $users_id_arr = array_unique($app_users);
@@ -706,38 +766,43 @@ class InformationController extends Controller
         try {
             DB::beginTransaction();
 
-            $type = $new_or_dyna ? 2 : 3;
+            // $type = $new_or_dyna ? 2 : 3;
 
             $create_news_id = News::createNews([
                 'carrier'     => 1,
-                'news_title'  => $info_msg->zx_name,
-                'context'     => (mb_strlen($info_msg->z_text, 'utf-8') > 20) ? (mb_substr($info_msg->z_text, 0, 40, 'gb2312') . '...') : $info_msg->z_text,
-                'type'        => $type,
-                'create_time' => time()
+                'news_title'  => trim($request->contexts) == '' ? $activity_msg->active_name : trim($request->contexts),
+                'context'     => (mb_strlen($info_msg->z_text, 'utf-8') > 50) ? (mb_substr($info_msg->z_text, 0, 50, 'gb2312') . '...') : $info_msg->z_text,
+                'type'        => 1,
+                'url'          => $request->url,
+                'create_time'  => time(),
+                'is_delete'    => 0,
+                'success'      => 1
             ]);
 
             // dd($create_news_id);
 
-            if(is_array($users_id_arr) && !empty($users_id_arr) && $create_news_id > 0) {
-                $now_time = time();
-                $data_arr = [];
-                foreach($users_id_arr as $key => $user_id)
-                    array_push($data_arr, [
-                        'news_id' => $create_news_id, 
-                        'user_id' => $user_id, 
-                        'status' => 0, 
-                        'create_time' => $now_time
-                    ]);
-
-                $is_create = NewsUsers::createNewsRelationUser($data_arr);
-
-                if($is_create) {
-                    DB::commit();
-                    return responseToJson(0, '发送成功');
+            if($create_news_id > 0) {
+                if(is_array($users_id_arr) && !empty($users_id_arr) && $create_news_id > 0) {
+                    $now_time = time();
+                    $data_arr = [];
+                    foreach($users_id_arr as $key => $user_id)
+                        array_push($data_arr, [
+                            'news_id' => $create_news_id, 
+                            'user_id' => $user_id, 
+                            'status' => 0, 
+                            'create_time' => $now_time
+                        ]);
+    
+                    $is_create = NewsUsers::createNewsRelationUser($data_arr);
+    
+                    if($is_create) {
+                        DB::commit();
+                        return responseToJson(0, '发送成功');
+                    }
+                    else throw new \Exception('发送失败');
                 }
-                else throw new \Exception('发送失败');
-            }
-            else throw new \Exception('获得参数失败');
+                else throw new \Exception('当前没有关注这些相关院校的用户');
+            } else throw new \Exception('插入消息失败');
 
         }catch(\Exception $e) {
             DB::rollback();//事务回滚
