@@ -364,7 +364,11 @@ class zslm_information
         
     }
     
-
+    public static function getRelevantMajor($infoId) {
+        return DB::table(self::$sTableName)
+        ->leftJoin('activity_relation', self::$sTableName . '.id', '=', 'activity_relation.activity_id')
+        ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')->where(self::$sTableName . '.id', $activityId)->select('zslm_major.id', 'z_name', 'magor_logo_name')->first();
+    }
 
 
 }
