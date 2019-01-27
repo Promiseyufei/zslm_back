@@ -10,8 +10,9 @@ use Illuminate\Http\Request;
 use Gregwar\Captcha\CaptchaBuilder;
 use Gregwar\Captcha\PhraseBuilder;
 use Session;
+use Illuminate\Support\Facades\Redis;
 class CodeController extends Controller{
-    public function captcha($temp)
+    public function captcha(Request $request)
     {
         if(extension_loaded('gd')) {
             $builder = new CaptchaBuilder();
@@ -19,7 +20,10 @@ class CodeController extends Controller{
             $phrase = $builder->getPhrase();
             //把内容存入session
             // if(Session::has('milkcaptcha') Session::forget('milkcaptcha');
-            Session::flash('milkcaptcha', $phrase); //存储验证码
+//            Session::flash('milkcaptcha', $phrase); //存储验证码
+            Redis::set($request->get('UUID').'milkcaptcha',$phrase);
+       
+         
             ob_clean();
             return response($builder->output())->header('Content-type','image/jpeg');
         }

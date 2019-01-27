@@ -90,6 +90,8 @@ class FilesController extends Controller
         $zhaosheng = MajorFiles::getCountZhaos();
         for($i = 0;$i<sizeof($serachData[0]);$i++){
             $serachData[0][$i]->create_time = date('Y-m-d', $serachData[0][$i]->create_time);
+            $serachData[0][$i]->file_url = splicingImgStrPro('major_file/',$serachData[0][$i]->file_url);
+            
         }
         return $serachData != null ? responseToJson(0,'success',['data'=>$serachData[0],'dataCount'=>$serachData[1],'zhaos'=>$zhaosheng]) : responseToJson(1,'no data');
     }
@@ -97,8 +99,14 @@ class FilesController extends Controller
     public  function getOneMajorFile(Request $request){
         if(!isset($request->majorId) || !is_numeric(intval($request->majorId)))
             return responseToJson(1,FORMAT_ERROR);
-        
+    
         $serachData = MajorFiles::getOneMajorFile($request);
+       
+        for($i = 0;$i<sizeof($serachData);$i++){
+            $serachData[$i]->create_time = date('Y-m-d', $serachData[$i]->create_time);
+            $serachData[$i]->file_url = splicingImgStrPro('major_file/',$serachData[$i]->file_url);
+        
+        }
         return responseToJson(0,"success",['data'=> $serachData]);
     }
     

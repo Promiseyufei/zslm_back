@@ -121,6 +121,7 @@ class BillboardController extends Controller
                 if(count($url_bt) >= 0) {
                     foreach($url_bt as $key => &$value) {
                         $value->create_time = date('Y-m-d H:i:s', $value->create_time);
+                        $value->img_real_path = splicingImgStr('admin','operate',$value->img);
                     }
                     return responseToJson(0,'',$url_bt);
                 }
