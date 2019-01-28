@@ -231,8 +231,8 @@ class StudentProjectController extends Controller
     public function setProjectState(Request $request) {
         if($request->isMethod('post')) {
             $pro_id = (isset($request->projectId) && is_numeric($request->projectId)) ? $request->projectId : 0;
-            $type = (isset($request->type) && is_numeric($request->type)) ? $request->type : -1;
-            $state = (isset($request->state) && is_numeric($request->state)) ? $request->state : -1;
+            $type = (is_numeric($request->type)) ? $request->type : -1;
+            $state = (is_numeric($request->state)) ? $request->state : -1;
 
             if($pro_id > 0 && $type != -1 && $state != -1) {
                 if($type > 0 && $state > 1) return responseToJson(1, '状态值错误');
