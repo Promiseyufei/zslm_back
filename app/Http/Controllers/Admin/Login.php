@@ -58,7 +58,7 @@
             $login = admin_accounts::selectAccountByPass($request);
             
             admin_accounts::updateLoginTime($request);
-            if(count($login) == 1){
+            if($login!= null){
                 session(['admin_account'=>$request->account]);
                 Redis::setex($request->header('UUID'),86400000,'login');
                 return responseToJson(0,'success');
