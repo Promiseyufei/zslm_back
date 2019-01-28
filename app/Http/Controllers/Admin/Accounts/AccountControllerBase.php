@@ -178,7 +178,6 @@
                         
                         $insutry = strChangeArr($data[$i]->industry,EXPLODE_STR);
                         $return_ins = '';
-                        dd($insutry);
                         for($z = 0;$z<count($insutry);$z++){
                             $return_ins.= $this->findIndustry(intval($insutry[$z]),$insutrys);
                         }
