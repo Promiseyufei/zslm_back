@@ -7,7 +7,10 @@
     
     Route::get('/test', 'TestController@showProfile');
     
-    Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
+    Route::post('/admin/login', 'Admin\Login@validateLogin');
+    Route::get('/admin/createuuid', 'Admin\Login@createUUID');
+    
+    Route::group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'login'], function () {
 
 
         Route::group(['prefix' => 'dispen', 'namespace' => 'Dispensing'], function () {
@@ -40,6 +43,7 @@
             Route::get('getcouponone', 'AccountsController@getCouponOneUser');
             Route::get('getactivityuser', 'AccountsController@getActivityUser');
             Route::get('getactivityoneuser', 'AccountsController@getActivityOneUser');
+            Route::get('getaccountloginmsg', 'AccountsController@getAccountLoginMsg');
             
         });
         
@@ -60,7 +64,7 @@
             Route::post('setAppointInfoState', 'InformationController@setAppointInfoState');
     
             Route::post('selectInfoReception', 'InformationController@selectInfoReception');
-    
+            
             Route::post('updateAppointInfoMsg', 'InformationController@updateAppointInfoMsg');
     
             Route::post('deleteAppointInfo', 'InformationController@deleteAppointInfo');
@@ -96,6 +100,8 @@
             Route::post('getAppointInfoRecommendMajor', 'InformationController@getAppointInfoRecommendMajor');
     
             Route::post('getAppointInfoRelevantMajor', 'InformationController@getAppointInfoRelevantMajor');
+    
+            
     
         });
         
@@ -399,10 +405,15 @@
             Route::post('updateInfoTextMsg', 'InformationController@updateInfoTextMsg');
             
             Route::post('getAppointInfoRecommendRead', 'InformationController@getAppointInfoRecommendRead');
+            
             Route::post('delinfos', 'InformationController@delInfos');
+            
             Route::post('delappoinrelevantmajor', 'InformationController@delAppoinRelevantMajor');
-            
-            
+    
+            /**
+             * 轮询获取消息提醒
+             */
+            Route::get('getding', 'InformationController@getDing');
         });
         
         

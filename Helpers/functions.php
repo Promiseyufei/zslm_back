@@ -506,3 +506,14 @@ function changeStringToInt($val){
     function hebingArr($arr1, $arr2) {
         return array_keys(array_flip($arr1)+array_flip($arr2));
     }
+    
+     /**
+      * @param $url 文件路径，文件的根已经定在了public/storage/，url的值一般都是public/storage/下的某个目录，如 test/test/ 也就是public/storage/test/test/目录
+      * url必须前面不能加目录符，后面必须要加目录符
+      * @param $name 文件名称
+      *
+      * @return string
+      */
+     function splicingImgStrPro($url, $name) {
+         return 'http://' . $_SERVER['HTTP_HOST'] . '/storage/'.$url . $name;
+     }

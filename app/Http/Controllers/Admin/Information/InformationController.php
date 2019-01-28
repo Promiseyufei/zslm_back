@@ -6,6 +6,8 @@
 
 namespace App\Http\Controllers\Admin\Information;
 
+use App\Models\opinion_feedback;
+use App\Models\refund_apply;
 use Illuminate\Support\Facades\Storage;
 use App\Models\information_major;
 use App\Models\information_relation as InfomationRelation;
@@ -287,7 +289,7 @@ class InformationController extends Controller
         if($info_id != 0) {
             $info = ZslmInformation::getAppointInfoMsg($info_id);
         
-        if($info->z_image != '') $info->z_image = 'http://localhost:81/zslm_back/storage/app/admin/info/' . $info->z_image;
+        if($info->z_image != '') $info->z_image = splicingImgStr('admin','info',$info->z_image);
         return is_object($info) ? responseToJson(0, '', $info) : responseToJson(1, '获取信息失败');
         }
     }
@@ -1214,5 +1216,14 @@ class InformationController extends Controller
 
 
 
+    /**
+     * 轮询获取信息
+     */
+    
+    public function getDing(Request $request){
+        $r_count = refund_apply::getNoAccessMsg();
+        $o_count = opinion_feedback::getNoViewMsg();
+        return responseToJson(0,'success',['refund'=>$r_count,'opinion'=>$o_count]);
+    }
 
 }

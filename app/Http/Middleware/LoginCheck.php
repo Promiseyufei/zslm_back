@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Redis;
 
 class LoginCheck
 {
@@ -15,6 +16,10 @@ class LoginCheck
      */
     public function handle($request, Closure $next)
     {
+        $UUID = $request->header('UUID');
+        if(!empty($UUID) && Redis::exists($UUID) == 0 && Redis::get($UUID) == null){
+            return responseToJson(1,"您尚未登录");
+        }
         return $next($request);
     }
 }
