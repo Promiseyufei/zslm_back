@@ -11,6 +11,7 @@ use App\Http\Controllers\Auto\Sms\SmsController;
 use App\Models\zslm_activitys as ZslmActivitys;
 use App\Models\user_accounts as UserAccounts;
 use App\Models\zslm_major as ZslmMajor;
+use App\Models\dict_region as DictRegion;
 use App\Models\news_users as NewsUsers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -82,6 +83,12 @@ class SendNewsController extends Controller
         $get_all_user = UserAccounts::getAllAccounts($page_count, $page_num);
 
         SendNewsController::setProvinceCity($get_all_user);
+        $get_all_user['map']->map(function($item) {
+            $item->sex = $item->sex ? '女' : '男';
+            return $item;
+        });
+
+        dd($get_all_user);
 
         return ((is_array($get_all_user) || is_object($get_all_user)) && count($get_all_user) > 0) ? responseToJson(0, '', $get_all_user) : responseToJson(1, '未查询到用户数据');
 
@@ -94,11 +101,17 @@ class SendNewsController extends Controller
         foreach($get_all_user['map'] as $key => $item) {
             if($item->address != null) {
                 $get_all_user['map'][$key]->address = strChangeArr($item->address, ',');
-                foreach($province[$item->address[0]]->citys as $value) 
-                    if($item->address[1] == $value->id) $get_all_user['map'][$key]->address[1] = $value->name;
+                // return responseToJson(0, '', $province);
+                if(!empty($province[$item->address[0]]->citys)) {
+                    foreach($province[$item->address[0]]->citys as $value) 
+                        if($item->address[1] == $value->id) $get_all_user['map'][$key]->address[1] = $value->name;
+                }
+                else $get_all_user['map'][$key]->address[1] = '';
     
                 $get_all_user['map'][$key]->address[0] = $province[$item->address[0]]->name;
-                $get_all_user['map'][$key]->address = $get_all_user['map'][$key]->address[0] . '-' . $get_all_user['map'][$key]->address[1];
+                if($get_all_user['map'][$key]->address[1] != '')
+                    $get_all_user['map'][$key]->address = $get_all_user['map'][$key]->address[0] . '-' . $get_all_user['map'][$key]->address[1];
+                else $get_all_user['map'][$key]->address = $get_all_user['map'][$key]->address[0];
             }
             $get_all_user['map'][$key]->create_time = date("Y-m-d H:i",$item->create_time);
             if($item->update_time != null)  $get_all_user['map'][$key]->update_time = date("Y-m-d H:i",$item->update_time);
@@ -106,6 +119,27 @@ class SendNewsController extends Controller
         }
 
     }
+
+    // public static function setProvinceCitys(&$get_all_user) {
+
+    //     $province = getMajorProvincesAndCity()[0];
+
+    //     foreach($get_all_user['map'] as $key => $item) {
+    //         if($item->address != null) {
+    //             $get_all_user['map'][$key]->address = strChangeArr($item->address, ',');
+    //             return responseToJson(0, '', $get_all_user['map'][$key]->address);
+    //             foreach($province[$item->address[0]]->citys as $value) 
+    //                 if($item->address[1] == $value->id) $get_all_user['map'][$key]->address[1] = $value->name;
+    
+    //             $get_all_user['map'][$key]->address[0] = $province[$item->address[0]]->name;
+    //             $get_all_user['map'][$key]->address = $get_all_user['map'][$key]->address[0] . '-' . $get_all_user['map'][$key]->address[1];
+    //         }
+    //         $get_all_user['map'][$key]->create_time = date("Y-m-d H:i",$item->create_time);
+    //         if($item->update_time != null)  $get_all_user['map'][$key]->update_time = date("Y-m-d H:i",$item->update_time);
+    //         ($item->head_portrait != "") ? ($get_all_user['map'][$key]->head_portrait = "自定义") : ($get_all_user['map'][$key]->head_portrait = "系统默认");
+    //     }
+
+    // }
 
 
 
@@ -174,13 +208,13 @@ class SendNewsController extends Controller
         
         if(isset($major_arr) && isset($activity_arr) && $condition < 0) return responseToJson(1, '请选择专业和活动的关系');
 
-        var_dump([
-            'page_num'      => $page_num,
-            'condition'     => $condition,
-            'major_arr'     => $major_arr,
-            'page_count'    => $page_count,
-            'activity_arr'  => $activity_arr
-        ]);
+        // var_dump([
+        //     'page_num'      => $page_num,
+        //     'condition'     => $condition,
+        //     'major_arr'     => $major_arr,
+        //     'page_count'    => $page_count,
+        //     'activity_arr'  => $activity_arr
+        // ]);
         $get_users_msg = UserAccounts::getBatchAccounts([
             'page_num'      => $page_num,
             'condition'     => $condition,
@@ -189,7 +223,37 @@ class SendNewsController extends Controller
             'activity_arr'  => $activity_arr
         ]);
 
-        return (is_array($get_users_msg) && count($get_users_msg) > 0) ? responseToJson(0, '', $get_users_msg) : responseToJson(1, '没有指定的用户');
+        if(count($get_users_msg['users']) > 0) {
+            $province = DictRegion::getAllArea()->toArray();
+            foreach($get_users_msg['users'] as $key => $item) {
+                $get_users_msg['users'][$key]->create_time = date("Y-m-d H:i:s",$item->create_time);
+                $get_users_msg['users'][$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
+                $get_users_msg['users'][$key]->sex = $item->sex ? '女' : '男';
+                $get_users_msg['users'][$key]->head_portrait = splicingImgStr('front', 'user', $item->head_portrait);
+                if(!strstr($item->address, ',')) {
+                    foreach($province as $keys => $pro) {
+                        if($item->address == $pro->id) {
+                            $get_users_msg['users'][$key]->address = $pro->name;
+                            break;
+                        } 
+                    }
+                }
+                else {
+                    $get_users_msg['users'][$key]->address = strChangeArr($item->address, ',');
+                    foreach($province as $keyss => $pros) {
+                        if(!is_numeric($get_users_msg['users'][$key]->address[0]) && !is_numeric($get_users_msg['users'][$key]->address[1])) break;
+                        if($get_users_msg['users'][$key]->address[0] == $pros->id) $get_users_msg['users'][$key]->address[0] = $pros->name;
+                        else if($get_users_msg['users'][$key]->address[1] == $pros->id) $get_users_msg['users'][$key]->address[1] = $pros->name;
+                    }
+                    $get_users_msg['users'][$key]->address = $get_users_msg['users'][$key]->address[0] .  ' - ' . $get_users_msg['users'][$key]->address[1];
+                }
+
+            }
+            
+        }
+
+
+        return (is_array($get_users_msg['users']) && count($get_users_msg['users']) > 0) ? responseToJson(0, '', $get_users_msg) : responseToJson(1, '没有指定的用户');
 
     }
 

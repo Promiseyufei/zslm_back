@@ -497,3 +497,12 @@ function changeStringToInt($val){
     function splicingImgStr($direction, $range, $name) {
         return 'http://' . $_SERVER['HTTP_HOST'] . '/storage/' . $direction . '/' . $range . '/' . $name;
     }
+
+
+
+    /**
+     * 合并两个一维数组并去重
+     */
+    function hebingArr($arr1, $arr2) {
+        return array_keys(array_flip($arr1)+array_flip($arr2));
+    }

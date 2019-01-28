@@ -56,7 +56,7 @@ class news
         ->select('news_title', 'context', 'url', 'carrier', 'type', 'create_time', 'success')
         ->first();
 
-        $news->create_time = date('Y-m-d H:i:s', $news->create_time);
+        
 
         return $news;
 
