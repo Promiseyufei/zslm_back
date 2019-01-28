@@ -67,6 +67,15 @@
         }
         
      
+        public function loginout(Request $request){
+            $uuid = $request->header('UUID');
+             $result = Redis::del($uuid);
+            if($result == 1)
+                return responseToJson(0,'success');
+            
+            return responseToJson(1,'error');
+            
+        }
         
         public function createUUID(){
             return responseToJson(0,'success',UUID::generate()->string);
