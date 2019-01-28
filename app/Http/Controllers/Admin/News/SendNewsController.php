@@ -88,7 +88,7 @@ class SendNewsController extends Controller
             return $item;
         });
 
-        dd($get_all_user);
+        // dd($get_all_user);
 
         return ((is_array($get_all_user) || is_object($get_all_user)) && count($get_all_user) > 0) ? responseToJson(0, '', $get_all_user) : responseToJson(1, '未查询到用户数据');
 
@@ -374,7 +374,7 @@ class SendNewsController extends Controller
 
         $user_arr = (isset($request->userArr) && is_array($request->userArr)) ? $request->userArr : [];
 
-        $carrier = (($request->carrier ?? false) && is_numeric($request->carrier)) ? $request->carrier : -1;
+        $carrier = (is_numeric($request->carrier)) ? $request->carrier : -1;
 
         $type = (($request->type ?? false) && is_numeric($request->type)) ? $request->type : -1;
         
@@ -385,6 +385,7 @@ class SendNewsController extends Controller
 
         $pattern='@(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|([\s()<>]+|(\([\s()<>]+))*\))+(?:([\s()<>]+|(\([\s()<>]+))*\)|[^\s`!(){};:\'".,<>?«»“”‘’]))@';
 
+        // dd(($carrier));
         if(count($user_arr) < 1 || $carrier < 0 || $type < 0 || empty($title) || empty($context) || empty($url)) 
             return responseToJson(1, '请将信息进行完善');
         else if(!preg_match($pattern, $url)) 
@@ -393,6 +394,8 @@ class SendNewsController extends Controller
             return responseToJson(1, '请选择消息类型');
         else if($carrier == 2 && $type == 3)
             return responseToJson(1, '院校动态类消息只能发站内信');
+        
+        // DB::beginTransaction();
         
         $create_news_id = News::createNews([
             'carrier'       => $carrier,
@@ -403,6 +406,8 @@ class SendNewsController extends Controller
             'create_time'   => time()
         ]);
 
+        
+
         $msg = [
             'user_arr'       => $user_arr,
             'carrier'        => $carrier,
@@ -412,6 +417,7 @@ class SendNewsController extends Controller
             'create_news_id' => $create_news_id
         ];
 
+        // dd($msg);
         return $create_news_id ? $this->sendNews($msg) : responseToJson(1, '发送失败');
 
         
@@ -435,6 +441,8 @@ class SendNewsController extends Controller
     private function sendNews($newsMsg) {
         $user_phone_arr = UserAccounts::getAppointUserPhone($newsMsg['user_arr']);
 
+        // dd(count($user_phone_arr));
+
         $sms_message = [];
 
         if(count($user_phone_arr) == 1)
@@ -451,13 +459,14 @@ class SendNewsController extends Controller
                     // 'url' => $url
                 ]);
         
+        
         switch($newsMsg['carrier'])
         {
             case 0:
-                $status = $this->sendSms($user_phone_arr, $sms_message, $newsMsg) && $this->updateNewsStatus($newsMsg['create_news_id']);
+                $status = ($this->sendSms($user_phone_arr, $sms_message, $newsMsg) && $this->updateNewsStatus($newsMsg['create_news_id']));
                 return $status ? responseToJson(0, '发送成功') : responseToJson(1, '发送失败');
             case 1:
-                $status = $this->createNewsUser($newsMsg) && $this->updateNewsStatus($newsMsg['create_news_id']);
+                $status = ($this->createNewsUser($newsMsg) && $this->updateNewsStatus($newsMsg['create_news_id']));
                 return $status ? responseToJson(0, '发送成功') : responseToJson(1, '发送失败');
             case 2:
                 $status = $this->createNewsUser($newsMsg) && $this->sendSms($user_phone_arr, $sms_message, $newsMsg) && $this->updateNewsStatus($newsMsg['create_news_id']);
@@ -467,6 +476,8 @@ class SendNewsController extends Controller
     }
 
     private function sendSms($user_phone_arr, $sms_message, $newsMsg) {
+        if(!is_array($user_phone_arr)) $user_phone_arr = $user_phone_arr->toArray();
+        dd($sms_message);
         $response = count($user_phone_arr) == 1 ? SmsController::sendSms($user_phone_arr[0], $sms_message, '') : SmsController::sendBatchSms($user_phone_arr, '', $sms_message);
 
         return ($response->Message == 'OK' && $response->Code == 'OK') ? true : false;
@@ -481,7 +492,8 @@ class SendNewsController extends Controller
                 'user_id' => $value, 
                 'create_time' => $now_time
                 ]);
-
+                
+                
         $is_create = NewsUsers::createNewsRelationUser($news_user_arr);
 
         return $is_create ? true : false;

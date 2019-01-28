@@ -86,7 +86,7 @@ class HistoricalNewsController extends Controller
                 // (0失败，1成功)
                 $get_all_news_msg['his_news'][$key]->type = ($item->type == 1) ? '个人助手类' : ($item->type == 2 ? '系统消息类' : '默认类型');
                 $get_all_news_msg['his_news'][$key]->carrier = ($item->carrier == 0) ? '短信' : ($item->carrier == 1 ? '站内信' : '短信、站内信');
-                $get_all_news_msg['his_news'][$key]->success = $item->success == 0 ? '成功' : '失败';
+                $get_all_news_msg['his_news'][$key]->success = ($item->success == 0) ? '失败' : '成功';
             }
 
         return ((is_array($get_all_news_msg['his_news']) || is_object($get_all_news_msg['his_news']))) ? responseToJson(0, '', $get_all_news_msg) : responseToJson(1, '查询失败');
