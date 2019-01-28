@@ -127,6 +127,7 @@ class BannerController extends Controller
                     if(count($url_bt) > 0)
                         foreach($url_bt as $key => &$value) {
                             $value->create_time = date('Y-m-d H:i:s', $value->create_time);
+                            $value->img_real_path = splicingImgStr('admin','operate',$value->img);
                         }
                     return responseToJson(0,'',$url_bt);
                 }
@@ -426,14 +427,23 @@ class BannerController extends Controller
                 return false;
 
             try {
-                $exists = Storage::disk('operate')->exists($imgUrl);
-                $exists_new = Storage::disk('operate')->exists($imgNewName);
-                if($exists == true && $exists == !$exists_new) {
-                    $dir_url = dirname(Storage::url($imgUrl));
-                    return rename(Storage::url($imgUrl), $dir_url . $imgNewName);
+//                $exists = Storage::disk('operate')->exists($imgUrl);
+//                $exists_new = Storage::disk('operate')->exists($imgNewName);
+//                if($exists == true && $exists == !$exists_new) {
+//                    $dir_url = dirname(Storage::url($imgUrl));
+//                    return rename(Storage::url($imgUrl), $dir_url . $imgNewName);
+//                }
+               
+                $img_arr = explode('/', $imgNewName);
+                if(count($img_arr) >= 2){
+                    return false;
                 }
-                throw new \Exception('error');
+               $result = Storage::move('public/admin/operate/'.$imgUrl, 'public/admin/operate/'.$imgNewName);
+              
+           
+                return $result;
             } catch(\Exception $e) {
+                dd($e->getMessage());
                 return false;
             }
         }

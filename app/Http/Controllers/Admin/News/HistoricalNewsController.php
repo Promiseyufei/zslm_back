@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\News\SendNewsController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\news as News;
+use App\Models\dict_region as DictRegion;
 use DB;
 
 class HistoricalNewsController extends Controller 
@@ -66,16 +67,29 @@ class HistoricalNewsController extends Controller
 
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
         $keywords = (isset($request->newTitleKeywords) && is_string($request->newTitleKeywords)) ? trim($request->newTitleKeywords) : '';
-        $start_time = isset($request->startTime) ? strtotime($request->startTime) : 0;
-        // var_dump(date("Y-m-d",$start_time+1*24*60*60));
-        $end_time = isset($request->endTime) ? strtotime($request->endTime) : 0;
+        $start_time = !empty($request->startTime) ? strtotime($request->startTime) : 0;
+        // dd($start_time);
+        // dd(date("Y-m-d",$start_time+1*24*60*60));
+
+        $end_time = !empty($request->endTime) ? strtotime($request->endTime) : 0;
+        // dd($end_time);
         $page_count = (isset($request->pageCount) && is_numeric($request->pageCount)) ? $request->pageCount : 0;
         $page_num = (isset($request->pageNumber) && is_numeric($request->pageNumber)) ? $request->pageNumber : -1;
         // if($keywords == '' || $start_time == 0 || $end_time == 0 || ($start_time > $end_time) || $page_count == 0 || $page_num < 0) return responseToJson(1, '参数错误');
-        if(($start_time > $end_time) || $page_count == 0 || $page_num < 0) return responseToJson(1, '参数错误');
+        if($page_count == 0 || $page_num < 0) return responseToJson(1, '参数错误');
         $get_all_news_msg = News::selectAllNewsMsg($keywords, $start_time, $end_time, $page_count, $page_num);
 
-        return ((is_array($get_all_news_msg['his_news']) || is_object($get_all_news_msg['his_news'])) && !empty($get_all_news_msg['his_news'])) ? responseToJson(0, '', $get_all_news_msg) : responseToJson(1, '查询失败');
+        if(!empty($get_all_news_msg['his_news'])) 
+            foreach($get_all_news_msg['his_news'] as $key => $item) {
+                // 1：个人助手类；2：系统消息类；3：院校动态类（只能发站内信））
+                // （0：短信形式；1：站内信形式；2：短信+站内信）
+                // (0失败，1成功)
+                $get_all_news_msg['his_news'][$key]->type = ($item->type == 1) ? '个人助手类' : ($item->type == 2 ? '系统消息类' : '默认类型');
+                $get_all_news_msg['his_news'][$key]->carrier = ($item->carrier == 0) ? '短信' : ($item->carrier == 1 ? '站内信' : '短信、站内信');
+                $get_all_news_msg['his_news'][$key]->success = ($item->success == 0) ? '失败' : '成功';
+            }
+
+        return ((is_array($get_all_news_msg['his_news']) || is_object($get_all_news_msg['his_news']))) ? responseToJson(0, '', $get_all_news_msg) : responseToJson(1, '查询失败');
 
 
 
@@ -131,6 +145,12 @@ class HistoricalNewsController extends Controller
         if($news_id == 0) return responseToJson(1, '参数错误');
 
         $news = News::getAppointNewsMsg($news_id);
+        $news->create_time = date('Y-m-d H:i:s', $news->create_time);
+        $news->carrier = ($news->carrier == 0) ? '短信' : ($news->carrier == 1 ? '站内信' : '短信、站内信');
+        $news->type = ($news->type == 1) ? '个人助手类' : ($news->type == 2 ? '系统消息类' : '默认类型');
+        $news->success = ($news->success == 1) ? '发送成功' : '发送失败';
+        $news->context = strip_tags($news->context);
+        
 
         return (is_object($news) && !empty($news)) ? responseToJson(0, '', $news) : responseToJson(1, '未查询到相关信息');
         
@@ -138,15 +158,39 @@ class HistoricalNewsController extends Controller
 
     //admin/news/getAppointUser
     public function getAppointUser(Request $request) {
-        $count = (isset($request->pageCount) && is_numeric($request->pageCount)) ? $request->pageCount : 1;
-        $num = (isset($request->pageNum) && is_numeric($request->pageNum)) ? $request->pageNum : 10;
+        $count = (isset($request->pageCount) && is_numeric($request->pageCount)) ? $request->pageCount : 10;
+        $num = (isset($request->pageNum) && is_numeric($request->pageNum)) ? $request->pageNum : 1;
         $news_id = (isset($request->newsId) && is_numeric($request->newsId)) ? $request->newsId : 0;
 
         if($news_id == 0) return responseToJson(1, '参数错误');
 
         $news_users = News::getAppointNewsToUsers($count, $num, $news_id);
 
-        SendNewsController::setProvinceCity($news_users);
+        if(count($news_users['map']) > 0) {
+            $province = DictRegion::getAllArea()->toArray();
+            foreach($news_users['map'] as $key => $user) {
+                $news_users['map'][$key]->sex = ($user->sex) == 0 ? '男' : '女';
+                //只是省份
+                if(!strstr($user->address, ',')) {
+                    foreach($province as $keys => $pro) {
+                        if($user->address == $pro->id) {
+                            $news_users['map'][$key]->address = $pro->name;
+                            break;
+                        } 
+                    }
+                }
+                else {
+                    $news_users['map'][$key]->address = strChangeArr($user->address, ',');
+                    foreach($province as $keyss => $pros) {
+                        if(!is_numeric($news_users['map'][$key]->address[0]) && !is_numeric($news_users['map'][$key]->address[1])) break;
+                        if($news_users['map'][$key]->address[0] == $pros->id) $news_users['map'][$key]->address[0] = $pros->name;
+                        else if($news_users['map'][$key]->address[1] == $pros->id) $news_users['map'][$key]->address[1] = $pros->name;
+                    }
+                    $news_users['map'][$key]->address = $news_users['map'][$key]->address[0] .  ' - ' . $news_users['map'][$key]->address[1];
+                }
+            }
+        }
+        // SendNewsController::setProvinceCity($news_users);
 
         return ((is_object($news_users['map']) || is_array($news_users['map'])) && !empty($news_users['map'])) ? responseToJson(0, '', $news_users) : responseToJson(1, '未查询到相关信息');
     }

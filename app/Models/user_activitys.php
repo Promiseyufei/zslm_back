@@ -47,7 +47,12 @@
                     ->where('user_id', $userId)->where('activity_id', $acId)
                     ->update(['status' => $status, 'update_time' => time()]);
             }
+        }
 
+
+        //获得关注活动的用户id
+        public static function getFollowActivityUsers($activityId) {
+            return DB::table(self::$sTableName)->where('activity_id', $activityId)->where('status', 0)->pluck('user_id');
         }
         
         //front

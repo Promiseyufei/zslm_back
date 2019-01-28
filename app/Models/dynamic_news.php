@@ -26,4 +26,11 @@ class dynamic_news
         return $get_dynamic;
 
     }
+
+
+    //插入动态消息关联
+    public static function setDynamic(array $data = []) {
+
+        return DB::table(self::$sTableName)->insert($data);
+    }
 }

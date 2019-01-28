@@ -356,11 +356,13 @@ class OperateIndexController extends Controller
      */
      public function addAppoinInformations(Request $request) {
         $inform_arr = isset($request->informArr) && is_array($request->informArr) ? $request->informArr : [];
+  
         if(empty($inform_arr)) return responseToJson(1, '请选择加入推荐的咨询');
         $appoint_id = isset($request->appointId) && is_numeric($request->appointId) ? $request->appointId : -1;
         if($appoint_id > -1) {
+            
             $is_update = InformationIndexRegion::addRegionInform($appoint_id, $inform_arr);
-            return $is_update ? responseToJson(0, '添加成功') : responseToJson(1, '添加失败');
+            return $is_update>0 ? responseToJson(0, '添加成功') : responseToJson(1, '添加失败');
         }
         else 
             return responseToJson(1, '请选择区域');

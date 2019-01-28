@@ -11,12 +11,15 @@ use App\Http\Controllers\Auto\Sms\SmsController;
 use App\Models\zslm_activitys as ZslmActivitys;
 use App\Models\user_accounts as UserAccounts;
 use App\Models\zslm_major as ZslmMajor;
+use App\Models\dict_region as DictRegion;
 use App\Models\news_users as NewsUsers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\news as News;
-
+use Excel;
 use DB;
+
+define('EXCEL_NAME','手机号导出表');
 
 class SendNewsController extends Controller 
 {
@@ -82,6 +85,12 @@ class SendNewsController extends Controller
         $get_all_user = UserAccounts::getAllAccounts($page_count, $page_num);
 
         SendNewsController::setProvinceCity($get_all_user);
+        $get_all_user['map']->map(function($item) {
+            $item->sex = $item->sex ? '女' : '男';
+            return $item;
+        });
+
+        // dd($get_all_user);
 
         return ((is_array($get_all_user) || is_object($get_all_user)) && count($get_all_user) > 0) ? responseToJson(0, '', $get_all_user) : responseToJson(1, '未查询到用户数据');
 
@@ -94,11 +103,17 @@ class SendNewsController extends Controller
         foreach($get_all_user['map'] as $key => $item) {
             if($item->address != null) {
                 $get_all_user['map'][$key]->address = strChangeArr($item->address, ',');
-                foreach($province[$item->address[0]]->citys as $value) 
-                    if($item->address[1] == $value->id) $get_all_user['map'][$key]->address[1] = $value->name;
+                // return responseToJson(0, '', $province);
+                if(!empty($province[$item->address[0]]->citys)) {
+                    foreach($province[$item->address[0]]->citys as $value) 
+                        if($item->address[1] == $value->id) $get_all_user['map'][$key]->address[1] = $value->name;
+                }
+                else $get_all_user['map'][$key]->address[1] = '';
     
                 $get_all_user['map'][$key]->address[0] = $province[$item->address[0]]->name;
-                $get_all_user['map'][$key]->address = $get_all_user['map'][$key]->address[0] . '-' . $get_all_user['map'][$key]->address[1];
+                if($get_all_user['map'][$key]->address[1] != '')
+                    $get_all_user['map'][$key]->address = $get_all_user['map'][$key]->address[0] . '-' . $get_all_user['map'][$key]->address[1];
+                else $get_all_user['map'][$key]->address = $get_all_user['map'][$key]->address[0];
             }
             $get_all_user['map'][$key]->create_time = date("Y-m-d H:i",$item->create_time);
             if($item->update_time != null)  $get_all_user['map'][$key]->update_time = date("Y-m-d H:i",$item->update_time);
@@ -106,6 +121,27 @@ class SendNewsController extends Controller
         }
 
     }
+
+    // public static function setProvinceCitys(&$get_all_user) {
+
+    //     $province = getMajorProvincesAndCity()[0];
+
+    //     foreach($get_all_user['map'] as $key => $item) {
+    //         if($item->address != null) {
+    //             $get_all_user['map'][$key]->address = strChangeArr($item->address, ',');
+    //             return responseToJson(0, '', $get_all_user['map'][$key]->address);
+    //             foreach($province[$item->address[0]]->citys as $value) 
+    //                 if($item->address[1] == $value->id) $get_all_user['map'][$key]->address[1] = $value->name;
+    
+    //             $get_all_user['map'][$key]->address[0] = $province[$item->address[0]]->name;
+    //             $get_all_user['map'][$key]->address = $get_all_user['map'][$key]->address[0] . '-' . $get_all_user['map'][$key]->address[1];
+    //         }
+    //         $get_all_user['map'][$key]->create_time = date("Y-m-d H:i",$item->create_time);
+    //         if($item->update_time != null)  $get_all_user['map'][$key]->update_time = date("Y-m-d H:i",$item->update_time);
+    //         ($item->head_portrait != "") ? ($get_all_user['map'][$key]->head_portrait = "自定义") : ($get_all_user['map'][$key]->head_portrait = "系统默认");
+    //     }
+
+    // }
 
 
 
@@ -174,13 +210,13 @@ class SendNewsController extends Controller
         
         if(isset($major_arr) && isset($activity_arr) && $condition < 0) return responseToJson(1, '请选择专业和活动的关系');
 
-        var_dump([
-            'page_num'      => $page_num,
-            'condition'     => $condition,
-            'major_arr'     => $major_arr,
-            'page_count'    => $page_count,
-            'activity_arr'  => $activity_arr
-        ]);
+        // var_dump([
+        //     'page_num'      => $page_num,
+        //     'condition'     => $condition,
+        //     'major_arr'     => $major_arr,
+        //     'page_count'    => $page_count,
+        //     'activity_arr'  => $activity_arr
+        // ]);
         $get_users_msg = UserAccounts::getBatchAccounts([
             'page_num'      => $page_num,
             'condition'     => $condition,
@@ -189,7 +225,37 @@ class SendNewsController extends Controller
             'activity_arr'  => $activity_arr
         ]);
 
-        return (is_array($get_users_msg) && count($get_users_msg) > 0) ? responseToJson(0, '', $get_users_msg) : responseToJson(1, '没有指定的用户');
+        if(count($get_users_msg['users']) > 0) {
+            $province = DictRegion::getAllArea()->toArray();
+            foreach($get_users_msg['users'] as $key => $item) {
+                $get_users_msg['users'][$key]->create_time = date("Y-m-d H:i:s",$item->create_time);
+                $get_users_msg['users'][$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
+                $get_users_msg['users'][$key]->sex = $item->sex ? '女' : '男';
+                $get_users_msg['users'][$key]->head_portrait = splicingImgStr('front', 'user', $item->head_portrait);
+                if(!strstr($item->address, ',')) {
+                    foreach($province as $keys => $pro) {
+                        if($item->address == $pro->id) {
+                            $get_users_msg['users'][$key]->address = $pro->name;
+                            break;
+                        } 
+                    }
+                }
+                else {
+                    $get_users_msg['users'][$key]->address = strChangeArr($item->address, ',');
+                    foreach($province as $keyss => $pros) {
+                        if(!is_numeric($get_users_msg['users'][$key]->address[0]) && !is_numeric($get_users_msg['users'][$key]->address[1])) break;
+                        if($get_users_msg['users'][$key]->address[0] == $pros->id) $get_users_msg['users'][$key]->address[0] = $pros->name;
+                        else if($get_users_msg['users'][$key]->address[1] == $pros->id) $get_users_msg['users'][$key]->address[1] = $pros->name;
+                    }
+                    $get_users_msg['users'][$key]->address = $get_users_msg['users'][$key]->address[0] .  ' - ' . $get_users_msg['users'][$key]->address[1];
+                }
+
+            }
+            
+        }
+
+
+        return (is_array($get_users_msg['users']) && count($get_users_msg['users']) > 0) ? responseToJson(0, '', $get_users_msg) : responseToJson(1, '没有指定的用户');
 
     }
 
@@ -310,7 +376,7 @@ class SendNewsController extends Controller
 
         $user_arr = (isset($request->userArr) && is_array($request->userArr)) ? $request->userArr : [];
 
-        $carrier = (($request->carrier ?? false) && is_numeric($request->carrier)) ? $request->carrier : -1;
+        $carrier = (is_numeric($request->carrier)) ? $request->carrier : -1;
 
         $type = (($request->type ?? false) && is_numeric($request->type)) ? $request->type : -1;
         
@@ -321,6 +387,7 @@ class SendNewsController extends Controller
 
         $pattern='@(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|([\s()<>]+|(\([\s()<>]+))*\))+(?:([\s()<>]+|(\([\s()<>]+))*\)|[^\s`!(){};:\'".,<>?«»“”‘’]))@';
 
+        // dd(($carrier));
         if(count($user_arr) < 1 || $carrier < 0 || $type < 0 || empty($title) || empty($context) || empty($url)) 
             return responseToJson(1, '请将信息进行完善');
         else if(!preg_match($pattern, $url)) 
@@ -329,6 +396,8 @@ class SendNewsController extends Controller
             return responseToJson(1, '请选择消息类型');
         else if($carrier == 2 && $type == 3)
             return responseToJson(1, '院校动态类消息只能发站内信');
+        
+        // DB::beginTransaction();
         
         $create_news_id = News::createNews([
             'carrier'       => $carrier,
@@ -339,6 +408,8 @@ class SendNewsController extends Controller
             'create_time'   => time()
         ]);
 
+        
+
         $msg = [
             'user_arr'       => $user_arr,
             'carrier'        => $carrier,
@@ -348,12 +419,46 @@ class SendNewsController extends Controller
             'create_news_id' => $create_news_id
         ];
 
+        // dd($msg);
         return $create_news_id ? $this->sendNews($msg) : responseToJson(1, '发送失败');
 
-        
-        
+    }
+
+
+    /**
+     * 发送短信－导出手机号excel表
+     */
+    public function putExcel(Request $request) {
+        var_dump($request->userArr);
+        $user_arr = (isset($request->userArr) && is_array($request->userArr)) ? $request->userArr : [];
+        if(empty($user_arr)) return responseToJson(1, '请选择发送的用户');
+
+        $user_phone_arr = UserAccounts::getAppointUserPhone($user_arr)->toArray();
+
+        $cellData = [
+            ['编号', '手机号']
+        ];
+
+        if(!empty($user_phone_arr))
+            foreach($user_phone_arr as $key => $item) {
+                array_push($cellData, [$key+1, $item]);
+            }
+
+        ob_end_clean();
+        ob_start();
+        Excel::create(iconv('UTF-8', 'UTF-8', EXCEL_NAME),function ($excel) use ($cellData){
+            $excel->sheet('score',function($sheet) use ($cellData){
+                $sheet->rows($cellData);
+            });
+        })->export('xls');
+
+        return responseToJson(0,'success');
+
+
 
     }
+
+
     
     /**
      * 先向信息表中插入消息，并得到id
@@ -371,6 +476,8 @@ class SendNewsController extends Controller
     private function sendNews($newsMsg) {
         $user_phone_arr = UserAccounts::getAppointUserPhone($newsMsg['user_arr']);
 
+        // dd(count($user_phone_arr));
+
         $sms_message = [];
 
         if(count($user_phone_arr) == 1)
@@ -387,13 +494,14 @@ class SendNewsController extends Controller
                     // 'url' => $url
                 ]);
         
+        
         switch($newsMsg['carrier'])
         {
             case 0:
-                $status = $this->sendSms($user_phone_arr, $sms_message, $newsMsg) && $this->updateNewsStatus($newsMsg['create_news_id']);
+                $status = ($this->sendSms($user_phone_arr, $sms_message, $newsMsg) && $this->updateNewsStatus($newsMsg['create_news_id']));
                 return $status ? responseToJson(0, '发送成功') : responseToJson(1, '发送失败');
             case 1:
-                $status = $this->createNewsUser($newsMsg) && $this->updateNewsStatus($newsMsg['create_news_id']);
+                $status = ($this->createNewsUser($newsMsg) && $this->updateNewsStatus($newsMsg['create_news_id']));
                 return $status ? responseToJson(0, '发送成功') : responseToJson(1, '发送失败');
             case 2:
                 $status = $this->createNewsUser($newsMsg) && $this->sendSms($user_phone_arr, $sms_message, $newsMsg) && $this->updateNewsStatus($newsMsg['create_news_id']);
@@ -402,7 +510,13 @@ class SendNewsController extends Controller
         
     }
 
+
+
+
+
     private function sendSms($user_phone_arr, $sms_message, $newsMsg) {
+        if(!is_array($user_phone_arr)) $user_phone_arr = $user_phone_arr->toArray();
+        dd($sms_message);
         $response = count($user_phone_arr) == 1 ? SmsController::sendSms($user_phone_arr[0], $sms_message, '') : SmsController::sendBatchSms($user_phone_arr, '', $sms_message);
 
         return ($response->Message == 'OK' && $response->Code == 'OK') ? true : false;
@@ -417,7 +531,8 @@ class SendNewsController extends Controller
                 'user_id' => $value, 
                 'create_time' => $now_time
                 ]);
-
+                
+                
         $is_create = NewsUsers::createNewsRelationUser($news_user_arr);
 
         return $is_create ? true : false;

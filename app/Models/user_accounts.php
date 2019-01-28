@@ -36,6 +36,7 @@ class user_accounts
 
         $map_handle = DB::table(self::$sTableName)
             ->leftJoin('user_information', self::$sTableName . '.id', '=', 'user_information.user_account_id')
+            // ->leftJoin('user_third_accounts', self::$sTableName . '.id', '=', 'user_third_accounts.user_account_id')
             ->where(self::$sTableName . '.is_delete', 0);
         
         if($usersArr != []) {
@@ -67,7 +68,8 @@ class user_accounts
             'user_information.worked_year',
             'user_information.schooling_id',
             'user_information.head_portrait',
-            'user_information.graduate_school'
+            'user_information.graduate_school',
+            // 'user_third_accounts.third_account_type'
         );
     }
 
@@ -75,6 +77,7 @@ class user_accounts
     private static function setDeepArray($map) {
         return $map->map(function($item) {
             self::deepInArray($item);
+            // dd($item);
             return $item;
         });
     }
@@ -93,7 +96,8 @@ class user_accounts
 
 
     private static function deepInArray(&$item) {
-
+        self::initialization();
+        // dd(self::$sEducation);
         foreach(self::$sEducation as $key => $value)
             if($value->id == $item->schooling_id) $item->schooling_id = $value->name;
 
@@ -107,33 +111,41 @@ class user_accounts
 
     public static function getBatchAccounts(array $parameter = []) {
 
+        $user_ac_id = DB::table('user_activitys')
+            ->whereIn('activity_id', $parameter['activity_arr'])->where('status', 0)->pluck('user_id')->toArray();
+        $user_ma_id = DB::table('user_follow_major')
+            ->whereIn('major_id', $parameter['major_arr'])->where('is_focus', 0)->pluck('user_id')->toArray();
         switch($parameter['condition'])
         {
             case 0:
-                $users_id = DB::table('user_follow_major')
-                ->join('user_activitys', 'user_follow_major.user_id', '=', 'user_activitys.user_id')
-                ->whereExists(function($query) {
-                    $query->whereIn('user_follow_major.major_id', $parameter['major_arr'])
-                    ->whereIn('user_activitys.activity_id', $parameter['activity_arr'])
-                    ->where([
-                        ['user_follow_major.is_focus', 0],
-                        ['user_activitys.status', 0]
-                    ]);
-                })->pluck('user_follow_major.user_id');
-                $user_info = self::getAppointUserInfo($users_id, $parameter);
+                // $users_id = DB::table('user_follow_major')
+                // ->join('user_activitys', 'user_follow_major.user_id', '=', 'user_activitys.user_id')
+                // ->whereExists(function($query) {
+                //     $query->whereIn('user_follow_major.major_id', $parameter['major_arr'])
+                //     ->whereIn('user_activitys.activity_id', $parameter['activity_arr'])
+                //     ->where([
+                //         ['user_follow_major.is_focus', 0],
+                //         ['user_activitys.status', 0]
+                //     ]);
+                // })->pluck('user_follow_major.user_id');
+                // dd(array_unique(array_intersect($user_ac_id, $user_ma_id)));
+                $user_info = self::getAppointUserInfo(array_unique(array_intersect($user_ac_id, $user_ma_id)), $parameter);
                 break;
             case 1:
-                $users_id = DB::table('user_follow_major')
-                ->join('user_activitys', 'user_follow_major.user_id', '=', 'user_activitys.user_id')
-                ->whereExists(function($query) use ($parameter) {
-                    $query->whereIn('user_follow_major.major_id', $parameter['major_arr'])
-                    ->orWhere(function($item) {
-                        $item->whereIn('user_activitys.activity_id', $parameter['activity_arr']);
-                    })
-                    ->where('user_follow_major.is_focus', 0)
-                    ->orWhere('user_activitys.status', 0);
-                })->pluck('user_follow_major.user_id');
-                $user_info = self::getAppointUserInfo($users_id, $parameter);
+                // $users_id = DB::table('user_follow_major')
+                // ->join('user_activitys', 'user_follow_major.user_id', '=', 'user_activitys.user_id')
+                // ->whereExists(function($query) use ($parameter) {
+                //     $query->whereIn('user_follow_major.major_id', $parameter['major_arr'])
+                //     ->orWhere(function($item) use ($parameter) {
+                //         // var_dump($parameter);
+                //         $item->whereIn('user_activitys.activity_id', $parameter['activity_arr']);
+                //     })
+                //     ->where('user_follow_major.is_focus', 0)
+                //     ->orWhere('user_activitys.status', 0);
+                // })->pluck('user_follow_major.user_id')->toArray();
+                // dd($parameter['major_arr']);
+                // dd(hebingArr($user_ac_id, $user_ma_id));
+                $user_info = self::getAppointUserInfo(hebingArr($user_ac_id, $user_ma_id), $parameter);
                 break;
             default :
                 if(isset($parameter['major_arr']))
@@ -144,19 +156,27 @@ class user_accounts
                 $user_info = self::getAppointUserInfo($users_id, $parameter);
                 break;
         }
-        return self::setDeepArray($user_info);
+        // dd(self::setDeepArray($user_info['users'])->toArray());
+        $info = $user_info['users'];
+        $user_info['users'] = self::setDeepArray($info)->toArray();
+        return $user_info;
     }
 
 
     private static function getAppointUserInfo(array $users_id, array $parameter) {
-        return DB::table(self::$sTableName)
+        // dd($users_id);
+        $handle = DB::table(self::$sTableName)
         ->leftJoin('user_information', self::$sTableName . '.id', '=', 'user_information.user_account_id')
         ->whereIn(self::$sTableName . '.id', $users_id)
-        ->where(self::$sTableName . '.is_delete', 0)
-        ->select(...self::getAppointUsersField())
-        ->offset($parameter['page_num'] * $parameter['page_count'])
-        ->limit($parameter['page_count'])
-        ->get();
+        ->where(self::$sTableName . '.is_delete', 0);
+        $count = $handle->count();
+        $users = $handle->select(...self::getAppointUsersField())
+            ->offset($parameter['page_num'] * $parameter['page_count'])
+            ->limit($parameter['page_count'])
+            ->get();
+        return ['users' => $users, 'count' => $count];
+
+        
     }
 
     public static function getAppointUserPhone(array $userIdArr = []) {

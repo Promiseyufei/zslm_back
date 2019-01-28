@@ -389,7 +389,7 @@ function changeStringToInt($val){
              * 
              * 判断类型
              * 判断是否在文件夹中存在
-             *  判断大小
+             * 判断大小
              */
             if(!in_array(strtolower($ext), $file_type_arr)) return [1,'请上传格式为图片的文件'];
             // else if(Storage::disk('operate')->exists($imgName)) return [1, '图片已存在'];
@@ -405,20 +405,20 @@ function changeStringToInt($val){
     /**
      * 修改图片名称
      */
-    function updateDirImgName($imgUrl = '',$imgNewName = '', $modularName) {
+    function updateDirImgName($imgUrl = '',$imgNewName = '', $modularName, $url) {
         if($imgUrl !== '' && $imgNewName !== '' && $modularName !== '') {
             $img_arr = explode('/', $imgUrl); 
             if(count($img_arr) >= 2)
                 return false;
-
-            try {
-                $exists = Storage::disk($modularName)->exists($imgUrl);
-                $exists_new = Storage::disk($modularName)->exists($imgNewName);
-                if($exists == true && $exists == !$exists_new) {
-                    $dir_url = dirname(Storage::url($imgUrl));
-                    return rename(Storage::url($imgUrl), $dir_url . $imgNewName);
-                }
-                throw new \Exception('error');
+                try {
+                    // $exists = Storage::disk($modularName)->exists($imgUrl);
+                    // $exists_new = Storage::disk($modularName)->exists($imgNewName);
+                    // if($exists == true && $exists == !$exists_new) {
+                    $dir_url = $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . $url . DIRECTORY_SEPARATOR;
+                    // dd($dir_url . $imgNewName);
+                    return rename($dir_url . $imgUrl, $dir_url . $imgNewName);
+                // }
+                // throw new \Exception('error');
             } catch(\Exception $e) {
                 return false;
             }
@@ -485,6 +485,35 @@ function changeStringToInt($val){
         return true;
     }
 
+
+
+
+    //返回图片路径
+    /**
+     * $direction admin
+     * $range info
+     * 
+     */
     function splicingImgStr($direction, $range, $name) {
         return 'http://' . $_SERVER['HTTP_HOST'] . '/storage/' . $direction . '/' . $range . '/' . $name;
     }
+
+
+
+    /**
+     * 合并两个一维数组并去重
+     */
+    function hebingArr($arr1, $arr2) {
+        return array_keys(array_flip($arr1)+array_flip($arr2));
+    }
+    
+     /**
+      * @param $url 文件路径，文件的根已经定在了public/storage/，url的值一般都是public/storage/下的某个目录，如 test/test/ 也就是public/storage/test/test/目录
+      * url必须前面不能加目录符，后面必须要加目录符
+      * @param $name 文件名称
+      *
+      * @return string
+      */
+     function splicingImgStrPro($url, $name) {
+         return 'http://' . $_SERVER['HTTP_HOST'] . '/storage/'.$url . $name;
+     }

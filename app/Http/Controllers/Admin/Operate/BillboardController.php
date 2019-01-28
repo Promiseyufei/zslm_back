@@ -121,6 +121,7 @@ class BillboardController extends Controller
                 if(count($url_bt) >= 0) {
                     foreach($url_bt as $key => &$value) {
                         $value->create_time = date('Y-m-d H:i:s', $value->create_time);
+                        $value->img_real_path = splicingImgStr('admin','operate',$value->img);
                     }
                     return responseToJson(0,'',$url_bt);
                 }
@@ -213,7 +214,8 @@ class BillboardController extends Controller
      */
     public function setBillboardMessage(Request $request) {
         if($request->isMethod('post')) {
-            if(trim($request->btName) ||  mb_strlen($request->btName, 'utf-8') > 30)
+            $request->btName = trim($request->btName);
+            if(  mb_strlen($request->btName, 'utf-8') > 100)
                 return responseToJson(1, '图片名称长度错误');
             else $bt_arr['bt_name'] = $request->btName;
 
@@ -222,7 +224,7 @@ class BillboardController extends Controller
             else if(strpos($request->btImgAlt,'/') || strpos($request->btImgAlt,'.')) 
                 return responseToJson(1, '图片名称含有非法字符');
             else
-                return $bt_arr['bt_img_alt'] = $request->btImgAlt;
+                 $bt_arr['bt_img_alt'] = $request->btImgAlt;
             
             $pattern="/(\\w+(-\\w+)*)(\\.(\\w+(-\\w+)*))*(\\?\\S*)?/";
             if(!preg_match($pattern, $request->reUrl)) 
@@ -413,14 +415,14 @@ class BillboardController extends Controller
                 return false;
 
             try {
-                $exists = Storage::disk('operate')->exists($imgUrl);
-                $exists_new = Storage::disk('operate')->exists($imgNewName);
-                if($exists == true && $exists == !$exists_new) {
-                    $dir_url = dirname(Storage::url($imgUrl));
-                    return rename(Storage::url($imgUrl), $dir_url . $imgNewName);
+                $img_arr = explode('/', $imgNewName);
+                if(count($img_arr) >= 2){
+                    return false;
                 }
-                throw new \Exception('error');
+                $result = Storage::move('public/admin/operate/'.$imgUrl, 'public/admin/operate/'.$imgNewName);
+                return $result;
             } catch(\Exception $e) {
+                
                 return false;
             }
         }

@@ -14,7 +14,12 @@
     {
     
         private static $sTableName = 'dict_region';
-        
+    
+    
+        public static function getProvinceIdByNameOne($name){
+            $provice =  DB::table(self::$sTableName)->where('name',$name)->get(['id']);
+            return $provice;
+        }
         public static function getProvinceIdByName($name){
            $provice =  DB::table(self::$sTableName)->whereIn('name',$name)->get(['id']);
            return $provice;

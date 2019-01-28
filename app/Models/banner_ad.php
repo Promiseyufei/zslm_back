@@ -48,7 +48,7 @@ class banner_ad
             're_url' => $btMsgArr['re_url'],
             'update_time' => time()
         ]);
-        return $if_update ? true : false;
+        return $if_update > 0 ? true : false;
     }
 
 

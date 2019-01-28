@@ -37,6 +37,11 @@ class user_follow_major
             ->get($fields);
             
     }
+
+    //获取关注主办院校的用户id
+    public static function getFollowMajorUsers($majorId) {
+        return DB::table(self::$sTableName)->where('major_id', $majorId)->where('is_focus', 0)->pluck('user_id');
+    }
     
     /**
      * 获取用户是否关注某些院校

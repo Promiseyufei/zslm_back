@@ -183,6 +183,8 @@ return [
         //第三方登录插件weixin/weibo
         //Laravel\Socialite\SocialiteServiceProvider::class,
         SocialiteProviders\Manager\ServiceProvider::class,
+        Emadadly\LaravelUuid\LaravelUuidServiceProvider::class,
+        \Torann\GeoIP\GeoIPServiceProvider::class,
 
     ],
 
@@ -232,13 +234,18 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
-
+    
+    
+        'UUID' => Webpatser\Uuid\Uuid::class,
+    
+    
         //Maatwebsite/excel  lishanlei
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
 
         //第三方登录－－weixin/weibo
-        'Socialite' => Laravel\Socialite\Facades\Socialite::class, 
+        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
+        'GeoIP' => \Torann\GeoIP\Facades\GeoIP::class,
+
 
     ],
 

@@ -51,4 +51,24 @@
                 'update_time' => time()
             ]);
         }
+
+
+
+
+        // public static function judgeIfBinding($user_id) {
+        //     $handle = DB::table(self::$sTableName)->where('user_account_id', $user_id);
+        //     switch ($handle->count()) {
+        //         case 0:
+        //             return '未绑定';
+        //             break;
+        //         case 1:
+        //             if($handle->value('third_account_type') == 0 || )
+                    
+        //         default:
+        //             # code...
+        //             break;
+        //     }
+        //     // if() return '未绑定';
+            
+        // }
     }

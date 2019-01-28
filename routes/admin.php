@@ -7,7 +7,11 @@
     
     Route::get('/test', 'TestController@showProfile');
     
-    Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
+    Route::post('/admin/login', 'Admin\Login@validateLogin');
+    Route::get('/admin/createuuid', 'Admin\Login@createUUID');
+    Route::post('/admin/loginout', 'Admin\Login@loginout');
+    
+    Route::group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'login'], function () {
 
 
         Route::group(['prefix' => 'dispen', 'namespace' => 'Dispensing'], function () {
@@ -40,6 +44,7 @@
             Route::get('getcouponone', 'AccountsController@getCouponOneUser');
             Route::get('getactivityuser', 'AccountsController@getActivityUser');
             Route::get('getactivityoneuser', 'AccountsController@getActivityOneUser');
+            Route::get('getaccountloginmsg', 'AccountsController@getAccountLoginMsg');
             
         });
         
@@ -60,7 +65,7 @@
             Route::post('setAppointInfoState', 'InformationController@setAppointInfoState');
     
             Route::post('selectInfoReception', 'InformationController@selectInfoReception');
-    
+            
             Route::post('updateAppointInfoMsg', 'InformationController@updateAppointInfoMsg');
     
             Route::post('deleteAppointInfo', 'InformationController@deleteAppointInfo');
@@ -97,6 +102,8 @@
     
             Route::post('getAppointInfoRelevantMajor', 'InformationController@getAppointInfoRelevantMajor');
     
+            
+    
         });
         
         
@@ -112,6 +119,9 @@
             Route::any('test', 'FilesController@getMajorByRegion');
             Route::get('getmajorbypro', 'FilesController@getMajorByRegion');
             Route::post('updatefile', 'FilesController@updateFile');
+            Route::get('getonemajorfile', 'FilesController@getOneMajorFile');
+            Route::post('deletemajorallf', 'FilesController@deleteMajorAllF');
+            
 //        getMajorByRegion
         });
         
@@ -126,12 +136,12 @@
              * test
              */
             Route::get('testa', 'MajorController@getMajorProvincesAndCities');
-            
+          
             
             /**
              * 院校专业模块　major模块
              */
-            
+            Route::post('getAppointInfoRecommendMajor', 'InformationController@getAppointInfoRecommendMajor');
             Route::post('getMajorPageMessage', 'MajorController@getMajorPageMessage');
             
             Route::post('getMajorPageCount', 'MajorController@getMajorPageCount');
@@ -182,16 +192,28 @@
             Route::post('getUnifiedRecruitPattern', 'StudentProjectController@getUnifiedRecruitPattern');
             
             Route::post('getAppointIdProject', 'StudentProjectController@getAppointIdProject');
-            
-            
+    
+            Route::post('delAppointInfoRecommendRead', 'InformationController@delAppointInfoRecommendRead');
             /**
              * 活动管理模块　activity模块
              */
     
-    
             
+            Route::post('cancelAppointRecommendActivity', 'ActivityController@cancelAppointRecommendActivity');
+
+            Route::post('setActivitydynamic', 'ActivityController@setActivitydynamic');
+
+            Route::post('cancelAppointRecommendMajor', 'ActivityController@cancelAppointRecommendMajor');
+
+            Route::post('cancelAppointActicityAllRe', 'ActivityController@cancelAppointActicityAllRe');
+
+            Route::post('cancelAppointMajorAllRe', 'ActivityController@cancelAppointMajorAllRe');
             
-              Route::get('getActivityAll', 'ActivityController@getActivityAll');
+            Route::get('getActivityAll', 'ActivityController@getActivityAll');
+
+            Route::get('getCoachRecommendAc', 'ActivityController@getCoachRecommendAc');
+
+            Route::get('getAcTypeAndCity', 'ActivityController@getAcTypeAndCity');
             
             Route::get('getguanlian', 'ActivityController@getGuanlianById');
             
@@ -258,6 +280,20 @@
              * 辅导机构　
              */
             
+            
+
+            Route::post('setCoachActivity', 'CoachOrganizeController@setCoachActivity');
+
+            Route::post('updateCoachTime', 'CoachOrganizeController@updateCoachTime');
+
+            Route::post('cancelAllReActivity', 'CoachOrganizeController@cancelAllReActivity');
+
+            Route::post('cancelRelevanActivity', 'CoachOrganizeController@cancelRelevanActivity');
+            
+            Route::get('getAppoinCoachRelevantActivity', 'CoachOrganizeController@getAppoinCoachRelevantActivity');
+
+            Route::get('getAppointCoachCoupon', 'CoachOrganizeController@getAppointCoachCoupon');
+
             Route::get('getcoachinfo', 'CoachOrganizeController@getPageInfo');
             
             Route::post('getPageCoachOrganize', 'CoachOrganizeController@getPageCoachOrganize');
@@ -295,15 +331,20 @@
             Route::post('createktd', 'CoachOrganizeController@setNewKTD');
             
             Route::post('created', 'CoachOrganizeController@setD');
-            
-            
+    
+            Route::post('setManualRecInfos', 'InformationController@setManualRecInfos');
+    
+            Route::post('getAppointInfoRelevantMajor', 'InformationController@getAppointInfoRelevantMaj');
             /**
              * 优惠券模块　coupon模块
              */
             
+            
             Route::post('getPageCoupon', 'CouponController@getPageCoupon');
             
             Route::get('getcoachcoupon', 'CouponController@getCouponByCoachId');
+
+            Route::get('getAppoCoupon', 'CouponController@getAppoCoupon');
             
             Route::post('updateweight', 'CoachOrganizeController@updateWeight');
             
@@ -326,6 +367,8 @@
              * 资讯模块　information模块
              */
             
+            Route::post('setInformationdynamic', 'InformationController@setInformationdynamic');
+
             Route::post('getInfoPageMsg', 'InformationController@getInfoPageMsg');
             
             Route::post('getInfoPageCount', 'InformationController@getInfoPageCount');
@@ -364,7 +407,14 @@
             
             Route::post('getAppointInfoRecommendRead', 'InformationController@getAppointInfoRecommendRead');
             
+            Route::post('delinfos', 'InformationController@delInfos');
             
+            Route::post('delappoinrelevantmajor', 'InformationController@delAppoinRelevantMajor');
+    
+            /**
+             * 轮询获取消息提醒
+             */
+            Route::get('getding', 'InformationController@getDing');
         });
         
         
@@ -379,6 +429,8 @@
              * 发送消息
              */
             Route::post('getAllAccounts', 'SendNewsController@getAllAccounts');
+
+            Route::get('putExcel', 'SendNewsController@putExcel');
             
             Route::post('batchScreenAccounts', 'SendNewsController@batchScreenAccounts');
             

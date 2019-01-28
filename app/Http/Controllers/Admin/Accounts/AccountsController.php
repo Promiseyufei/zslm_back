@@ -6,6 +6,7 @@
 
 namespace App\Http\Controllers\Admin\Accounts;
 
+use App\Models\admin_accounts;
 use App\Models\dict_education;
 use App\Models\user_third_accounts;
 use Illuminate\Http\Request;
@@ -30,7 +31,13 @@ class AccountsController extends AccountControllerBase
         $sorting = isset($request->sorting) ? $request->sorting : '';
         $sorting = $sorting == '' ? 0 : $sorting;
     
-        $sorting = $sorting == 0 ? 'desc' : 'asc';
+        if($sorting == 0)
+            $sorting = 'asc';
+        else if($sorting == 1)
+            $sorting ='desc';
+        else
+            $sorting = 'else';
+    
         $result = UserInformation::getInformation($name,$active,$realname,$request->page,$request->pageSize,0,$sorting);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
@@ -44,8 +51,14 @@ class AccountsController extends AccountControllerBase
         $realname = isset($request->realname) ? $request->realname : '';
         $sorting = isset($request->sorting) ? $request->sorting : '';
         $sorting = $sorting == '' ? 0 : $sorting;
-    
-        $sorting = $sorting == 0 ? 'desc' : 'asc';
+        
+        if($sorting == 0)
+            $sorting = 'asc';
+        else if($sorting == 1)
+            $sorting ='desc';
+        else
+            $sorting = 'else';
+        
         $result = UserInformation::getInformation($name,$major,$realname,$request->page,$request->pageSize,1,$sorting);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
@@ -61,7 +74,13 @@ class AccountsController extends AccountControllerBase
         $sorting = isset($request->sorting) ? $request->sorting : '';
         $sorting = $sorting == '' ? 0 : $sorting;
     
-        $sorting = $sorting == 0 ? 'desc' : 'asc';
+        
+        if($sorting == 0)
+            $sorting = 'asc';
+        else if($sorting == 1)
+            $sorting ='desc';
+        else
+            $sorting = 'else';
         $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,2,$sorting);
         return !empty($result) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
@@ -74,9 +93,8 @@ class AccountsController extends AccountControllerBase
         $realname = isset($request->realname) ? $request->realname : '';
         $sorting =  isset($request->sorting) ? $request->sorting : '';
         $sorting = $sorting == '' ? 0 : $sorting;
-        
         $sorting = $sorting == 0 ? 'desc' : 'asc';
-        
+   
         $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,3,$sorting);
         $id = [];
         
@@ -141,6 +159,18 @@ class AccountsController extends AccountControllerBase
         $provice_name = '';
         $city_name = '';
         $return_ins = '';
+    
+        $thread =  user_third_accounts::getTypeOfThread([$request->id]);
+        $user->weixin = '未绑定';
+        $user->weibo = '未绑定';
+        for($j = 0;$j<sizeof($thread);$j++){
+            if($user->user_account_id == $thread[$j]->user_account_id)
+                if($thread[$j]->third_account_type == 1)
+                    $user->weixin = '绑定';
+                else if($thread[$j]->third_account_type == 2)
+                    $user->weibo = '绑定';
+        }
+        
         if($user->address != null) {
             $provice_arr = strChangeArr($user->address,EXPLODE_STR);
             $provice = DictRegion::getAllArea();
@@ -159,7 +189,7 @@ class AccountsController extends AccountControllerBase
         
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
-        
+        $user->head_portrait = splicingImgStr('front','user',$user->head_portrait);
         return !empty($user) ? responseToJson(0,'success',[$user,$activity_names]) : responseToJson(1,'no data');
     }
     
@@ -175,6 +205,17 @@ class AccountsController extends AccountControllerBase
         $provice_name = '';
         $city_name = '';
         $return_ins = '';
+    
+        $thread =  user_third_accounts::getTypeOfThread([$request->id]);
+        $user->weixin = '未绑定';
+        $user->weibo = '未绑定';
+        for($j = 0;$j<sizeof($thread);$j++){
+            if($user->user_account_id == $thread[$j]->user_account_id)
+                if($thread[$j]->third_account_type == 1)
+                    $user->weixin = '绑定';
+                else if($thread[$j]->third_account_type == 2)
+                    $user->weibo = '绑定';
+        }
         if($user->address != null) {
             $provice_arr = strChangeArr($user->address,EXPLODE_STR);
             $provice = DictRegion::getAllArea();
@@ -190,7 +231,7 @@ class AccountsController extends AccountControllerBase
         }
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
-        
+        $user->head_portrait = splicingImgStr('front','user',$user->head_portrait);
         return !empty($user) ? responseToJson(0,'success',[$user,$major_names]) : responseToJson(1,'no data');
     }
     
@@ -205,6 +246,17 @@ class AccountsController extends AccountControllerBase
         $return_ins = '';
         $provice_name = '';
         $city_name = '';
+    
+        $thread =  user_third_accounts::getTypeOfThread([$request->id]);
+        $user->weixin = '未绑定';
+        $user->weibo = '未绑定';
+        for($j = 0;$j<sizeof($thread);$j++){
+            if($user->user_account_id == $thread[$j]->user_account_id)
+                if($thread[$j]->third_account_type == 1)
+                    $user->weixin = '绑定';
+                else if($thread[$j]->third_account_type == 2)
+                    $user->weibo = '绑定';
+        }
         if($user->address != null) {
             $provice_arr = strChangeArr($user->address,EXPLODE_STR);
             $provice = DictRegion::getAllArea();
@@ -220,6 +272,7 @@ class AccountsController extends AccountControllerBase
         }
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
+        $user->head_portrait = splicingImgStr('front','user',$user->head_portrait);
         return !empty($user) ? responseToJson(0,'success',[$user,$coupon_names]) : responseToJson(1,'no data');
     }
     
@@ -245,7 +298,17 @@ class AccountsController extends AccountControllerBase
             $provice_name=$this->findAddress($provice_arr[0],$provice);
             $city_name = $this->findAddress($provice_arr[1],$provice);
         }
-        
+    
+        $thread =  user_third_accounts::getTypeOfThread([$request->id]);
+        $user->weixin = '未绑定';
+        $user->weibo = '未绑定';
+        for($j = 0;$j<sizeof($thread);$j++){
+            if($user->user_account_id == $thread[$j]->user_account_id)
+                if($thread[$j]->third_account_type == 1)
+                    $user->weixin = '绑定';
+                else if($thread[$j]->third_account_type == 2)
+                    $user->weibo = '绑定';
+        }
         if($user->industry != null){
             $insutry = strChangeArr($user->industry,EXPLODE_STR);
             $insutrys = DictInsutry::getAllIndustry();
@@ -256,6 +319,7 @@ class AccountsController extends AccountControllerBase
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
         $user->schooling_id = $school_arr[$user->schooling_id];
+        $user->head_portrait = splicingImgStr('front','user',$user->head_portrait);
         $activity_names = $this->getActivityNames($request);
         $major_names = $this->getMajorNames($request);
         $coupon_names = $this->getCouponNames($request);
@@ -336,6 +400,26 @@ class AccountsController extends AccountControllerBase
         $datas =  $this->resultObjToArray($data,$datas,$provice,$schooling,$insutrys);
         
         $this->createExcel($datas);
+    }
+    
+    
+    public function getAccountLoginMsg(Request $request){
+        
+        if(!isset($request->account))
+            return responseToJson(1,'没有账号');
+        
+        $account =  admin_accounts::getLoginTime($request->account);
+        date_default_timezone_set("Asia/Shanghai");
+        $last_time =  date('Y-m-d H:i:s',$account->last_login);
+        $now_time =date('Y-m-d H:i:s',$account->now_login);
+//      $request->getClientIp()
+//       dd( $this->GetIpLookup('47.105.38.74'));
+        $ip =$request->ip();
+        $url = "http://ip.taobao.com/service/getIpInfo.php?ip={$ip}";//淘宝
+        //$res = @file_get_contents('http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=js&ip=' . $ip);//新浪
+        $ipmsg = geoip($ip);
+        
+        return responseToJson(0,'success',['last_time'=>$last_time,'now_time'=>$now_time,'city'=>$ipmsg['city'],'ip'=>$ip]);
     }
     
     public function  getAllArea(){

@@ -88,7 +88,26 @@ class FilesController extends Controller
         
         $serachData = MajorFiles::getUploadFile($request);
         $zhaosheng = MajorFiles::getCountZhaos();
+        for($i = 0;$i<sizeof($serachData[0]);$i++){
+            $serachData[0][$i]->create_time = date('Y-m-d', $serachData[0][$i]->create_time);
+            $serachData[0][$i]->file_url = splicingImgStrPro('major_file/',$serachData[0][$i]->file_url);
+            
+        }
         return $serachData != null ? responseToJson(0,'success',['data'=>$serachData[0],'dataCount'=>$serachData[1],'zhaos'=>$zhaosheng]) : responseToJson(1,'no data');
+    }
+    
+    public  function getOneMajorFile(Request $request){
+        if(!isset($request->majorId) || !is_numeric(intval($request->majorId)))
+            return responseToJson(1,FORMAT_ERROR);
+    
+        $serachData = MajorFiles::getOneMajorFile($request);
+       
+        for($i = 0;$i<sizeof($serachData);$i++){
+            $serachData[$i]->create_time = date('Y-m-d', $serachData[$i]->create_time);
+            $serachData[$i]->file_url = splicingImgStrPro('major_file/',$serachData[$i]->file_url);
+        
+        }
+        return responseToJson(0,"success",['data'=> $serachData]);
     }
     
     public function info(){
@@ -264,6 +283,27 @@ class FilesController extends Controller
 //        }
     }
     
+    public function deleteMajorAllF(Request $request){
+        
+        if(!isset($request->mid) || !is_numeric(intval($request->mid))){
+            return responseToJson(1,'院校专业id错误');
+        }
+        DB::beginTransaction();
+        
+        MajorFiles::deletetMajorAllFiles($request);
+        
+        $check = MajorFiles::checkAllDel($request->mid);
+        if($check == 0){
+            DB::commit();
+            return responseToJson(0,"success");
+        }else{
+            DB::rollBack();
+            return responseToJson(1,"删除失败");
+        }
+        
+    }
+    
+    
     public function updateShowWeight(Request $request){
         if(!$request->isMethod('post'))
             return responseToJson(1,METHOD_ERROR);
@@ -288,15 +328,16 @@ class FilesController extends Controller
             return responseToJson(1,METHOD_ERROR);
         if(!isset($request->provice))
             return responseToJson(1,'No provice is selected,please try again');
-        
-        $provice_id = dictRegion::getProvinceIdByName($request->provice);
+        $provice_id = [];
+        $provice_id[0] = dictRegion::getProvinceIdByNameOne($request->provice[0])[0];
+        $provice_id[1] = dictRegion::getProvinceIdByNameOne($request->provice[1])[0];
         if(empty($provice_id))
             return responseToJson(1,'something was wrong ,please try again');
         
         $provice_id_bash = [];
         $lenght = sizeof($provice_id);
         for($i = 0;$i<$lenght;$i++){
-            $provice_id_bash[] = $provice_id[$i]->id.'%';
+            $provice_id_bash[] = $provice_id[$i]->id;
         }
         $majors = [];
         for($i = 0;$i < $lenght;$i++){

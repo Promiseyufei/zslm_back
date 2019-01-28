@@ -21,6 +21,10 @@ class information_major
         return DB::table(self::$sTableName)->insert($msg_arr);
     }
 
+    public static function delAppoinRelevantMajor($infoId,$majorId){
+        return DB::table(self::$sTableName)->where('zx_id',$infoId)->where('xg_sc_id',$majorId)->delete();
+    }
+    
     public static function selectAppointRelation($infoId) {
 
         return DB::table(self::$sTableName)->where('zx_id', $infoId)->pluck('xg_sc_id');

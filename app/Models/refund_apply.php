@@ -9,6 +9,10 @@ class refund_apply
     public static $sTableName = 'refund_apply';
 
 
+    public static function getNoAccessMsg(){
+        return DB::table(self::$sTableName)->where('is_delete',0)->where('approve_status',0)->count('id');
+    }
+    
     public static function getPageRefundMsg(array $val = []) {
         
         $handle = DB::table(self::$sTableName)
