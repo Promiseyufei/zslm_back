@@ -57,7 +57,7 @@
             $request->password = md5($request->password);
             $login = admin_accounts::selectAccountByPass($request);
             
-            admin_accounts::updateLoginTime($request);
+	    admin_accounts::updateLoginTime($request);
             if(count($login) == 1){
                 session(['admin_account'=>$request->account]);
                 Redis::setex($request->header('UUID'),86400000,'login');
