@@ -55,7 +55,8 @@ class refund_apply
             'user_accounts.phone as user_account',
             self::$sTableName . '.alipay_account',
             self::$sTableName . '.apply_refund_money',
-            self::$sTableName . '.registration_deadline'
+            self::$sTableName . '.registration_deadline',
+            'classname'
             )->offset($val['pageCount'] * ($val['pageNumber']-1))
             ->limit($val['pageCount'])->orderBy('create_time', 'desc')->get(),$count];
 

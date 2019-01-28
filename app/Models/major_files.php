@@ -61,7 +61,7 @@
                     'z_name',
                     'show_weight',
                     'file_alt',
-                    'file_url','classname']);
+                    'file_url']);
             
             $count = DB::table(self::$sTableName)
                 ->whereRaw($queryWhere)
