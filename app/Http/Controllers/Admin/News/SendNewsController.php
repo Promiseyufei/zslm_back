@@ -16,8 +16,10 @@ use App\Models\news_users as NewsUsers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\news as News;
-
+use Excel;
 use DB;
+
+define('EXCEL_NAME','手机号导出表');
 
 class SendNewsController extends Controller 
 {
@@ -420,10 +422,43 @@ class SendNewsController extends Controller
         // dd($msg);
         return $create_news_id ? $this->sendNews($msg) : responseToJson(1, '发送失败');
 
-        
-        
+    }
+
+
+    /**
+     * 发送短信－导出手机号excel表
+     */
+    public function putExcel(Request $request) {
+        var_dump($request->userArr);
+        $user_arr = (isset($request->userArr) && is_array($request->userArr)) ? $request->userArr : [];
+        if(empty($user_arr)) return responseToJson(1, '请选择发送的用户');
+
+        $user_phone_arr = UserAccounts::getAppointUserPhone($user_arr)->toArray();
+
+        $cellData = [
+            ['编号', '手机号']
+        ];
+
+        if(!empty($user_phone_arr))
+            foreach($user_phone_arr as $key => $item) {
+                array_push($cellData, [$key+1, $item]);
+            }
+
+        ob_end_clean();
+        ob_start();
+        Excel::create(iconv('UTF-8', 'UTF-8', EXCEL_NAME),function ($excel) use ($cellData){
+            $excel->sheet('score',function($sheet) use ($cellData){
+                $sheet->rows($cellData);
+            });
+        })->export('xls');
+
+        return responseToJson(0,'success');
+
+
 
     }
+
+
     
     /**
      * 先向信息表中插入消息，并得到id
@@ -474,6 +509,10 @@ class SendNewsController extends Controller
         }
         
     }
+
+
+
+
 
     private function sendSms($user_phone_arr, $sms_message, $newsMsg) {
         if(!is_array($user_phone_arr)) $user_phone_arr = $user_phone_arr->toArray();

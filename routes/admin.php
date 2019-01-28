@@ -429,6 +429,8 @@
              * 发送消息
              */
             Route::post('getAllAccounts', 'SendNewsController@getAllAccounts');
+
+            Route::get('putExcel', 'SendNewsController@putExcel');
             
             Route::post('batchScreenAccounts', 'SendNewsController@batchScreenAccounts');
             
