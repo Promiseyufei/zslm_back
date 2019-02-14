@@ -181,6 +181,7 @@
                         $lenght = $insutry!=null ? count($insutry) : 0;
                        
 			 for($z = 0;$z<$lenght;$z++){
+                    
                             $return_ins.= $this->findIndustry(intval($insutry[$z]),$insutrys);
                         }
                         
