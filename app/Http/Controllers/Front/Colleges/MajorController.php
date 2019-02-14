@@ -62,12 +62,15 @@
             for ($i = 0; $i < sizeof($majors); $i++) {
                 $majors[$i]->update_time = date("Y-m-d", $majors[$i]->update_time);
                 $addressArr = strChangeArr($majors[$i]->province, EXPLODE_STR);
-                dd(  $majors[$i]);
-                $majors[$i]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
-                $majors[$i]->city = '';
-                if (sizeof($addressArr) > 1)
-                    $majors[$i]->city = dictRegion::getOneArea($addressArr[1])[0]->name;
-                
+                if(sizeof($addressArr) >0){
+                    $majors[$i]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
+                    $majors[$i]->city = '';
+                    if (sizeof($addressArr) > 1)
+                        $majors[$i]->city = dictRegion::getOneArea($addressArr[1])[0]->name;
+                }else{
+                    $majors[$i]->province = '';
+                    $majors[$i]->city = '';
+                }
                 $fileds = ['project_name','cost','language','class_situation','student_count'];
                 $majors[$i]->product = majorRecruitProject::getProjectByMid($majors[$i]->id,
                     $request->min, $request->max, $request->money_ordre,
