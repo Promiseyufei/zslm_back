@@ -49,7 +49,7 @@
             //     $provice = dictRegion::getProvinceIdByName($request->provice)
             //;
             $felds = ['id', 'province', 'magor_logo_name',
-                'z_name', 'update_time', 'major_confirm_id', 'major_follow_id'];
+                'z_name', 'update_time', 'major_confirm', 'major_follow'];
             
             $majors = zslmMajor::getMajorBySelect($request->z_type, $request->z_name,
                 $provice, $request->professional_direction, $request->page, $request->page_size, $felds, $request->major_order);
@@ -75,9 +75,21 @@
                 $majors[$i]->product = majorRecruitProject::getProjectByMid($majors[$i]->id,
                     $request->min, $request->max, $request->money_ordre,
                     $request->score_type, $request->enrollment_mode, $request->project_count,$fileds);
-                if($majors[$i]->major_confirm_id != 0 || $majors[$i]->major_confirm_id != '')
-                    $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
-                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
+//                if($majors[$i]->major_confirm_id != 0 || $majors[$i]->major_confirm_id != '')
+//                    $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
+//
+//                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
+                $major_confirms_str = strChangeArr($majors[$i]->major_confirm,EXPLODE_STR);
+                $major_confirms_str = changeStringToInt($major_confirms_str);
+                $major_follow_str = strChangeArr($majors[$i]->major_follow,EXPLODE_STR);
+                $major_follow_str = changeStringToInt($major_follow_str);
+    
+                $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
+                $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
+                $majors[$i]->major_confirm_id = $major_confirm;
+                $majors[$i]->major_follow_id = $major_follow;
+                unset($majors[$i]->major_confirm);
+                unset($majors[$i]->major_follow);
             }
             $count = zslmMajor::getMajorBySelectCount($request->z_type, $request->z_name, $provice);
             $majors->count = $count;
