@@ -62,7 +62,7 @@
             for ($i = 0; $i < sizeof($majors); $i++) {
                 $majors[$i]->update_time = date("Y-m-d", $majors[$i]->update_time);
                 $addressArr = strChangeArr($majors[$i]->province, EXPLODE_STR);
-                dd( dictRegion::getOneArea($addressArr[0]));
+                dd(  $majors[$i]);
                 $majors[$i]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
                 $majors[$i]->city = '';
                 if (sizeof($addressArr) > 1)
