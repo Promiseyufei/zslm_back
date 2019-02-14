@@ -80,7 +80,6 @@
 //
 //                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
                 $major_confirms_str = strChangeArr($majors[$i]->major_confirm,EXPLODE_STR);
-                dd($major_confirms_str);
                 $major_confirms_str = changeStringToInt($major_confirms_str);
                 $major_follow_str = strChangeArr($majors[$i]->major_follow,EXPLODE_STR);
                 $major_follow_str = changeStringToInt($major_follow_str);
