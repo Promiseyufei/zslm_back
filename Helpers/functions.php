@@ -274,6 +274,8 @@ function getByteToMb($bytes) {
       * @param $val 带转换的字符串数字数组
       */
 function changeStringToInt($val){
+    if($val == '' || $val == null)
+        return [];
     for($i = 0;$i < sizeof($val);$i++){
         $val[$i] = intval($val[$i]);
     }

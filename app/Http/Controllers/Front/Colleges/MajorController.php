@@ -49,7 +49,7 @@
             //     $provice = dictRegion::getProvinceIdByName($request->provice)
             //;
             $felds = ['id', 'province', 'magor_logo_name',
-                'z_name', 'update_time', 'major_confirm_id', 'major_follow_id'];
+                'z_name', 'update_time', 'major_confirm', 'major_follow'];
             
             $majors = zslmMajor::getMajorBySelect($request->z_type, $request->z_name,
                 $provice, $request->professional_direction, $request->page, $request->page_size, $felds, $request->major_order);
@@ -62,18 +62,34 @@
             for ($i = 0; $i < sizeof($majors); $i++) {
                 $majors[$i]->update_time = date("Y-m-d", $majors[$i]->update_time);
                 $addressArr = strChangeArr($majors[$i]->province, EXPLODE_STR);
-                $majors[$i]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
-                $majors[$i]->city = '';
-                if (sizeof($addressArr) > 1)
-                    $majors[$i]->city = dictRegion::getOneArea($addressArr[1])[0]->name;
-                
+                if(sizeof($addressArr) >0){
+                    $majors[$i]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
+                    $majors[$i]->city = '';
+                    if (sizeof($addressArr) > 1)
+                        $majors[$i]->city = dictRegion::getOneArea($addressArr[1])[0]->name;
+                }else{
+                    $majors[$i]->province = '';
+                    $majors[$i]->city = '';
+                }
                 $fileds = ['project_name','cost','language','class_situation','student_count'];
                 $majors[$i]->product = majorRecruitProject::getProjectByMid($majors[$i]->id,
                     $request->min, $request->max, $request->money_ordre,
                     $request->score_type, $request->enrollment_mode, $request->project_count,$fileds);
-                
-                $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
-                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
+//                if($majors[$i]->major_confirm_id != 0 || $majors[$i]->major_confirm_id != '')
+//                    $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
+//
+//                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
+                $major_confirms_str = strChangeArr($majors[$i]->major_confirm,EXPLODE_STR);
+                $major_confirms_str = changeStringToInt($major_confirms_str);
+                $major_follow_str = strChangeArr($majors[$i]->major_follow,EXPLODE_STR);
+                $major_follow_str = changeStringToInt($major_follow_str);
+    
+                $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
+                $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
+                $majors[$i]->major_confirm_id = $major_confirm;
+                $majors[$i]->major_follow_id = $major_follow;
+                unset($majors[$i]->major_confirm);
+                unset($majors[$i]->major_follow);
             }
             $count = zslmMajor::getMajorBySelectCount($request->z_type, $request->z_name, $provice);
             $majors->count = $count;

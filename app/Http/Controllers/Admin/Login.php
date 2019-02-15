@@ -53,11 +53,12 @@
             if($request->captcha != Redis::get($request->header('UUID').'milkcaptcha')){
                 return responseToJson(1,'验证码错误，注意验证码英文要用小写英文');
             }
-    
+           
             $request->password = md5($request->password);
             $login = admin_accounts::selectAccountByPass($request);
+            
             admin_accounts::updateLoginTime($request);
-            if(sizeof($login) == 1){
+            if($login!= null){
                 session(['admin_account'=>$request->account]);
                 Redis::setex($request->header('UUID'),86400000,'login');
                 return responseToJson(0,'success');
@@ -78,6 +79,7 @@
         }
         
         public function createUUID(){
+            
             return responseToJson(0,'success',UUID::generate()->string);
         }
     
