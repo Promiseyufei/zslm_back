@@ -30,7 +30,7 @@ class WeixinController extends Controller{
         $user_data = Socialite::with('weixinweb')->stateless()->user();
         if(!empty($user_data) && $user_data->getId()) {
            $data = $this->selectThirdAccount($user_data->getId(), 1, $request);
-           echo "<script type='text/javascript'>window.location.href =http://www.mbahelper.cn/#/front/index/" . INDEX_URL ." + $data;</script>";
+           echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/index/'"."$data;</script>";
         }
        else echo "<script type='text/javascript'>window.location.href = " . INDEX_URL ."'front/Login/loginRoute/shortMessage';</script>"; 
     }
@@ -47,8 +47,7 @@ class WeixinController extends Controller{
             $user_phone = UserAccounts::getIdToPhone($user_id);
             if(!empty($user_phone)) {
                 loginSuccess($request, $user_phone);
-                return [0, 'success', UserInformation::getUserViewsInfo($user_id)];
-                // return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user_id));
+                return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user_id));
             }
             else return responseToJson(1, 'error');
         }
