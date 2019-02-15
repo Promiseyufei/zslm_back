@@ -17,21 +17,22 @@ use App\Models\user_information as UserInformation;
 use App\Models\user_third_accounts as UserThirdAccounts;
 use App\Http\Controllers\Login\Front\FrontLoginController;
 
+define('INDEX_URL', 'http://www.mbahelper.cn/#/front/index/');
 class WeixinController extends Controller{
+
     public function redirectToProvider(Request $request)
     {   
-        return Socialite::driver('weixinweb')->with(['reurl' => 'www.lishanlei.cn'])->redirect();
+        return Socialite::driver('weixinweb')->with(['reurl' => 'www.mbahelper.cn'])->redirect();
     }
 
     public function handleProviderCallback(Request $request)
     {
         $user_data = Socialite::with('weixinweb')->stateless()->user();
-	dd($user_data);
         if(!empty($user_data) && $user_data->getId()) {
-           return $this->selectThirdAccount($user_data->getId(), 1, $request);
+           $data = $this->selectThirdAccount($user_data->getId(), 1, $request);
+           echo "<script type='text/javascript'>window.location.href =" . INDEX_URL ." + $data;</script>";
         }
-       else return responseToJson(1, '没有获得该用户微信信息,请重新尝试');
-	//else dd('error');
+       else echo "<script type='text/javascript'>window.location.href = " . INDEX_URL ."'front/Login/loginRoute/shortMessage';</script>"; 
     }
 
 
@@ -77,6 +78,7 @@ class WeixinController extends Controller{
         }
         else responseToJson(2, '登录方式错误');
     }
+
 
     
 }
