@@ -31,9 +31,9 @@ class WeixinController extends Controller{
         if(!empty($user_data) && ($userOpenId = $user_data->getId())) {
            $data = $this->selectThirdAccount($user_data->getId(), 1, $request);
            if(!empty($data)) {
-               echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/index/'"."$data;</script>";
+               echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/index/"."$data';</script>";
            }
-           else echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/Login/thirdBind/'"."$userOpenId;</script>";
+           else echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/Login/thirdBind/"."$userOpenId';</script>";
         }
        else echo "<script type='text/javascript'>window.location.href = " . INDEX_URL ."'front/Login/loginRoute/shortMessage';</script>"; 
     }
@@ -50,7 +50,9 @@ class WeixinController extends Controller{
             $user_phone = UserAccounts::getIdToPhone($user_id);
             if(!empty($user_phone)) {
                 loginSuccess($request, $user_phone);
-                return [0, 'success', UserInformation::getUserViewsInfo($user_id)];
+                $user = UserInformation::getUserViewsInfo($user_id);
+                if(!empty($user->head_portrait)) $user->head_portrait = splicingImgStr('front','user',$user->head_portrait);
+                return [0, 'success', $user];
                 // return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user_id));
             }
             else return 0;
