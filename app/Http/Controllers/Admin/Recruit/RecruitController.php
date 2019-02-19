@@ -76,7 +76,7 @@ class RecruitController extends Controller{
     public function sendRecruit(Request $request) {
         if($request->isMethod('post')) {
             if(empty($request->recruirId)) return responseToJson(1, '没有相关招生服务项目的id');
-            else if($this->judgeIsPhone($request->phone)) return responseToJson(1, '手机号格式不正确');
+            else if(!$this->judgeIsPhone($request->phone)) return responseToJson(1, '手机号格式不正确');
             else if(empty($request->smsCode)) return responseToJson(1, '请填写收到的短信验证码');
             else if(($sms_msg = $this->judgeSms($request->phone, $request->smsCode)) && $sms_msg != 'success') return responseToJson(1, $sms_msg);
             else if(empty($request->recruitArr) || !is_array($request->recruitArr)) return responseToJson(1, '请选择招生服务类型');

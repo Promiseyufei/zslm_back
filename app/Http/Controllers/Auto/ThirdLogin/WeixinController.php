@@ -47,13 +47,15 @@ class WeixinController extends Controller{
             $user_phone = UserAccounts::getIdToPhone($user_id);
             if(!empty($user_phone)) {
                 loginSuccess($request, $user_phone);
-                return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user_id));
+                return [0, 'success', UserInformation::getUserViewsInfo($user_id)];
+                // return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user_id));
             }
             else return responseToJson(1, 'error');
         }
         else {
+            echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/Login/thirdBind/'"."$userOpenId;</script>";
             //如果没有绑定，前台输入手机号，然后跳转到bindAccounts()
-            return responseToJson(3, '未绑定账号', $userOpenId);
+            // return responseToJson(3, '未绑定账号', $userOpenId);
         }
     }
 
