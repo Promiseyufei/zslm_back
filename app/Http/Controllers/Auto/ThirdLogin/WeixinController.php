@@ -28,9 +28,12 @@ class WeixinController extends Controller{
     public function handleProviderCallback(Request $request)
     {
         $user_data = Socialite::with('weixinweb')->stateless()->user();
-        if(!empty($user_data) && $user_data->getId()) {
+        if(!empty($user_data) && ($userOpenId = $user_data->getId())) {
            $data = $this->selectThirdAccount($user_data->getId(), 1, $request);
-           echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/index/'"."$data;</script>";
+           if(!empty($data)) {
+               echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/index/'"."$data;</script>";
+           }
+           else echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/Login/thirdBind/'"."$userOpenId;</script>";
         }
        else echo "<script type='text/javascript'>window.location.href = " . INDEX_URL ."'front/Login/loginRoute/shortMessage';</script>"; 
     }
@@ -50,10 +53,10 @@ class WeixinController extends Controller{
                 return [0, 'success', UserInformation::getUserViewsInfo($user_id)];
                 // return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user_id));
             }
-            else return responseToJson(1, 'error');
+            else return 0;
         }
         else {
-            echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/Login/thirdBind/'"."$userOpenId;</script>";
+            return 0;
             //如果没有绑定，前台输入手机号，然后跳转到bindAccounts()
             // return responseToJson(3, '未绑定账号', $userOpenId);
         }
