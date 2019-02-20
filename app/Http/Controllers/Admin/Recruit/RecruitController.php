@@ -29,7 +29,6 @@ class RecruitController extends Controller{
             $re_msg->wx_img = splicingImgStr('admin', 'recruit', $re_msg->wx_img);
             $re_msg->pro_auto_logo = splicingImgStr('admin', 'recruit', $re_msg->pro_auto_logo);
 
-
             return responseToJson(0, 'success', $re_msg);
 
         }
