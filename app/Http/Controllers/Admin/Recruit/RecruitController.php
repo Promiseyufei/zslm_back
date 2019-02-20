@@ -19,9 +19,9 @@ class RecruitController extends Controller{
      */
     public function getRecruitInfo(Request $request) {
         if($request->isMethod('get')) {
-            $recruit_id = !empty($request->recruit_id) ? $request->recruit_id : 0;
-            if($recruit_id == 0) return responseToJson(1, '没有相关招生服务项目的id');
-            $re_msg = RecruitCollegeProject::getRecruitMsg($recruit_id);
+            $pro_simple = !empty($request->pro_simple) ? $request->pro_simple : '';
+            if($pro_simple == '') return responseToJson(1, '没有相关招生服务项目的缩略名');
+            $re_msg = RecruitCollegeProject::getRecruitMsg($pro_simple);
             if(empty($re_msg)) return responseToJson(1, '没有相关招生服务项目的信息'); 
 
             $re_msg->back_img = splicingImgStr('admin', 'recruit', $re_msg->back_img);
@@ -96,18 +96,19 @@ class RecruitController extends Controller{
             if(!empty($is_set)) {
                 $major_name = RecruitCollegeProject::getRecruitAppointMsg($request->recruirId, 'pro_name');
                 $open_group = RecruitCollegeProject::isOpenGroupService($request->recruirId);
-                if(is_numeric($open_group->is_open_group) == 0) {
+                // dd($open_group->is_open_group == 0);
+                if($open_group->is_open_group == 0) {
                     $is_send = SmsController::sendSms($request->phone, ['major_name' => $major_name], '招生服务专题通知订阅用户');
                     // if($is_send->Message == 'OK' || $is_send->Code == 'OK') {
                     //     return responseToJson(0, '发送成功');
                     // }
                     // else return responseToJson(1, '发送失败');
                 }
-                else if(is_numeric($open_group->is_open_group) == 1) {
+                else if($open_group->is_open_group == 1) {
                     $is_send = SmsController::sendSms($request->phone, [
                         'major_name' => $major_name, 
-                        'group_number' => $open_group->group_number, 
-                        'group_pass' => $open_group->group_password
+                        'gn' => $open_group->group_number, 
+                        'gp' => $open_group->group_password
                     ], '招生服务发送入群信息');
                 }
                 return responseToJson(0, '提交成功');
