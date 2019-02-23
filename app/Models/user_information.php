@@ -229,7 +229,9 @@
         //登录成功后获得用户的昵称和头像
         public static function getUserViewsInfo($userId) {
             if(!DB::table(self::$sTableName)->where('user_account_id', $userId)->count()) self::insertUserInfo($userId, []);
-            return DB::table(self::$sTableName)->where('user_account_id', $userId)->select('user_account_id', 'user_name', 'head_portrait')->first();
+            return DB::table(self::$sTableName)
+                ->leftJoin('user_accounts', self::$sTableName . '.user_account_id', '=', 'user_accounts.id')
+                ->where('user_account_id', $userId)->select('user_accounts.phone', 'user_account_id', 'user_name', 'head_portrait')->first();
         
         }
         

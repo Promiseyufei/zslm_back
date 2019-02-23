@@ -17,21 +17,25 @@ use App\Models\user_information as UserInformation;
 use App\Models\user_third_accounts as UserThirdAccounts;
 use App\Http\Controllers\Login\Front\FrontLoginController;
 
+define('INDEX_URL', 'http://www.mbahelper.cn/#/front/index/');
 class WeixinController extends Controller{
+
     public function redirectToProvider(Request $request)
     {   
-        return Socialite::driver('weixinweb')->with(['reurl' => 'www.lishanlei.cn'])->redirect();
+        return Socialite::driver('weixinweb')->with(['reurl' => 'www.mbahelper.cn'])->redirect();
     }
 
     public function handleProviderCallback(Request $request)
     {
         $user_data = Socialite::with('weixinweb')->stateless()->user();
-	dd($user_data);
-        if(!empty($user_data) && $user_data->getId()) {
-           return $this->selectThirdAccount($user_data->getId(), 1, $request);
+        if(!empty($user_data) && ($userOpenId = $user_data->getId())) {
+           $data = $this->selectThirdAccount($user_data->getId(), 1, $request);
+           if(!empty($data)) {
+               echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/index/"."$data';</script>";
+           }
+           else echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/Login/thirdBind/"."$userOpenId';</script>";
         }
-       else return responseToJson(1, '没有获得该用户微信信息,请重新尝试');
-	//else dd('error');
+       else echo "<script type='text/javascript'>window.location.href = " . INDEX_URL ."'front/Login/loginRoute/shortMessage';</script>"; 
     }
 
 
@@ -46,13 +50,17 @@ class WeixinController extends Controller{
             $user_phone = UserAccounts::getIdToPhone($user_id);
             if(!empty($user_phone)) {
                 loginSuccess($request, $user_phone);
-                return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user_id));
+                $user = UserInformation::getUserViewsInfo($user_id);
+                if(!empty($user->head_portrait)) $user->head_portrait = splicingImgStr('front','user',$user->head_portrait);
+                return [0, 'success', $user];
+                // return responseToJson(0, 'success', UserInformation::getUserViewsInfo($user_id));
             }
-            else return responseToJson(1, 'error');
+            else return 0;
         }
         else {
+            return 0;
             //如果没有绑定，前台输入手机号，然后跳转到bindAccounts()
-            return responseToJson(3, '未绑定账号', $userOpenId);
+            // return responseToJson(3, '未绑定账号', $userOpenId);
         }
     }
 
@@ -77,6 +85,7 @@ class WeixinController extends Controller{
         }
         else responseToJson(2, '登录方式错误');
     }
+
 
     
 }

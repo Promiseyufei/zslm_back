@@ -201,7 +201,7 @@ class user_accounts
         if(!DB::table(self::$sTableName)->where('phone', $userPhone)->count()) {
             return DB::table(self::$sTableName)->insertGetId([
                 'phone'         => $userPhone,
-                'password'      => encryptPassword(mb_substr($userPhone, -1, 6)),
+                'password'      => encryptPassword(substr($userPhone, -6)),
                 'create_time'   => time()
             ]);
         }

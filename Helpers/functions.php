@@ -444,6 +444,8 @@ function changeStringToInt($val){
                 return $userPhone . '-smsCode';
             case 2: 
                 return $userPhone . '-code';
+            case 3: 
+                return $userPhone . '-recruitSmsCode';
         }
     }
 

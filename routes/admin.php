@@ -14,6 +14,9 @@
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'login'], function () {
 
 
+        /**
+         * 调剂专题模块
+         */
         Route::group(['prefix' => 'dispen', 'namespace' => 'Dispensing'], function () {
             Route::get('getProvinces', 'DispensingController@getProvinces');
             Route::get('getDisPro', 'DispensingController@getDisPro');
@@ -22,6 +25,18 @@
             Route::post('setMajorSubscribe', 'DispensingController@setMajorSubscribe');
             Route::post('sendSmsCode', 'DispensingController@sendSmsCode');
             Route::post('judgeSms', 'DispensingController@judgeSms');
+        });
+
+
+        /**
+         * 招生服务专题模块
+         */
+        Route::group(['prefix' => 'recruit', 'namespace' => 'Recruit'], function () {
+            Route::get('getRecruitInfo', 'RecruitController@getRecruitInfo');
+
+            Route::post('sendRecruitSmsCode', 'RecruitController@sendRecruitSmsCode');
+
+            Route::post('sendRecruit', 'RecruitController@sendRecruit');
         });
 
 
