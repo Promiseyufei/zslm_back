@@ -12,7 +12,7 @@ class ConsultController extends Controller{
 
 
     /**
-     * 获取前台搜索页面的资讯查询数据
+     * 获取前台搜索页面的资讯查询数据getAppointRead
      * @param $keyword 关键字
      * @param $pageNumber 页面下标
      * @param $pageCount 页面显示行数
