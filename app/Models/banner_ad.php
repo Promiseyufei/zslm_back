@@ -86,5 +86,23 @@ class banner_ad
             ['type', '=', 1]
         ])->select('id', 'img', 'img_alt', 're_url', 're_alt')->get();
     }
+    
+    /**
+     * 通过广告位id获取指定广告位的广告
+     * @param $bt_id 广告位id
+     * @param $limit 获取的广告数量
+     * @param $type 获取广告的类型 0表示banner图 1表示普通广告
+     */
+    public static function getBannerByById($bt_id,$limit,$type){
+        
+        return DB::table(self::$sTableName)
+            ->where([['url_id',$bt_id],['is_delete',0],['type',$type]])
+            ->orderBy('show_weight','desc')
+            ->limit($limit)
+            ->get(['img','img_alt','re_url','re_alt']);
+        
+    }
+    
+  
 
 }

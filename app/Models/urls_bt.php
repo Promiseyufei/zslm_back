@@ -27,6 +27,15 @@ class urls_bt
     public static function getUrlId($url) {
         return DB::table(self::$sTableName)->where('url', 'like', '%' . $url . '%')->value('id');
     }
-
+    
+    /**
+     * 通过广告位名称获取广告位的id
+     * @param $b_name 广告位名称
+     *
+     * @return mixed 广告位对象，包含广告位的id
+     */
+    public static function getBannerByName($b_name){
+        return DB::table(self::$sTableName)->where('name',$b_name)->first(['id']);
+    }
 
 }

@@ -146,9 +146,9 @@
             if(empty($majors))
                 return [];
             for ($i = 0; $i < sizeof($majors); $i++) {
-                $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
-                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
-
+//                $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
+//                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
+             
                 $majors[$i]->magor_logo_name = splicingImgStr('admin', 'info', $majors[$i]->magor_logo_name);
                 if($majors[$i]->province !== '')
                     $majors[$i]->province = getProCity($majors[$i]->province);

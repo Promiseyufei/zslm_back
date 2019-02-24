@@ -117,6 +117,10 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
       
     });
 
+    Route::group(['prefix'=>'banner','namespace'=>'Banner'],function (){
+        Route::get('getbanner', 'BannerController@getBanner');
+    
+    });
 
     /**
      * 看资讯
