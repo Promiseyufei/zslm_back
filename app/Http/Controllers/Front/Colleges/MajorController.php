@@ -398,7 +398,7 @@
 
                 if(!empty($majors[$i]->wc_image)) {
                     $majors[$i]->wc_image = strChangeArr($majors[$i]->wc_image, EXPLODE_STR);
-                    for($j = 0; $j <　count($$majors[$i]->wc_image); $j++) {
+                    for($j = 0; $j < count($majors[$i]->wc_image); $j++) {
                         $majors[$i]->wc_image[$j] = splicingImgStr('admin', 'info', $majors[$i]->wc_image[$j]);
                     }
                 }
