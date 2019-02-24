@@ -21,6 +21,7 @@ class CodeController extends Controller{
             //把内容存入session
             // if(Session::has('milkcaptcha') Session::forget('milkcaptcha');
 //            Session::flash('milkcaptcha', $phrase); //存储验证码
+
             Redis::set($request->get('UUID').'milkcaptcha',$phrase);
        
          
