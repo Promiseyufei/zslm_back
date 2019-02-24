@@ -88,6 +88,8 @@
                 $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
                 $majors[$i]->major_confirm_id = $major_confirm;
                 $majors[$i]->major_follow_id = $major_follow;
+                if($majors[$i]->magor_logo_name != null || $majors[$i]->magor_logo_name != '')
+                    $majors[$i]->magor_logo_name = splicingImgStr('admin', 'info',$majors[$i]->magor_logo_name);
                 unset($majors[$i]->major_confirm);
                 unset($majors[$i]->major_follow);
             }
