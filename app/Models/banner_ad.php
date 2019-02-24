@@ -102,7 +102,22 @@ class banner_ad
             ->get(['img','img_alt','re_url','re_alt']);
         
     }
-    
+
+
+
+    /**
+     * 获得指定页面的Banner
+     * $pageId 前台路由id
+     * $type 类型
+     */ 
+    public static function getPageBanner($pageId, $type = 0) {
+        return DB::table(self::$sTableName)->where([
+            ['url_id', $pageId],
+            ['is_delete', 0],
+            ['type', $type]
+        ])->orderBy('create_time', 'desc')->orderBy('show_weight', 'desc')->select('id', 'img', 'img_alt', 're_url')->first();
+    }
+
   
 
 }
