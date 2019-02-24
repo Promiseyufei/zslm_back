@@ -369,6 +369,8 @@
                 'admissions_web','address','phone', 'major_confirm',
                 'access_year','wc_image'];
             $majors = zslmMajor::getVsMajorsByIds($ids,$fileds);
+
+            // dd($majors);
     
             if(sizeof($majors) == 0)
                 return responseToJson(1,"暂无数据");
@@ -393,6 +395,14 @@
                 $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
                 $majors[$i]->major_confirm_id = $major_confirm;
                 $majors[$i]->major_follow_id = $major_follow;
+
+                if(!empty($majors[$i]->wc_image)) {
+                    $majors[$i]->wc_image = strChangeArr($majors[$i]->wc_image, EXPLODE_STR);
+                    for($j = 0; $j <　count($$majors[$i]->wc_image); $j++) {
+                        $majors[$i]->wc_image[$j] = splicingImgStr('admin', 'info', $majors[$i]->wc_image[$j]);
+                    }
+                }
+
                 unset($majors[$i]->major_confirm);
                 unset($majors[$i]->major_follow);
             }
