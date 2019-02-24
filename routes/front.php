@@ -75,6 +75,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
 
         Route::get("getMajorBanner","MajorController@getMajorBanner");
 
+        Route::get("downloadfile/{filename}","MajorController@downloadFile");
+
     });
 
 

@@ -186,8 +186,8 @@
             
             if(!isset($request->id) && !is_numeric($request->id))
                 return responseToJson(1,"院校id不存在，或者不为数字");
-            if(!isset($request->u_id) && !is_numeric($request->u_id))
-                return responseToJson(1,"U_id错误");
+            // if(!isset($request->u_id) && !is_numeric($request->u_id))
+            //     return responseToJson(1,"U_id错误");
     
             $felds = ['id', 'z_name', 'magor_logo_name',
                 'major_follow_id', 'province','index_web',
@@ -220,8 +220,12 @@
             unset($major[0]->major_follow);
             $major[0]->project = majorRecruitProject::getProjectByMid($request->id,0,
                 0,0,'','',0,$fileds);
-            $is_guanzhu =  user_follow_major::getIfUsesMajor($request->u_id,$request->id);
-            $major[0]->is_guanzhu = $is_guanzhu == 0 ? false : true;
+            
+            if(!isset($request->u_id) && !is_numeric($request->u_id)) $is_guanzhu = false;
+            else {
+                $is_guanzhu =  user_follow_major::getIfUsesMajor($request->u_id,$request->id);
+                $major[0]->is_guanzhu = $is_guanzhu == 0 ? false : true;
+            }
 
             if(!empty($major[0]->magor_logo_name)) 
                 $major[0]->magor_logo_name = splicingImgStr('admin', 'info', $major[0]->magor_logo_name);
@@ -553,6 +557,12 @@
             if(!empty($banner_msg) && !empty($banner_msg->img)) $banner_msg->img = splicingImgStr('admin', 'operate', $banner_msg->img);
 
             return responseToJson(0, 'success', $banner_msg);
+        }
+
+
+        public function downloadFile($filename) {
+            return response()->download(realpath(public_path()) . '/storage/major_file/'.$filename, $filename);
+
         }
 
 

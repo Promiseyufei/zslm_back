@@ -30,7 +30,7 @@ class RecruitController extends Controller{
             ($is_mobile == true) ? array_push($select_arr, 'mobile_img') : array_push($select_arr, 'back_img');
                 
             
-            $re_msg = RecruitCollegeProject::getRecruitMsg($pro_simple);
+            $re_msg = RecruitCollegeProject::getRecruitMsg($pro_simple, $select_arr);
             if(empty($re_msg)) return responseToJson(1, '没有相关招生服务项目的信息'); 
 
             if($is_mobile) {

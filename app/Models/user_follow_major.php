@@ -63,7 +63,7 @@ class user_follow_major
     public static function setUserMajor($u_id,$m_id){
         
         $result = 0;
-        $result = DB::table(self::$sTableName)->where('user_id',$u_id)->where('major_id',$m_id)->update(['is_focus'=>0])->limit(1);
+        $result = DB::table(self::$sTableName)->where('user_id',$u_id)->where('major_id',$m_id)->update(['is_focus'=>0]);
         if($result == 1)
             return $result;
         return DB::table(self::$sTableName)->insert(['user_id'=>$u_id,'major_id'=>$m_id,'create_time'=>time()]);
