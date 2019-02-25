@@ -40,9 +40,10 @@
                 return responseToJson(1,'没有页码、页面大小或者页码、也买你大小不是数字');
             $provice = '';
             
-//            if (!empty($request->provice) && $request->provice != '')
-//                $provice = dictRegion::getProvinceIdByName($request->provice);
-            
+            if (!empty($request->provice) && $request->provice != ''){
+                $provice = dictRegion::getProvinceIdByName_c($request->provice);
+                $provice = $provice->id;
+            }
             $fields = ['id', 'coach_name', 'province', 'if_coupons', 'if_back_money', 'cover_name', 'cover_alt', 'logo_name', 'logo_alt'];
             $coachs = coachOrganize::getSelectCoach($provice, $request->coach_type,
                 $request->coach_name, $request->page, $request->page_size,
@@ -177,8 +178,13 @@
             
             $id = $request->id;
            $coupon_ids =  user_coupon::getCouponIdWithUse($id,$request->is_use);
-           if(sizeof($coupon_ids) == 0)
-               return responseToJson(1,'没有优惠券');
+            $c1 = 0;$c2 = 0;$c3 = 0;
+            $c1 += zslm_coupon::getUserCoachCouponCount($request->id,0,0);
+            $c2 += zslm_coupon::getUserCoachCouponCount($request->id,1,0);
+            $c3 += zslm_coupon::getUserCoachCouponCount($request->id,2,1);
+           if(sizeof($coupon_ids) == 0){
+               return responseToJson(1,'没有优惠券',['nouse'=>$c1,'use'=>$c3,'enable'=>$c2]);
+           }
            $coupon_id_arr = [];
            for($i = 0;$i<sizeof($coupon_ids);$i++)
                $coupon_id_arr[$i] = $coupon_ids[$i]->coupon_id;
@@ -191,7 +197,7 @@
                 $coach_arr[$i] = $coachs[$i]->coach_id;
             
             $coach_res = coachOrganize::getAllCoachByIds($coach_arr,['id','coach_name','province','web_url']);
-            $c1 = 0;$c2 = 0;$c3 = 0;
+          
             for($i = 0;$i<sizeof($coach_res);$i++){
                 $province = explode(EXPLODE_STR,$coach_res[$i]->province);
                 
@@ -203,9 +209,7 @@
            
                 $coach_res[$i]->coupon = $coupon;
             }
-            $c1 += zslm_coupon::getUserCoachCouponCount($request->id,0,0);
-            $c2 += zslm_coupon::getUserCoachCouponCount($request->id,1,0);
-            $c3 += zslm_coupon::getUserCoachCouponCount($request->id,2,1);
+    
             return responseToJson(0,'success',[$coach_res,'nouse'=>$c1,'use'=>$c3,'enable'=>$c2]);
             
         }

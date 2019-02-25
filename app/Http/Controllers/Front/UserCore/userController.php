@@ -46,11 +46,16 @@
             if(sizeof($user) == 0)
                 return responseToJson(1,'没有该用户');
             
-            $addr = getProCity($user[0]->address);
-            unset($user[0]->address);
-            $user[0]->provice = $addr['province'];
-            if(sizeof($addr)>1)
-                $user[0]->city = $addr['city'];
+            if($user[0]->address != ""){
+                $addr = getProCity($user[0]->address);
+                unset($user[0]->address);
+                $user[0]->provice = $addr['province'];
+                if(sizeof($addr)>1)
+                    $user[0]->city = $addr['city'];
+            }else{
+                $user[0]->provice = "";
+                $user[0]->city = "";
+            }
             $majorCount = userFollowMajor::getCountUserMajor($request->id);
             $activeCount = userActivitys::getCountUserActivity($request->id);
             $newCount = newUsers::getCountUserNews($request->id,0);
@@ -82,7 +87,7 @@
             
                 $userMajor = userFollowMajor::getUserFollowMajors($request->id,
                     $request->page,$request->page_size,
-                    ['major_id','z_name','province','major_follow_id','major_confirm_id','magor_logo_name','major_logo_alt','major_follow','major_confirm']);
+                    ['major_id','z_name','province','major_follow_id','major_confirm_id','magor_logo_name','major_logo_alt','major_follow','major_confirm','index_web']);
                 if(sizeof($userMajor) == 0){
                     return responseToJson(1,'无数据');
                 }
@@ -164,7 +169,7 @@
                    'is_coupon' => 'required|numeric',
                'time'=>'required|numeric',
                'phone'=>'required',
-               'refund_type'=>'required',
+               'refund_type'=>'required|numeric',
                'alipay_account'=>'required',
                'name'=>'required',
                'card'=>'required',
@@ -181,7 +186,15 @@
             if(!preg_match($g,$request->phone)){
                 return responseToJson(1,'请输入正确格式的手机号');
             }
-
+            if(!validataBankCard($request->card)){
+                return responseToJson(1,'请输入正确格式的银行卡号');
+            }
+            
+            $request->c_name =preg_replace('# #','',$request->c_name);
+            $request->alipay_account =preg_replace('# #','',$request->alipay_account);
+            $request->name =preg_replace('# #','',$request->name);
+            $request->blank_addr =preg_replace('# #','',$request->blank_addr);
+            $request->message =preg_replace('# #','',$request->message);
            $fileUrl = 'public/refund/';
      
            $i = 0;
@@ -190,6 +203,15 @@
              $ext = ['jpg','jpeg','png'];
            DB::beginTransaction();
             try{
+                $file_names='';
+                foreach($_FILES as $key => $value){
+                    $file = $request->file($key);
+                    $file_ext = $file->getClientOriginalExtension();
+                    $name = getFileName('refund',$file_ext);
+                    $file_names .= $name.',';
+                }
+                $file_names = rtrim($file_names, ',');
+                $request->imgs_name = $file_names;
                 $result =  refund_apply::addRefund($request);
                 $img_index = 1;
              

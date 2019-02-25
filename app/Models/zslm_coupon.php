@@ -167,13 +167,19 @@
                 ->join('user_coupon', self::$sTableName . '.id', '=', 'user_coupon.coupon_id')
                 ->where('user_id', $u_id)
                 ->where( 'user_coupon.is_delete', 0);
-            if($type != 2)
-                $query = $query ->where('is_enable', $type);
+            if($type == 2)
+                $query = $query ->where('is_enable', 1);
             
-            if ($is_use == 0)
+            if ($type == 0){
                 $query = $query->where('use_time', 0);
-            else if ($is_use == 1)
+                $query = $query->where('is_enable',0);
+                $query = $query->where('is_use',0);
+            }
+            else if ($type == 1){
+                $query = $query->where('is_use',1);
                 $query = $query->where('use_time', '>', 0);
+                $query = $query->where('is_enable',0);
+            }
         
         
             return $query->count(self::$sTableName.'.id');

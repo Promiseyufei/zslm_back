@@ -169,11 +169,18 @@ class refund_apply
         
     }
     
+    /**
+     * 添加一条退款记录
+     * @param Request $request
+     *
+     * @return mixed
+     */
     public static function addRefund(Request $request){
+        //TODO 此方法暂时只能从$request->imgs_name中读取文件名称，如果有特殊需求，请重写方法，注意尽量新创建方法
         return DB::table(self::$sTableName)->insert(['account_id'=>$request->u_id,'f_id'=>$request->f_id,
             'is_use_coupon'=>$request->is_coupon,'coupon_id'=>$request->cou_id,'registration_deadline'=>$request->time,
             'phone'=>$request->phone,'alipay_account'=>$request->alipay_account,'name'=>$request->name,'card'=>$request->card,
-            'bank'=>$request->blank_addr,'to_apply_for_reimbursement'=>$request->message]);
+            'bank'=>$request->blank_addr,'to_apply_for_reimbursement'=>$request->message,'imgs'=>$request->imgs_name]);
     }
     
 }

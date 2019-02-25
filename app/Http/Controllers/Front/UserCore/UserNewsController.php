@@ -28,8 +28,8 @@ class UserNewsController extends Controller{
      */
     public function getUserNews(Request $request) {
         if($request->isMethod('get')) {
-            $user_phone = !empty($request->userPhone) ? $request->userPhone : '';
-            $news_type = is_numeric($request->userNewsType) ? $request->userNewsType : null;
+                $user_phone = !empty($request->userPhone) ? $request->userPhone : '';
+                $news_type = is_numeric($request->userNewsType) ? $request->userNewsType : null;
             if($user_phone == '' || $news_type === null) return responseToJson(1, '参数错误');
             $user_id = UserAccounts::getAppointUser($user_phone)->id; 
             if(empty($user_id)) return responseToJson(1, '没有该用户');

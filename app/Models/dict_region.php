@@ -24,6 +24,12 @@
            $provice =  DB::table(self::$sTableName)->whereIn('name',$name)->get(['id']);
            return $provice;
         }
+    
+        public static function getProvinceIdByName_c($name){
+            $provice =  DB::table(self::$sTableName)->where('name',$name)->first(['id']);
+         
+            return $provice;
+        }
         
         public static function getProvice(){
             $provice =  DB::table(self::$sTableName)->where('father_id',0)->get(['id','name']);
