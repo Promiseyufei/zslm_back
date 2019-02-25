@@ -545,6 +545,11 @@
             return responseToJson(0,'success',$porjects);
         }
 
+
+
+        /**
+         * 获得一级页面显示的banner
+         */
         public function getMajorBanner(Request $request) {
             if(!$request->isMethod('get')) return responseToJson(２, 'Request Type Error');
 
@@ -560,6 +565,10 @@
         }
 
 
+
+        /**
+         * 下载文件接口
+         */
         public function downloadFile($filename) {
             return response()->download(realpath(public_path()) . '/storage/major_file/'.$filename, $filename);
 
