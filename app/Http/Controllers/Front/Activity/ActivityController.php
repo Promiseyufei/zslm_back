@@ -291,6 +291,7 @@ class ActivityController extends Controller{
             if(count($tuijian_ac['acInfo']))
                 foreach ($tuijian_ac['acInfo'] as $key => $item) {
                     $tuijian_ac['acInfo'][$key]->begin_time = date('Y.m.d', $item->begin_time);
+                    if(!empty($item->active_img)) $tuijian_ac['acInfo'][$key]->active_img = splicingImgStr('admin', 'info', $item->active_img);
                 }
             return responseToJson(0, 'success', $tuijian_ac);
 
