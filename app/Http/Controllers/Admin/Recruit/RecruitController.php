@@ -21,10 +21,25 @@ class RecruitController extends Controller{
         if($request->isMethod('get')) {
             $pro_simple = !empty($request->pro_simple) ? $request->pro_simple : '';
             if($pro_simple == '') return responseToJson(1, '没有相关招生服务项目的缩略名');
-            $re_msg = RecruitCollegeProject::getRecruitMsg($pro_simple);
+
+
+            $select_arr = ['id', 'pro_name', 'back_img', 'pro_logo', 'is_open_group',
+            'pro_index_web', 'pro_stu_web', 'wx_img', 'pro_phone', 'address', 'pro_auto_logo'];
+
+            $is_mobile = isMobile();
+            ($is_mobile == true) ? array_push($select_arr, 'mobile_img') : array_push($select_arr, 'back_img');
+                
+            
+            $re_msg = RecruitCollegeProject::getRecruitMsg($pro_simple, $select_arr);
             if(empty($re_msg)) return responseToJson(1, '没有相关招生服务项目的信息'); 
 
-            $re_msg->back_img = splicingImgStr('admin', 'recruit', $re_msg->back_img);
+            if($is_mobile) {
+                $re_msg->back_img = splicingImgStr('admin', 'recruit', $re_msg->mobile_img);
+                unset($re_msg->mobile_img);
+            }
+            else {
+                $re_msg->back_img = splicingImgStr('admin', 'recruit', $re_msg->back_img);
+            }
             $re_msg->pro_logo = splicingImgStr('admin', 'recruit', $re_msg->pro_logo);
             $re_msg->wx_img = splicingImgStr('admin', 'recruit', $re_msg->wx_img);
             $re_msg->pro_auto_logo = splicingImgStr('admin', 'recruit', $re_msg->pro_auto_logo);

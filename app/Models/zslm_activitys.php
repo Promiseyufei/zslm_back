@@ -206,7 +206,12 @@ class zslm_activitys
         self::$sTableName.'.show_weight',self::$sTableName.'.show_state',self::$sTableName.'.recommended_state',
         'dict_activity_type.name','end_time','begin_time',self::$sTableName.'.address',  self::$sTableName.'.title',
         self::$sTableName.'.keywords',  self::$sTableName.'.description',  self::$sTableName.'.introduce','activity_relation.host_major_id')->first();
-        return count($get_page_msg )>= 0 ? $get_page_msg : false;
+        if(is_array($get_page_msg) && count($get_page_msg )>= 0) {
+            return $get_page_msg;
+        }
+        else if(!empty($get_page_msg)) return $get_page_msg;
+        else return false;
+        // return count($get_page_msg )>= 0 ? $get_page_msg : false;
     }
 
 

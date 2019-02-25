@@ -254,7 +254,6 @@ class ActivityController extends Controller{
      */
     public function getAcHostMajor(Request $request) {
         if($request->isMethod('get')) {
-            
             $activity_id = !empty($request->acId) ? $request->acId : 0;
             if($activity_id == 0) return responseToJson(1, '参数错误');
             $host_major_id = ActivityRelation::getAppointContent($activity_id, 'host_major_id');
@@ -266,6 +265,9 @@ class ActivityController extends Controller{
                     $major->province = $p['province'];
                     $major->city = $p['city'];
                 }
+
+                if(!empty($major->magor_logo_name)) $major->magor_logo_name = splicingImgStr('admin', 'info', $major->magor_logo_name);
+                if(!empty($major->major_cover_name)) $major->major_cover_name = splicingImgStr('admin', 'info', $major->major_cover_name);
 
                 return responseToJson(0, 'success', $major);
             }
@@ -289,6 +291,7 @@ class ActivityController extends Controller{
             if(count($tuijian_ac['acInfo']))
                 foreach ($tuijian_ac['acInfo'] as $key => $item) {
                     $tuijian_ac['acInfo'][$key]->begin_time = date('Y.m.d', $item->begin_time);
+                    if(!empty($item->active_img)) $tuijian_ac['acInfo'][$key]->active_img = splicingImgStr('admin', 'info', $item->active_img);
                 }
             return responseToJson(0, 'success', $tuijian_ac);
 

@@ -34,6 +34,10 @@
     use App\Models\zslm_activitys as ZslmActivitys;
     use phpDocumentor\Reflection\Types\Integer;
 
+    use App\Models\banner_ad as BannerAd;
+    use App\Models\urls_bt as UrlsBt;
+    
+
 
     class MajorController extends Controller
     {
@@ -88,6 +92,8 @@
                 $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
                 $majors[$i]->major_confirm_id = $major_confirm;
                 $majors[$i]->major_follow_id = $major_follow;
+                if($majors[$i]->magor_logo_name != null || $majors[$i]->magor_logo_name != '')
+                    $majors[$i]->magor_logo_name = splicingImgStr('admin', 'info',$majors[$i]->magor_logo_name);
                 unset($majors[$i]->major_confirm);
                 unset($majors[$i]->major_follow);
             }
@@ -180,13 +186,13 @@
             
             if(!isset($request->id) && !is_numeric($request->id))
                 return responseToJson(1,"院校id不存在，或者不为数字");
-            if(!isset($request->u_id) && !is_numeric($request->u_id))
-                return responseToJson(1,"U_id错误");
+            // if(!isset($request->u_id) && !is_numeric($request->u_id))
+            //     return responseToJson(1,"U_id错误");
     
             $felds = ['id', 'z_name', 'magor_logo_name',
                 'major_follow_id', 'province','index_web',
                 'admissions_web','address','phone', 'major_confirm_id',
-                'access_year','wc_image','wb_image','major_confirm','major_follow'];
+                'access_year','wc_image','wb_image','major_confirm','major_follow', 'major_cover_name'];
             
             $major = zslmMajor::getMajorById($request->id,$felds);
             if(sizeof($major) == 0)
@@ -214,8 +220,35 @@
             unset($major[0]->major_follow);
             $major[0]->project = majorRecruitProject::getProjectByMid($request->id,0,
                 0,0,'','',0,$fileds);
-            $is_guanzhu =  user_follow_major::getIfUsesMajor($request->u_id,$request->id);
-            $major[0]->is_guanzhu = $is_guanzhu == 0 ? false : true;
+            
+            if(!isset($request->u_id) && !is_numeric($request->u_id)) $is_guanzhu = false;
+            else {
+                $is_guanzhu =  user_follow_major::getIfUsesMajor($request->u_id,$request->id);
+                $major[0]->is_guanzhu = $is_guanzhu == 0 ? false : true;
+            }
+
+            if(!empty($major[0]->magor_logo_name)) 
+                $major[0]->magor_logo_name = splicingImgStr('admin', 'info', $major[0]->magor_logo_name);
+            if(!empty($major[0]->major_cover_name)) 
+                $major[0]->major_cover_name = splicingImgStr('admin', 'info', $major[0]->major_cover_name);
+            
+            if(!empty($major[0]->wc_image)) {
+                $major[0]->wc_image = strChangeArr($major[0]->wc_image, EXPLODE_STR);
+                for($i = 0; $i < count($major[0]->wc_image); $i++) {
+                    $major[0]->wc_image[$i] = splicingImgStr('admin', 'info', $major[0]->wc_image[$i]);
+                }
+            }
+
+            if(!empty($major[0]->wb_image)) {
+                $major[0]->wb_image = strChangeArr($major[0]->wb_image, EXPLODE_STR);
+                for($i = 0; $i < count($major[0]->wb_image); $i++) {
+                    $major[0]->wb_image[$i] = splicingImgStr('admin', 'info', $major[0]->wb_image[$i]);
+                }
+            }
+            if(!empty($major[0]->province)) $major[0]->province = dictRegion::getOneArea($major[0]->province)[0]->name;
+            
+            
+
             return responseToJson(0,'success',$major);
         }
     
@@ -286,7 +319,10 @@
             $information = zslm_information::getInfoByIds($inf_ids,$fileds)->toArray();
             foreach($information as $key => $item) {
                 $information[$key]->z_image = splicingImgStr('admin', 'info', $item->z_image);
+                $information[$key]->author = '专硕联盟';
+                $information[$key]->update_time = date("Y-m-d",$item->update_time) ;
             }
+
             return responseToJson(0,'success',$information);
     
         }
@@ -367,6 +403,8 @@
                 'admissions_web','address','phone', 'major_confirm',
                 'access_year','wc_image'];
             $majors = zslmMajor::getVsMajorsByIds($ids,$fileds);
+
+            // dd($majors);
     
             if(sizeof($majors) == 0)
                 return responseToJson(1,"暂无数据");
@@ -391,6 +429,14 @@
                 $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
                 $majors[$i]->major_confirm_id = $major_confirm;
                 $majors[$i]->major_follow_id = $major_follow;
+
+                if(!empty($majors[$i]->wc_image)) {
+                    $majors[$i]->wc_image = strChangeArr($majors[$i]->wc_image, EXPLODE_STR);
+                    for($j = 0; $j < count($majors[$i]->wc_image); $j++) {
+                        $majors[$i]->wc_image[$j] = splicingImgStr('admin', 'info', $majors[$i]->wc_image[$j]);
+                    }
+                }
+
                 unset($majors[$i]->major_confirm);
                 unset($majors[$i]->major_follow);
             }
@@ -479,24 +525,56 @@
             if(!isset($request->p_id) || $request->p_id == '')
                 return responseToJson(1,'p_id 错误');
             
-                $project_id = strChangeArr($request->p_id,EXPLODE_STR);
-   
-                $fileds = ['id','project_name','student_count','language','eductional_systme',
-                    'can_conditions','score_describe','score_type','recruitment_pattern',
-                    'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
-                $porjects = major_recruit_project::getProjectById($project_id,0,sizeof($project_id),$fileds);
-            
-                $len = sizeof($porjects);
-            
-                if($len == 0)
-                    return responseToJson(1,"暂无数据");
-            
-                for($i = 0;$i < $len;$i++){
-                    $porjects[$i]->recruitment_pattern = dict_recruitment_pattern::getPattern($porjects[$i]->recruitment_pattern);
-                    $porjects[$i]->score_type = dict_fraction_type::getType( $porjects[$i]->score_type);
-                }
-            
-                return responseToJson(0,'success',$porjects);
+            $project_id = strChangeArr($request->p_id,EXPLODE_STR);
+
+            $fileds = ['id','project_name','student_count','language','eductional_systme',
+                'can_conditions','score_describe','score_type','recruitment_pattern',
+                'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
+            $porjects = major_recruit_project::getProjectById($project_id,0,sizeof($project_id),$fileds);
+        
+            $len = sizeof($porjects);
+        
+            if($len == 0)
+                return responseToJson(1,"暂无数据");
+        
+            for($i = 0;$i < $len;$i++){
+                $porjects[$i]->recruitment_pattern = dict_recruitment_pattern::getPattern($porjects[$i]->recruitment_pattern);
+                $porjects[$i]->score_type = dict_fraction_type::getType( $porjects[$i]->score_type);
             }
+        
+            return responseToJson(0,'success',$porjects);
+        }
+
+
+
+        /**
+         * 获得一级页面显示的banner
+         */
+        public function getMajorBanner(Request $request) {
+            if(!$request->isMethod('get')) return responseToJson(２, 'Request Type Error');
+
+            $url = !empty($request->path) ? $request->path : '';
+            if($url == '') return responseToJson(1, 'NO Request Params');
+
+
+            $banner_msg = BannerAd::getPageBanner(UrlsBt::getUrlId($url), 0);
+
+            if(!empty($banner_msg) && !empty($banner_msg->img)) $banner_msg->img = splicingImgStr('admin', 'operate', $banner_msg->img);
+
+            return responseToJson(0, 'success', $banner_msg);
+        }
+
+
+
+        /**
+         * 下载文件接口
+         */
+        public function downloadFile($filename) {
+            return response()->download(realpath(public_path()) . '/storage/major_file/'.$filename, $filename);
+
+        }
+
+
+
         
     }

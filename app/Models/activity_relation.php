@@ -54,7 +54,7 @@ class activity_relation
      */
     public static function setRecommendActivitys($activityId = 0, $name = '', $activityStr = '') {
         $judge = DB::table(self::$sTableName)->where('activity_id',$activityId)->first();
-        if(sizeof($judge) == 1){
+        if(!empty($judge)){
             return DB::table(self::$sTableName)->where('activity_id', $activityId)->update([$name => $activityStr]);
         }else{
             return DB::table(self::$sTableName)->insert(['activity_id'=>$activityId,$name=>$activityStr]);

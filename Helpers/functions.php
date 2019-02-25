@@ -532,6 +532,7 @@
         return array_keys(array_flip($arr1) + array_flip($arr2));
     }
     
+
     /**
      * @param $url 文件路径，文件的根已经定在了public/storage/，url的值一般都是public/storage/下的某个目录，如 test/test/
      *     也就是public/storage/test/test/目录 url必须前面不能加目录符，后面必须要加目录符
@@ -576,6 +577,68 @@
         return $last_n == ($total % 10);
     }
      
-     
+    
 
+
+
+
+    //判断是否是移动端访问
+     function isMobile() {
+         if(isset($_SERVER['HTTP_X_WAP_PROFILE'])) {
+             return true;
+         }
+         if(isset($_SERVER['HTTP_VIA'])) {
+            return stristr($_SERVER['HTTP_VIA'], "wap") ? true : false;// 找不到为flase,否则为TRUE
+         }
+
+        if(isset ($_SERVER['HTTP_USER_AGENT'])) {
+            $clientkeywords = array(
+                'mobile',
+                'nokia',
+                'sony',
+                'ericsson',
+                'mot',
+                'samsung',
+                'htc',
+                'sgh',
+                'lg',
+                'sharp',
+                'sie-',
+                'philips',
+                'panasonic',
+                'alcatel',
+                'lenovo',
+                'iphone',
+                'ipod',
+                'blackberry',
+                'meizu',
+                'android',
+                'netfront',
+                'symbian',
+                'ucweb',
+                'windowsce',
+                'palm',
+                'operamini',
+                'operamobi',
+                'openwave',
+                'nexusone',
+                'cldc',
+                'midp',
+                'wap'
+            );
+            if (preg_match("/(" . implode('|', $clientkeywords) . ")/i", strtolower($_SERVER['HTTP_USER_AGENT']))) {
+                return true;
+            }
+
+            if (isset ($_SERVER['HTTP_ACCEPT'])) { // 协议法，因为有可能不准确，放到最后判断
+                // 如果只支持wml并且不支持html那一定是移动设备
+                // 如果支持wml和html但是wml在html之前则是移动设备
+                if ((strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') !== false) && (strpos($_SERVER['HTTP_ACCEPT'], 'text/html') === false || (strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') < strpos($_SERVER['HTTP_ACCEPT'], 'text/html')))) {
+                    return true;
+                }
+            }
+            return false;
+
+        }
+     }
 

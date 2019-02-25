@@ -13,9 +13,8 @@
         /**
          * 获取招生服务院校信息
          */
-        public static function getRecruitMsg($proSimple) {
-            $select_arr = ['id', 'pro_name', 'back_color', 'back_img', 'pro_logo', 'is_open_group',
-                'pro_index_web', 'pro_stu_web', 'wx_img', 'pro_phone', 'address', 'pro_auto_logo'];
+        public static function getRecruitMsg($proSimple, array $selectArr) {
+
 
             return DB::table(self::$sTableName)->where('pro_simple', $proSimple)->select(...$select_arr)->first();
 

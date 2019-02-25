@@ -78,7 +78,7 @@ class major_recruit_project
     //front
     public static function getProjectByMid($id,$min,$max,$order = 0,$sorce_type,$enrollment_mode,$size = 3,$fileds){
         $query =  DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->where('major_id',$id);
-        if($min != 0 && $max != 0 && !empty($min) && !empty(!max))
+        if($min != 0 && $max != 0 && !empty($min) && !empty(!$max))
             $query = $query->where('min_cost'>$min)->where('max_cost','<',$max);
         if($sorce_type != '' && !empty($sorce_type)){
             $types = strChangeArr($sorce_type, EXPLODE_STR);
