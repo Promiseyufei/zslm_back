@@ -159,7 +159,7 @@ class ActivityController extends Controller{
                     $get_activitys['info'][$key]->begin_time = date("m-d",$item->begin_time);
                     $get_activitys['info'][$key]->end_time = date("m-d", $item->end_time);
                 
-                    if($item->province !== '')
+                    if($item->province !== '' && !empty($item->province))
                         $get_activitys['info'][$key]->province = getProCity($item->province);
                 }
             return $get_activitys;
