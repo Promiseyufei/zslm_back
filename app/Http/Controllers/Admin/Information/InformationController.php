@@ -560,7 +560,7 @@ class InformationController extends Controller
         $major_arr = ZslmMajor::getAllDictMajor(1, $re_major_arr)->toArray();
 
         foreach($major_arr as $key => $item) {
-            $major_arr[$key]->magor_logo_name = 'http://localhost:81/zslm_back/storage/app/admin/info/' . $item->magor_logo_name;
+            $major_arr[$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
         }
 
         return is_array($major_arr) ? responseToJson(0, '', $major_arr) : responseToJson(1, '未查询到相关院校专业信息');

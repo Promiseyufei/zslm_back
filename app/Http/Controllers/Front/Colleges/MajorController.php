@@ -66,10 +66,10 @@
             for ($i = 0; $i < sizeof($majors); $i++) {
                 $majors[$i]->update_time = date("Y-m-d", $majors[$i]->update_time);
                 $addressArr = strChangeArr($majors[$i]->province, EXPLODE_STR);
-                if(sizeof($addressArr) >0){
+                if($addressArr != null && sizeof($addressArr) >0){
                     $majors[$i]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
                     $majors[$i]->city = '';
-                    if (sizeof($addressArr) > 1)
+                    if ($addressArr != null && sizeof($addressArr) > 1)
                         $majors[$i]->city = dictRegion::getOneArea($addressArr[1])[0]->name;
                 }else{
                     $majors[$i]->province = '';
@@ -153,9 +153,12 @@
 //                $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
 //                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
              
-                $majors[$i]->magor_logo_name = splicingImgStr('admin', 'info', $majors[$i]->magor_logo_name);
-                
-                if($majors[$i]->province !== '' && $majors[$i]->province != null)
+
+                if(!empty($majors[$i]->magor_logo_name))
+                    $majors[$i]->magor_logo_name = splicingImgStr('admin', 'info', $majors[$i]->magor_logo_name);
+                if(!empty($majors[$i]->major_cover_name))
+                    $majors[$i]->major_cover_name = splicingImgStr('admin', 'info', $majors[$i]->major_cover_name);
+                if($majors[$i]->province !== ''  && $majors[$i]->province != null)
                     $majors[$i]->province = getProCity($majors[$i]->province);
                 $major_confirms_str = strChangeArr($majors[$i]->major_confirm,EXPLODE_STR);
                 $major_confirms_str = changeStringToInt($major_confirms_str);
@@ -494,6 +497,8 @@
             
             for($i = 0;$i < $len;$i++){
                 $majors[$i]->ZSJZF = majorFiles::getZSJZFile($majors[$i]->id,$request->year);
+                if(!empty($majors[$i]->magor_logo_name)) $majors[$i]->magor_logo_name = splicingImgStr('admin', 'info', $majors[$i]->magor_logo_name);
+                if(!empty($majors[$i]->major_cover_name)) $majors[$i]->major_cover_name = splicingImgStr('admin', 'info', $majors[$i]->major_cover_name);
             }
             
             return responseToJson(0,'success',[$majors,$count]);
