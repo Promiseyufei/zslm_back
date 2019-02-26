@@ -51,6 +51,8 @@ class ConsultController extends Controller{
             $get_recommend_read = ZslmInformation::getRecommendReads($request->pageNumber, $request->type);
             foreach ($get_recommend_read['info'] as $key => $item) {
                 $get_recommend_read['info'][$key]->create_time = date("Y.m.d", $item->create_time);
+                if(!empty($get_recommend_read['info'][$key]->z_image))
+                    $get_recommend_read['info'][$key]->z_image = splicingImgStr('admin', 'info', $get_recommend_read['info'][$key]->z_image);
             }
             return responseToJson(0, 'success', $get_recommend_read);
         }
