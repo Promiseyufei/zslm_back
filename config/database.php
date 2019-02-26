@@ -109,8 +109,8 @@ return [
         'client' => 'predis',
 
         'default' => [
-            'host' => env('REDIS_HOST', 'www.lishanlei.cn'),
-            'password' => env('REDIS_PASSWORD', 'li15886725174'),
+            'host' => env('REDIS_HOST', 'www.mbahelper.cn'),
+            'password' => env('REDIS_PASSWORD', 'R2m0f1d8'),
             'port' => env('REDIS_PORT', 6379),
             'database' => 0,
         ],

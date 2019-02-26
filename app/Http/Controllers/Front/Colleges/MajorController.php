@@ -493,6 +493,8 @@
             
             for($i = 0;$i < $len;$i++){
                 $majors[$i]->ZSJZF = majorFiles::getZSJZFile($majors[$i]->id,$request->year);
+                if(!empty($majors[$i]->magor_logo_name)) $majors[$i]->magor_logo_name = splicingImgStr('admin', 'info', $majors[$i]->magor_logo_name);
+                if(!empty($majors[$i]->major_cover_name)) $majors[$i]->major_cover_name = splicingImgStr('admin', 'info', $majors[$i]->major_cover_name);
             }
             
             return responseToJson(0,'success',[$majors,$count]);
