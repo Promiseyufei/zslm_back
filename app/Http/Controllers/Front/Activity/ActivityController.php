@@ -185,12 +185,13 @@ class ActivityController extends Controller{
         $active_ids = user_activitys::getActivityByUser($request->id);
         $acitve_ids_arru = [];
         
-        if(sizeof($active_ids) == 0)
+        if($active_ids == null || sizeof($active_ids) == 0)
             return responseToJson(1,'暂无数据');
         
-        for($i = 0;$i<sizeof($active_ids);$i++){
-            $acitve_ids_arru[$i] = $active_ids[$i]->activity_id;
-        }
+        if($active_ids != null)
+            for($i = 0;$i<sizeof($active_ids);$i++){
+                $acitve_ids_arru[$i] = $active_ids[$i]->activity_id;
+            }
     
         $get_activitys = ZslmActivitys::getFrontUserActivity($acitve_ids_arru,$request->page,$request->page_size);
     

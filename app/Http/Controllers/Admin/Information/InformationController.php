@@ -135,7 +135,7 @@ class InformationController extends Controller
             return responseToJson(1,"id 数组格式错误");
         $result = zslm_information::delInfos($ids);
         DB::beginTransaction();
-        if($result == sizeof($ids)){
+        if($ids != null && $result == sizeof($ids)){
             DB::commit();
             return responseToJson(0,"success");
         }else{
@@ -918,7 +918,7 @@ class InformationController extends Controller
             if(isset($item->province)) {
                 $provinces = strChangeArr($item->province, ',');
                 $p = '';
-                if(sizeof($provinces)>1)
+                if($provinces != null && sizeof($provinces)>1)
                     $p = $provinces[1];
                 else
                     $p = $provinces[0];

@@ -260,7 +260,7 @@
             
             $result = $query->get($felds);
             
-            return sizeof($result) > 0 ? $result : null;
+            return ($result != null && sizeof($result) > 0) ? $result : null;
         }
         
         public static function getMajorBySelectCount($z_type, $z_name, $provice)

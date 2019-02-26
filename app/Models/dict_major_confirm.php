@@ -17,7 +17,7 @@
         
         public static function getAllMajorConfirm(){
             $result = DB::table(self::$sTableName)->get(['id','name']);
-            $len = sizeof($result);
+            $len = $result != null ? sizeof($result) : 0;
             $major_confirms = [];
             for($i = 0;$i < $len;$i++){
                 $major_confirms[$result[$i]->id] = $result[$i]->name;

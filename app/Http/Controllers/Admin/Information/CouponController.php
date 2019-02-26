@@ -430,7 +430,7 @@ class CouponController extends Controller
         if(!isset($request->id) && !is_numeric($request->id))
             return responseToJson(1, 'no id or id is not number');
         $c = ZslmCoupon::getCouponByCoachId($request);
-        if(sizeof($c) >= 0)
+        if($c != null && sizeof($c) >= 0)
             return responseToJson(0,'success',$c);
         else
             return responseToJson(1,'no data');

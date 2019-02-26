@@ -31,7 +31,7 @@ class CoachOrganizeController extends Controller
             
         $provice = dictRegion::getProvice();
         $coach = CoachOrganize::getFatherCoach();
-        if(sizeof($provice)>0 && sizeof($coach)>0)
+        if(($provice != null && sizeof($provice)>0) && ($coach != null && sizeof($coach)>0))
             return responseToJson(0,'success',['provice'=>$provice,'coach'=>$coach]);
         else
             return responseToJson(1,'error');
@@ -370,7 +370,7 @@ class CoachOrganizeController extends Controller
            if(!isset($request->coachId) && !is_array($request->coachId))
                return responseToJson(1,'no id or id is not array');
 
-        if(sizeof($request->coachId) > 0) {
+        if($request->coachId != null && sizeof($request->coachId) > 0) {
             $is_del = CoachOrganize::delAppointCoach($request->coachId);
             return $is_del ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
         }
@@ -445,12 +445,13 @@ class CoachOrganizeController extends Controller
         foreach($msg as $key => $item) {
             $msg[$key]->province = strChangeArr($item->province, ',');
      
-            for($i = 0;$i<sizeof($province);$i++){
-                if( $msg[$key]->province[0] == $province[$i]->id){
-                    $msg[$key]->province = $province[$i]->name;
+            if($province != null)
+                for($i = 0;$i<sizeof($province);$i++){
+                    if( $msg[$key]->province[0] == $province[$i]->id){
+                        $msg[$key]->province = $province[$i]->name;
+                    }
+                    
                 }
-                
-            }
             
             $msg[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
         }
@@ -554,7 +555,7 @@ class CoachOrganizeController extends Controller
         if(!empty($one->cover_name))
             $one->coach_cover_img_name = splicingImgStr('admin', 'info', $one->cover_name);
         
-        return sizeof($one) == 1 ? responseToJson(0,'success',$one) : responseToJson(1,'no date');
+        return ($one != null && sizeof($one) == 1) ? responseToJson(0,'success',$one) : responseToJson(1,'no date');
         
     }
     

@@ -49,7 +49,7 @@
                 $request->coach_name, $request->page, $request->page_size,
                 $request->if_back, $request->if_coupon, $fields);
         
-            if (sizeof($coachs) == 0)
+            if ($coachs == null || sizeof($coachs) == 0)
                 return responseToJson(1, '暂时没有数据');
             $len = sizeof($coachs);
             $f = ['id','coach_name'];
@@ -77,7 +77,7 @@
             
             $coachs = $this->getIndexInfo($request->name,$request->page,$request->page_size);
             $count = coachOrganize::getSelectCoachCount('',null,$request->name,null,null);
-            if(sizeof($coachs) == 0)
+            if($coachs == null || sizeof($coachs) == 0)
                 return responseToJson(1,'没有数据');
             return responseToJson(0,'success',['coachs'=>$coachs,'count'=>$count]);
         }
@@ -116,21 +116,22 @@
             $fields = ['id', 'coach_name', 'phone', 'address', 'web_url', 'update_time',
                 'coach_type', 'describe', 'logo_name', 'logo_alt','cover_name', 'cover_alt','province'];
             $coach = coachOrganize::getCoachById($request->id,$fields);
-            if(sizeof($coach) == 0)
+            if($coach == null || sizeof($coach) == 0)
                 return responseToJson(1,'没有数据');
             $coach[0]->son_coach = coachOrganize::getSonCoach($request->id,$fields);
             $f = ['id','name','type','is_enable'];
             //获取辅导机构的优惠券
             $coach[0]->coupon = zslm_coupon::getFrontCouponByCoach($request->id,$f);
-            for($i = 0;$i < sizeof($coach[0]->coupon) ;$i++){
-                $user_coupont = user_coupon::getUserCouponByCouponId($request->u_id, $coach[0]->coupon[$i]->id);
-                $user_coupont_len = sizeof($user_coupont);
-                $coach[0]->coupon[$i]->is_have =  $user_coupont_len;
-                $coach[0]->coupon[$i]->is_use = 0;
-                if($user_coupont_len > 0 ){
-                    $coach[0]->coupon[$i]->is_use = $user_coupont[0]->use_time;
+            if($coach[0]->coupon != null)
+                for($i = 0;$i < sizeof($coach[0]->coupon) ;$i++){
+                    $user_coupont = user_coupon::getUserCouponByCouponId($request->u_id, $coach[0]->coupon[$i]->id);
+                    $user_coupont_len = $user_coupont != null ? sizeof($user_coupont) : 0;
+                    $coach[0]->coupon[$i]->is_have =  $user_coupont_len;
+                    $coach[0]->coupon[$i]->is_use = 0;
+                    if($user_coupont_len > 0 ){
+                        $coach[0]->coupon[$i]->is_use = $user_coupont[0]->use_time;
+                    }
                 }
-            }
             //获取地区热门的活动
             $province = explode(EXPLODE_STR,$coach[0]->province)[0];
             $get_activitys = zslm_activitys::getFrontActiById($province,1,1);
@@ -182,7 +183,7 @@
             $c1 += zslm_coupon::getUserCoachCouponCount($request->id,0,0);
             $c2 += zslm_coupon::getUserCoachCouponCount($request->id,1,0);
             $c3 += zslm_coupon::getUserCoachCouponCount($request->id,2,1);
-           if(sizeof($coupon_ids) == 0){
+           if($coupon_ids == null || sizeof($coupon_ids) == 0){
                return responseToJson(1,'没有优惠券',['nouse'=>$c1,'use'=>$c3,'enable'=>$c2]);
            }
            $coupon_id_arr = [];
@@ -193,22 +194,24 @@
             
             $coach_arr = [];
     
-            for($i = 0;$i<sizeof($coachs);$i++)
-                $coach_arr[$i] = $coachs[$i]->coach_id;
+            if($coachs != null)
+                for($i = 0;$i<sizeof($coachs);$i++)
+                    $coach_arr[$i] = $coachs[$i]->coach_id;
             
             $coach_res = coachOrganize::getAllCoachByIds($coach_arr,['id','coach_name','province','web_url']);
           
-            for($i = 0;$i<sizeof($coach_res);$i++){
-                $province = explode(EXPLODE_STR,$coach_res[$i]->province);
-                
-                $coach_res[$i]->province = dictRegion::getOneArea($province[0])[0]->name;
-                $coach_res[$i]->city = '';
-                if (sizeof($province) > 1)
-                    $coach_res[$i]->city = dictRegion::getOneArea($province[1])[0]->name;
-                $coupon = zslm_coupon::getUserCoachCoupon($request->id,$coach_res[$i]->id,$request->type,$request->is_use);
-           
-                $coach_res[$i]->coupon = $coupon;
-            }
+            if($coach_res != null)
+                for($i = 0;$i<sizeof($coach_res);$i++){
+                    $province = explode(EXPLODE_STR,$coach_res[$i]->province);
+                    
+                    $coach_res[$i]->province = dictRegion::getOneArea($province[0])[0]->name;
+                    $coach_res[$i]->city = '';
+                    if ($province != null && sizeof($province) > 1)
+                        $coach_res[$i]->city = dictRegion::getOneArea($province[1])[0]->name;
+                    $coupon = zslm_coupon::getUserCoachCoupon($request->id,$coach_res[$i]->id,$request->type,$request->is_use);
+            
+                    $coach_res[$i]->coupon = $coupon;
+                }
     
             return responseToJson(0,'success',[$coach_res,'nouse'=>$c1,'use'=>$c3,'enable'=>$c2]);
             

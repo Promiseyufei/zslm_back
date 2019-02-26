@@ -42,7 +42,7 @@ class ExportExcelController extends Controller
         $cellData = [];
         $get_all_msg = RefundApply::getAllMessage();
         
-        if(sizeof($get_all_msg) == 0)
+        if($get_all_msg == null || sizeof($get_all_msg) == 0)
             return responseToJson(1,"暂无数据");
         
         $column = [

@@ -13,10 +13,11 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     
     protected function findAddress($id,$provice){
-        for($i = 0;$i<sizeof($provice);$i++){
-            if($id==$provice[$i]->id){
-                return $provice[$i]->name;
+        if($provice != null)
+            for($i = 0;$i<sizeof($provice);$i++){
+                if($id==$provice[$i]->id){
+                    return $provice[$i]->name;
+                }
             }
-        }
     }
 }

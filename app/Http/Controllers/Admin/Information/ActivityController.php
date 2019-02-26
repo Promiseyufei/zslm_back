@@ -98,12 +98,13 @@ class ActivityController extends Controller
         foreach($msg as $key => $item) {
             $msg[$key]->province = strChangeArr($item->province, ',');
             
-            for($i = 0;$i<sizeof($province);$i++){
-                if( $msg[$key]->province[0] == $province[$i]->id){
-                    $msg[$key]->province = $province[$i]->name;
+            if($province != null)
+                for($i = 0;$i<sizeof($province);$i++){
+                    if( $msg[$key]->province[0] == $province[$i]->id){
+                        $msg[$key]->province = $province[$i]->name;
+                    }
+                    
                 }
-                
-            }
     
             $msg[$key]->create_time = date("Y-m-d",$item->create_time);
             $msg[$key]->sign_up_state =  $msg[$key]->sign_up_state == 0 ? '可报名':'不可报名';
@@ -206,11 +207,11 @@ class ActivityController extends Controller
         if($validator->fails()) return responseToJson(1, $validator->getMessageBag()->toArray()[0]);
 
         $data =  ZslmActivitys::getActivityMsg($request->all());
-        if( sizeof($data[0])>0)
+        if($data[0] != null && sizeof($data[0])>0)
             foreach($data[0] as $key => $item) {
                 $data[0][$key]->update_time  = date("Y-m-d", $item->update_time);
             }
-        return sizeof($data[0])>=0 ? responseToJson(0, '', $data) : responseToJson(1, '没有数据');
+        return ($data[0] != null && sizeof($data[0])>=0) ? responseToJson(0, '', $data) : responseToJson(1, '没有数据');
     }
 
 
@@ -472,7 +473,7 @@ class ActivityController extends Controller
         
         $activity_id = (isset($request->activityId) && is_array($request->activityId)) ? $request->activityId : [];
         
-        if(sizeof($activity_id) > 0) {
+        if($activity_id != null && sizeof($activity_id) > 0) {
             $is_del = ZslmActivitys::delAppointActivity($activity_id);
             return $is_del ? responseToJson(0, '删除成功') : responseToJson(1, '删除失败');
         }
@@ -719,7 +720,7 @@ class ActivityController extends Controller
         // $provice = dictRegion::getProvice();
         $city = dictRegion::getCity();
         $type = dict_activity_type::getType();
-        if(sizeof($major)>0&&sizeof($type)>0 && sizeof($city)>0 )
+        if(($major != null && sizeof($major)>0) && ($type!= null && sizeof($type)>0) && ($city != null && sizeof($city)>0) )
             return responseToJson(0,'success',['major'=>$major, 'city'=>$city, 'type'=>$type]);
         else
             return responseToJson(1,'error');
@@ -1181,7 +1182,7 @@ class ActivityController extends Controller
         $activity_id = (isset($request->activityId) && is_numeric($request->activityId)) ? $request->activityId : 0;
         $activity_arr = (isset($request->activityArr) && is_array($request->activityArr)) ? $request->activityArr : [];
      
-        if($activity_id == 0 || sizeof($activity_arr) < 1) return responseToJson(0, '参数错误');
+        if($activity_id == 0 || ($activity_arr != null && sizeof($activity_arr) < 1)) return responseToJson(0, '参数错误');
 
         $recom_activity_count = SystemSetup::getContent('recommend_activity');
 
@@ -1448,7 +1449,7 @@ class ActivityController extends Controller
         $data = ActivityRelation::getGuanlianById($id);
         $majorObj = [];
         $activeObj = [];
-        if(sizeof($data)>0){
+        if($data != null && sizeof($data)>0){
         $active = explode(',',$data->relation_activity);
         $major = explode(',',$data->recommend_id);
         $majorObj = ZslmMajor::getMajorByids($major);
@@ -1464,19 +1465,21 @@ class ActivityController extends Controller
         foreach($majorObj as $key => $item) {
             $majorObj[$key]->province = strChangeArr($item->province, ',');
             if($item->province[0] != ''){
-                for($i = 0;$i<sizeof($province);$i++){
-                    if($item->province[0] == $province[$i]->id){
-                        $majorObj[$key]->province[0] = $province[$i]->name;
-                        if(sizeof($item->province)>1)
-                            foreach($province[intval($item->province[0])]->citys as $value)
-                                if($item->province[1] == $value->id) $majorObj[$key]->province[1] = $value->name;
-                        $p = '';
-                        for($i = 0;$i<sizeof($majorObj[$key]->province);$i++)
-                            $p.=$majorObj[$key]->province[$i];
-                        $majorObj[$key]->province = $p;
-                        break;
+                if($province != null)
+                    for($i = 0;$i<sizeof($province);$i++){
+                        if($item->province[0] == $province[$i]->id){
+                            $majorObj[$key]->province[0] = $province[$i]->name;
+                            if($item->province != null && sizeof($item->province)>1)
+                                foreach($province[intval($item->province[0])]->citys as $value)
+                                    if($item->province[1] == $value->id) $majorObj[$key]->province[1] = $value->name;
+                            $p = '';
+                            if($majorObj[$key]->province != null)
+                                for($i = 0;$i<sizeof($majorObj[$key]->province);$i++)
+                                    $p.=$majorObj[$key]->province[$i];
+                            $majorObj[$key]->province = $p;
+                            break;
+                        }
                     }
-                }
             }
             $majorObj[$key]->update_time = date("Y-m-d H:i:s",$item->update_time);
         }

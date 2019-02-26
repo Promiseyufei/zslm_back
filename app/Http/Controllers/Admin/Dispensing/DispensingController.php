@@ -77,7 +77,7 @@ class DispensingController extends Controller{
                 'major_follow_id as major_follow', 'major_confirm_id as major_confirm','address', 'telephone', 'wc_image', 'mode', 'mode_intro', 'online_application', 'file_download', 'index_web', 'pg_index_web'];
             
             $major = DispensingMajor::getDiMajorById($major_name, $felds);
-            if(sizeof($major) == 0)
+            if($major == null || sizeof($major) == 0)
                 return responseToJson(1,'没有数据');
     
             $fileds = ['id as projectId','project_name','student_count','language','eductional_systme',
@@ -118,9 +118,10 @@ class DispensingController extends Controller{
      */
     private function getConfirmsOrFollow($val_arrl,$get_arr){
         $result = '';
-        for($i = 0;$i < sizeof($val_arrl);$i++){
-            $result.=$get_arr[$val_arrl[$i]].',';
-        }
+        if($val_arrl != null)
+            for($i = 0;$i < sizeof($val_arrl);$i++){
+                $result.=$get_arr[$val_arrl[$i]].',';
+            }
         $result =  substr($result, 0, -1) ;
         return $result;
     }

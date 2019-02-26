@@ -98,16 +98,17 @@ class RefundController extends Controller
         if($data[0]->imgs != ''){
             $imgs = explode(',',$data[0]->imgs);
             
-            for($i = 0;$i<sizeof($imgs);$i++){
-                $imgs[$i]= splicingImgStr('front','user',$imgs[$i]);
-                $real_imgs.=$imgs[$i].',';
-            }
+            if($imgs != null)
+                for($i = 0;$i<sizeof($imgs);$i++){
+                    $imgs[$i]= splicingImgStr('front','user',$imgs[$i]);
+                    $real_imgs.=$imgs[$i].',';
+                }
             $real_imgs = rtrim($real_imgs, ',');
             $data[0]->imgs = $real_imgs;
         }
         
         
-        if(sizeof($data) == 1){
+        if($data != null && sizeof($data) == 1){
             return responseToJson(0,'success',$data);
         }else{
             return responseToJson(1,'no data');

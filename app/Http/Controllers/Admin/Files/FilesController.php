@@ -88,11 +88,12 @@ class FilesController extends Controller
         
         $serachData = MajorFiles::getUploadFile($request);
         $zhaosheng = MajorFiles::getCountZhaos();
-        for($i = 0;$i<sizeof($serachData[0]);$i++){
-            $serachData[0][$i]->create_time = date('Y-m-d', $serachData[0][$i]->create_time);
-            $serachData[0][$i]->file_url = splicingImgStrPro('major_file/',$serachData[0][$i]->file_url);
-            
-        }
+        if($serachData[0] != null)
+            for($i = 0;$i<sizeof($serachData[0]);$i++){
+                $serachData[0][$i]->create_time = date('Y-m-d', $serachData[0][$i]->create_time);
+                $serachData[0][$i]->file_url = splicingImgStrPro('major_file/',$serachData[0][$i]->file_url);
+                
+            }
         return $serachData != null ? responseToJson(0,'success',['data'=>$serachData[0],'dataCount'=>$serachData[1],'zhaos'=>$zhaosheng]) : responseToJson(1,'no data');
     }
     
@@ -102,11 +103,12 @@ class FilesController extends Controller
     
         $serachData = MajorFiles::getOneMajorFile($request);
        
-        for($i = 0;$i<sizeof($serachData);$i++){
-            $serachData[$i]->create_time = date('Y-m-d', $serachData[$i]->create_time);
-            $serachData[$i]->file_url = splicingImgStrPro('major_file/',$serachData[$i]->file_url);
-        
-        }
+        if($serachData != null)
+            for($i = 0;$i<sizeof($serachData);$i++){
+                $serachData[$i]->create_time = date('Y-m-d', $serachData[$i]->create_time);
+                $serachData[$i]->file_url = splicingImgStrPro('major_file/',$serachData[$i]->file_url);
+            
+            }
         return responseToJson(0,"success",['data'=> $serachData]);
     }
     
@@ -335,7 +337,9 @@ class FilesController extends Controller
             return responseToJson(1,'something was wrong ,please try again');
         
         $provice_id_bash = [];
-        $lenght = sizeof($provice_id);
+        if($provice_id != null)
+            $lenght = sizeof($provice_id);
+        else $lenght = 0;
         for($i = 0;$i<$lenght;$i++){
             $provice_id_bash[] = $provice_id[$i]->id;
         }

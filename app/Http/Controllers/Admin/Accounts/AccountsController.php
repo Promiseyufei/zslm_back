@@ -97,53 +97,58 @@ class AccountsController extends AccountControllerBase
    
         $result = UserInformation::getInformation($name,$phone,$realname,$request->page,$request->pageSize,3,$sorting);
         $id = [];
-        
-        for($i = 0;$i<sizeof($result[0]);$i++){
-            $id[$i] = $result[0][$i]->user_account_id;
-        }
+        if($result[0] != null)
+            for($i = 0;$i<sizeof($result[0]);$i++){
+                $id[$i] = $result[0][$i]->user_account_id;
+            }
         
         $thread =  user_third_accounts::getTypeOfThread($id);
     
         $school = dict_education::getAllSchooling();
         $school_arr = [];
-        for($i = 0;$i<sizeof($school);$i++){
-            $school_arr[$school[$i]->id] = $school[$i]->name;
-        }
+        if($school != null)
+            for($i = 0;$i<sizeof($school);$i++){
+                $school_arr[$school[$i]->id] = $school[$i]->name;
+            }
         
-        for($i = 0;$i<sizeof($result[0]);$i++){
-            $provice_name = '';
-            $city_name = '';
-            $return_ins = '';
-            $result[0][$i]->weixin = '未绑定';
-            $result[0][$i]->weibo = '未绑定';
-            
-            
-            $result[0][$i]->schooling_id = $school_arr[$result[0][$i]->schooling_id];
-            for($j = 0;$j<sizeof($thread);$j++){
-                if($result[0][$i]->user_account_id == $thread[$j]->user_account_id)
-                    if($thread[$j]->third_account_type == 1)
-                        $result[0][$i]->weixin = '绑定';
-                    else if($thread[$j]->third_account_type == 2)
-                        $result[0][$i]->weibo = '绑定';
-            }
-//
-            if($result[0][$i]->address != null) {
-                $provice_arr = strChangeArr($result[0][$i]->address,EXPLODE_STR);
-                $provice = DictRegion::getAllArea();
-                $provice_name=$this->findAddress($provice_arr[0],$provice);
-                $city_name = $this->findAddress($provice_arr[1],$provice);
-            }
-            if($result[0][$i]->industry != null){
-                $insutry = strChangeArr($result[0][$i]->industry,EXPLODE_STR);
-                $insutrys = DictInsutry::getAllIndustry();
-                for($j = 0;$j<sizeof($insutry);$j++){
-                    $return_ins.= $this->findIndustry(intval($insutry[$j]),$insutrys);
+        if($result[0] != null)
+            for($i = 0;$i<sizeof($result[0]);$i++){
+                $provice_name = '';
+                $city_name = '';
+                $return_ins = '';
+                $result[0][$i]->weixin = '未绑定';
+                $result[0][$i]->weibo = '未绑定';
+                
+                
+                $result[0][$i]->schooling_id = $school_arr[$result[0][$i]->schooling_id];
+
+                if($thread != null)
+                    for($j = 0;$j<sizeof($thread);$j++){
+                        if($result[0][$i]->user_account_id == $thread[$j]->user_account_id)
+                            if($thread[$j]->third_account_type == 1)
+                                $result[0][$i]->weixin = '绑定';
+                            else if($thread[$j]->third_account_type == 2)
+                                $result[0][$i]->weibo = '绑定';
+                    }
+    //
+                if($result[0][$i]->address != null) {
+                    $provice_arr = strChangeArr($result[0][$i]->address,EXPLODE_STR);
+                    $provice = DictRegion::getAllArea();
+                    $provice_name=$this->findAddress($provice_arr[0],$provice);
+                    $city_name = $this->findAddress($provice_arr[1],$provice);
                 }
+                if($result[0][$i]->industry != null){
+                    $insutry = strChangeArr($result[0][$i]->industry,EXPLODE_STR);
+                    $insutrys = DictInsutry::getAllIndustry();
+                    if($insutry != null)
+                        for($j = 0;$j<sizeof($insutry);$j++){
+                            $return_ins.= $this->findIndustry(intval($insutry[$j]),$insutrys);
+                        }
+                }
+                $result[0][$i]->address = $provice_name.$city_name;
+                $result[0][$i]->industry = $return_ins;
+                $result[0][$i]->test = '';
             }
-            $result[0][$i]->address = $provice_name.$city_name;
-            $result[0][$i]->industry = $return_ins;
-            $result[0][$i]->test = '';
-        }
         return !empty([$result]) ? responseToJson(0,'success',$result) : responseToJson(1,'no data');
     }
     
@@ -163,13 +168,14 @@ class AccountsController extends AccountControllerBase
         $thread =  user_third_accounts::getTypeOfThread([$request->id]);
         $user->weixin = '未绑定';
         $user->weibo = '未绑定';
-        for($j = 0;$j<sizeof($thread);$j++){
-            if($user->user_account_id == $thread[$j]->user_account_id)
-                if($thread[$j]->third_account_type == 1)
-                    $user->weixin = '绑定';
-                else if($thread[$j]->third_account_type == 2)
-                    $user->weibo = '绑定';
-        }
+        if($thread != null)
+            for($j = 0;$j<sizeof($thread);$j++){
+                if($user->user_account_id == $thread[$j]->user_account_id)
+                    if($thread[$j]->third_account_type == 1)
+                        $user->weixin = '绑定';
+                    else if($thread[$j]->third_account_type == 2)
+                        $user->weibo = '绑定';
+            }
         
         if($user->address != null) {
             $provice_arr = strChangeArr($user->address,EXPLODE_STR);
@@ -180,9 +186,10 @@ class AccountsController extends AccountControllerBase
         if($user->industry != null){
             $insutry = strChangeArr($user->industry,EXPLODE_STR);
             $insutrys = DictInsutry::getAllIndustry();
-            for($i = 0;$i<sizeof($insutry);$i++){
-                $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
-            }
+            if($insutry != null)
+                for($i = 0;$i<sizeof($insutry);$i++){
+                    $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
+                }
         }
         $sname = DictSchooling::getSchoolingById($user->schooling_id);
         $user->schooling_id = empty($sname) ? '' : $sname->name;
@@ -209,13 +216,14 @@ class AccountsController extends AccountControllerBase
         $thread =  user_third_accounts::getTypeOfThread([$request->id]);
         $user->weixin = '未绑定';
         $user->weibo = '未绑定';
-        for($j = 0;$j<sizeof($thread);$j++){
-            if($user->user_account_id == $thread[$j]->user_account_id)
-                if($thread[$j]->third_account_type == 1)
-                    $user->weixin = '绑定';
-                else if($thread[$j]->third_account_type == 2)
-                    $user->weibo = '绑定';
-        }
+        if($thread != null)
+            for($j = 0;$j<sizeof($thread);$j++){
+                if($user->user_account_id == $thread[$j]->user_account_id)
+                    if($thread[$j]->third_account_type == 1)
+                        $user->weixin = '绑定';
+                    else if($thread[$j]->third_account_type == 2)
+                        $user->weibo = '绑定';
+            }
         if($user->address != null) {
             $provice_arr = strChangeArr($user->address,EXPLODE_STR);
             $provice = DictRegion::getAllArea();
@@ -225,9 +233,10 @@ class AccountsController extends AccountControllerBase
         if($user->industry != null){
             $insutry = strChangeArr($user->industry,EXPLODE_STR);
             $insutrys = DictInsutry::getAllIndustry();
-            for($i = 0;$i<sizeof($insutry);$i++){
-                $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
-            }
+            if($insutry != null)
+                for($i = 0;$i<sizeof($insutry);$i++){
+                    $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
+                }
         }
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
@@ -250,13 +259,15 @@ class AccountsController extends AccountControllerBase
         $thread =  user_third_accounts::getTypeOfThread([$request->id]);
         $user->weixin = '未绑定';
         $user->weibo = '未绑定';
-        for($j = 0;$j<sizeof($thread);$j++){
-            if($user->user_account_id == $thread[$j]->user_account_id)
-                if($thread[$j]->third_account_type == 1)
-                    $user->weixin = '绑定';
-                else if($thread[$j]->third_account_type == 2)
-                    $user->weibo = '绑定';
-        }
+
+        if($thread != null)
+            for($j = 0;$j<sizeof($thread);$j++){
+                if($user->user_account_id == $thread[$j]->user_account_id)
+                    if($thread[$j]->third_account_type == 1)
+                        $user->weixin = '绑定';
+                    else if($thread[$j]->third_account_type == 2)
+                        $user->weibo = '绑定';
+            }
         if($user->address != null) {
             $provice_arr = strChangeArr($user->address,EXPLODE_STR);
             $provice = DictRegion::getAllArea();
@@ -266,9 +277,10 @@ class AccountsController extends AccountControllerBase
         if($user->industry != null){
             $insutry = strChangeArr($user->industry,EXPLODE_STR);
             $insutrys = DictInsutry::getAllIndustry();
-            for($i = 0;$i<sizeof($insutry);$i++){
-                $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
-            }
+            if($insutry != null)
+                for($i = 0;$i<sizeof($insutry);$i++){
+                    $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
+                }
         }
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;
@@ -284,9 +296,10 @@ class AccountsController extends AccountControllerBase
     
         $school = dict_education::getAllSchooling();
         $school_arr = [];
-        for($i = 0;$i<sizeof($school);$i++){
-            $school_arr[$school[$i]->id] = $school[$i]->name;
-        }
+        if($school != null)
+            for($i = 0;$i<sizeof($school);$i++){
+                $school_arr[$school[$i]->id] = $school[$i]->name;
+            }
         
         $user = $this->getUserId($request);
         $return_ins='';
@@ -302,19 +315,21 @@ class AccountsController extends AccountControllerBase
         $thread =  user_third_accounts::getTypeOfThread([$request->id]);
         $user->weixin = '未绑定';
         $user->weibo = '未绑定';
-        for($j = 0;$j<sizeof($thread);$j++){
-            if($user->user_account_id == $thread[$j]->user_account_id)
-                if($thread[$j]->third_account_type == 1)
-                    $user->weixin = '绑定';
-                else if($thread[$j]->third_account_type == 2)
-                    $user->weibo = '绑定';
-        }
+        if($thread != null)
+            for($j = 0;$j<sizeof($thread);$j++){
+                if($user->user_account_id == $thread[$j]->user_account_id)
+                    if($thread[$j]->third_account_type == 1)
+                        $user->weixin = '绑定';
+                    else if($thread[$j]->third_account_type == 2)
+                        $user->weibo = '绑定';
+            }
         if($user->industry != null){
             $insutry = strChangeArr($user->industry,EXPLODE_STR);
             $insutrys = DictInsutry::getAllIndustry();
-            for($i = 0;$i<sizeof($insutry);$i++){
-                $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
-            }
+            if($insutry != null)
+                for($i = 0;$i<sizeof($insutry);$i++){
+                    $return_ins.= $this->findIndustry(intval($insutry[$i]),$insutrys);
+                }
         }
         $user->address = $provice_name.$city_name;
         $user->industry = $return_ins;

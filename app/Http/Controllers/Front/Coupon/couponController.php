@@ -44,7 +44,7 @@
                 return responseToJson(1,'用户并没有领取该优惠券');
             $coupon = zslm_coupon::getCouponByCoachIdBash($request->c_id);
             
-            if(sizeof($coupon) == 0)
+            if($coupon == null || sizeof($coupon) == 0)
                 return responseToJson(1,'优惠券错误');
             $coupon_id = $coupon[0]->id;
             $coupon_name =  $coupon[0]->name;

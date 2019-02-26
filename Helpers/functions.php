@@ -290,9 +290,10 @@
     {
         if ($val == '' || $val == null)
             return [];
-        for ($i = 0; $i < sizeof($val); $i++) {
-            $val[$i] = intval($val[$i]);
-        }
+        if($val != null)
+            for ($i = 0; $i < sizeof($val); $i++) {
+                $val[$i] = intval($val[$i]);
+            }
         return $val;
     }
     
@@ -322,11 +323,12 @@
             $requestArray = $_POST;
         else
             throw new Exception("Type must be in 1 or 2");
-        for ($subscript = 0; $subscript < sizeof($requestParams); $subscript++) {
-            
-            if (!isset($requestArray[$requestParams[$subscript]]) || $requestArray[$requestParams[$subscript]] == null)
-                return $requestParams[$subscript];
-        }
+        if($requestParams != null)
+            for ($subscript = 0; $subscript < sizeof($requestParams); $subscript++) {
+                
+                if (!isset($requestArray[$requestParams[$subscript]]) || $requestArray[$requestParams[$subscript]] == null)
+                    return $requestParams[$subscript];
+            }
         return 'yes';
     }
     
@@ -480,7 +482,7 @@
         $addressArr = strChangeArr($proStr, EXPLODE_STR);
         $pro['province'] = dictRegion::getOneArea($addressArr[0])[0]->name;
         $pro['city'] = '';
-        if (sizeof($addressArr) > 1)
+        if ($addressArr != null && sizeof($addressArr) > 1)
             $pro['city'] = dictRegion::getOneArea($addressArr[1])[0]->name;
         return $pro;
     }

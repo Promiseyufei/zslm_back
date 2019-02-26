@@ -145,15 +145,16 @@
                     'schooling_id','coach_id','industry',
                     'worked_year','user_information.create_time']);
             
-            for($i = 0;$i<sizeof($result);$i++){
-             
-               $name=coach_organize::getCoachNameById($result[$i]->coach_id);
-               if(!empty($name))
-                   $result[$i]->coach_id = $name->coach_name;
-               else
-                   $result[$i]->coach_id  = '';
-               
-            }
+            if($result != null)
+                for($i = 0;$i<sizeof($result);$i++){
+                
+                $name=coach_organize::getCoachNameById($result[$i]->coach_id);
+                if(!empty($name))
+                    $result[$i]->coach_id = $name->coach_name;
+                else
+                    $result[$i]->coach_id  = '';
+                
+                }
             $count =  DB::table(self::$sTableName)->where('user_information.is_delete',0)
                 ->join('user_coupon','user_coupon.user_id','=', 'user_information.id')
                 ->join('zslm_coupon','zslm_coupon.id','=', 'user_coupon.coupon_id')

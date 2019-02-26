@@ -131,7 +131,7 @@
             $name = !empty($request->name) ? trim($request->name) : '';
             $majors = $this->getMajorToIndex($name, $request->page, $request->page_size);
             $count = zslmMajor::getMajorBySelectCount(null,$name,'');
-            if (sizeof($majors) == 0)
+            if ($majors == null || sizeof($majors) == 0)
                 return responseToJson(1, '没有数据');
             return responseToJson(0, 'success', ['majors'=>$majors,'count'=>$count]);
         }
@@ -198,7 +198,7 @@
                 'access_year','wc_image','wb_image','major_confirm','major_follow', 'major_cover_name'];
             
             $major = zslmMajor::getMajorById($request->id,$felds);
-            if(sizeof($major) == 0)
+            if($major == null || sizeof($major) == 0)
                 return responseToJson(1,'没有数据');
     
             $major[0]->file = majorFiles::getMajorFile($request->id);
@@ -276,7 +276,7 @@
             //创建 ActivityController 对象
     
             $get_activitys = ZslmActivitys::getFrontActiListById($request->id,$request->page,$request->page_size);
-            if(sizeof($get_activitys['info']) == 0)
+            if($get_activitys['info'] == null && sizeof($get_activitys['info']) == 0)
                 return responseToJson(1,'暂无数据');
             
             $get_activitys['info'] = $get_activitys['info']->toArray();
@@ -310,7 +310,7 @@
             $fileds = ['zx_id'];
             
            $inf =  information_major::getMajorInformation($request->id,$request->page,$request->page_size,$fileds);
-           $len = sizeof($inf) ;
+           $len = $inf != null ? sizeof($inf) : 0;
            if($len== 0)
                return responseToJson(1,'暂无数据');
             //咨询id数组
@@ -344,7 +344,7 @@
             
            $major =  activity_relation::getOneMajorActivity($request->a_id);
       
-           if(sizeof($major) == 0)
+           if($major == null || sizeof($major) == 0)
                return responseToJson('1','暂无数据');
            //判断用户是否关注了该院校，0表示没有，大于0表示关注
            $if_guanzhu = user_follow_major::getIfUsesMajor($request->u_id,$major[0]->host_major_id);
@@ -355,7 +355,7 @@
             $addressArr = strChangeArr($major_msg[0]->province, EXPLODE_STR);
             $major_msg[0]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
             $major_msg[0]->city = '';
-            if (sizeof($addressArr) > 1)
+            if ($addressArr != null && sizeof($addressArr) > 1)
                 $major_msg[0]->city = dictRegion::getOneArea($addressArr[1])[0]->name;
             return responseToJson(0,'success',$major_msg);
            
@@ -409,7 +409,7 @@
 
             // dd($majors);
     
-            if(sizeof($majors) == 0)
+            if($majors == null || sizeof($majors) == 0)
                 return responseToJson(1,"暂无数据");
     
             $major_confirms = majorConfirm::getAllMajorConfirm();
@@ -419,30 +419,31 @@
                 'can_conditions','score_describe','score_type','recruitment_pattern',
                 'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
             
-            for($i = 0 ;$i < sizeof($majors);$i++){
-                $majors[$i]->project =  majorRecruitProject::getProjectByMid( $majors[$i]->id,0,
-                    0,0,'','',0,$fileds);
-                $majors[$i]->province = getProCity($majors[$i]->province);
-                $major_confirms_str = strChangeArr($majors[$i]->major_confirm,EXPLODE_STR);
-                $major_confirms_str = changeStringToInt($major_confirms_str);
-                $major_follow_str = strChangeArr($majors[$i]->major_follow,EXPLODE_STR);
-                $major_follow_str = changeStringToInt($major_follow_str);
-     
-                $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
-                $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
-                $majors[$i]->major_confirm_id = $major_confirm;
-                $majors[$i]->major_follow_id = $major_follow;
+            if($majors != null)
+                for($i = 0 ;$i < sizeof($majors);$i++){
+                    $majors[$i]->project =  majorRecruitProject::getProjectByMid( $majors[$i]->id,0,
+                        0,0,'','',0,$fileds);
+                    $majors[$i]->province = getProCity($majors[$i]->province);
+                    $major_confirms_str = strChangeArr($majors[$i]->major_confirm,EXPLODE_STR);
+                    $major_confirms_str = changeStringToInt($major_confirms_str);
+                    $major_follow_str = strChangeArr($majors[$i]->major_follow,EXPLODE_STR);
+                    $major_follow_str = changeStringToInt($major_follow_str);
+        
+                    $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
+                    $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
+                    $majors[$i]->major_confirm_id = $major_confirm;
+                    $majors[$i]->major_follow_id = $major_follow;
 
-                if(!empty($majors[$i]->wc_image)) {
-                    $majors[$i]->wc_image = strChangeArr($majors[$i]->wc_image, EXPLODE_STR);
-                    for($j = 0; $j < count($majors[$i]->wc_image); $j++) {
-                        $majors[$i]->wc_image[$j] = splicingImgStr('admin', 'info', $majors[$i]->wc_image[$j]);
+                    if(!empty($majors[$i]->wc_image)) {
+                        $majors[$i]->wc_image = strChangeArr($majors[$i]->wc_image, EXPLODE_STR);
+                        for($j = 0; $j < count($majors[$i]->wc_image); $j++) {
+                            $majors[$i]->wc_image[$j] = splicingImgStr('admin', 'info', $majors[$i]->wc_image[$j]);
+                        }
                     }
-                }
 
-                unset($majors[$i]->major_confirm);
-                unset($majors[$i]->major_follow);
-            }
+                    unset($majors[$i]->major_confirm);
+                    unset($majors[$i]->major_follow);
+                }
         
             return responseToJson(0,'success',$majors);
             
@@ -454,9 +455,10 @@
          */
         public function getConfirmsOrFollow($val_arrl,$get_arr){
             $result = '';
-            for($i = 0;$i < sizeof($val_arrl);$i++){
-                $result.=$get_arr[$val_arrl[$i]].',';
-            }
+            if($val_arrl != null)
+                for($i = 0;$i < sizeof($val_arrl);$i++){
+                    $result.=$get_arr[$val_arrl[$i]].',';
+                }
             $result =  substr($result, 0, -1) ;
             return $result;
         }
@@ -489,7 +491,7 @@
                 'z_name', 'major_cover_name'];
             $majors = zslmMajor::getMajorByYearSelect($request->name,$request->year,$request->page, $request->page_size,$felds);
             $count = zslmMajor::getMajorByYearSelectCount($request->name,$request->year);
-            $len = sizeof($majors);
+            $len = $majors != null ? sizeof($majors) : 0;
             
             if($len == 0)
                 return responseToJson(1,"暂无数据");
@@ -515,7 +517,7 @@
         
             $project_id = major_recruit_project::getProjectByMid( $request->m_id,0,
                 0,0,'','',0,['id']);
-            if(sizeof($project_id) == 0)
+            if($project_id == null || sizeof($project_id) == 0)
                 return responseToJson(1,'暂无数据');
             return responseToJson(0,'success',$project_id);
         }
@@ -531,13 +533,15 @@
                 return responseToJson(1,'p_id 错误');
             
             $project_id = strChangeArr($request->p_id,EXPLODE_STR);
+            $lens = $project_id != null ? sizeof($project_id) : 0;
+            // if(empty($project_id)) 
 
             $fileds = ['id','project_name','student_count','language','eductional_systme',
                 'can_conditions','score_describe','score_type','recruitment_pattern',
                 'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
-            $porjects = major_recruit_project::getProjectById($project_id,0,sizeof($project_id),$fileds);
+            $porjects = major_recruit_project::getProjectById($project_id,0,$lens,$fileds);
         
-            $len = sizeof($porjects);
+            $len = $porjects != null ? sizeof($porjects) : 0;
         
             if($len == 0)
                 return responseToJson(1,"暂无数据");

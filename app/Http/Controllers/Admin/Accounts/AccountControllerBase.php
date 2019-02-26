@@ -27,19 +27,21 @@
     class AccountControllerBase extends Controller
     {
         protected function findAddress($id,$provice){
-            for($i = 0;$i<sizeof($provice);$i++){
-                if($id==$provice[$i]->id){
-                    return $provice[$i]->name;
+            if($provice != null)
+                for($i = 0;$i<sizeof($provice);$i++){
+                    if($id==$provice[$i]->id){
+                        return $provice[$i]->name;
+                    }
                 }
-            }
         }
     
         protected function findSchooling($id,$shcooling){
-            for($i = 0;$i<sizeof($shcooling);$i++){
-                if($shcooling[$i]->id == $id){
-                    return $shcooling[$i]->name;
+            if($shcooling != null)
+                for($i = 0;$i<sizeof($shcooling);$i++){
+                    if($shcooling[$i]->id == $id){
+                        return $shcooling[$i]->name;
+                    }
                 }
-            }
         }
     
         function GetIp(){
@@ -98,12 +100,12 @@
         
     
         protected function findIndustry($id,$industry){
-
-            for($i = 0;$i<sizeof($industry);$i++){
-                if($id==$industry[$i]->id){
-                    return $industry[$i]->name;
+            if($industry != null)
+                for($i = 0;$i<sizeof($industry);$i++){
+                    if($id==$industry[$i]->id){
+                        return $industry[$i]->name;
+                    }
                 }
-            }
         }
     
         protected function createExcel($datas){
@@ -136,9 +138,10 @@
         protected function getActivityNames(Request $request){
             $activity_ids = UserActivitys::getActivityByUser($request->id);
             $ids  = [];
-            for($i = 0;$i<sizeof($activity_ids);$i++){
-                $ids[$i] = $activity_ids[$i]->activity_id;
-            }
+            if($activity_ids != null)
+                for($i = 0;$i<sizeof($activity_ids);$i++){
+                    $ids[$i] = $activity_ids[$i]->activity_id;
+                }
             $activity_names = ZslmActivitys::getUserActivitys($ids);
             return $activity_names;
         }
@@ -147,9 +150,10 @@
     
             $major_ids = UserFollowMajor::getMajorId($request->id);
             $ids  = [];
-            for($i = 0;$i<sizeof($major_ids);$i++){
-                $ids[$i] = $major_ids[$i]->major_id;
-            }
+            if($major_ids != null)
+                for($i = 0;$i<sizeof($major_ids);$i++){
+                    $ids[$i] = $major_ids[$i]->major_id;
+                }
             $major_names = ZslmMajor::getMajorName($ids);
             return $major_names;
         }
@@ -157,51 +161,53 @@
         protected function getCouponNames(Request $request){
             $coupon_ids = UserCoupon::getCouponId($request->id,0);
             $ids  = [];
-            for($i = 0;$i<sizeof($coupon_ids);$i++){
-                $ids[$i] = $coupon_ids[$i]->coupon_id;
-            }
+            if($coupon_ids != null)
+                for($i = 0;$i<sizeof($coupon_ids);$i++){
+                    $ids[$i] = $coupon_ids[$i]->coupon_id;
+                }
             $coupon_names = ZslmCoupon::getCouponName($ids);
             return $coupon_names;
         }
         
         protected function resultObjToArray($data,$datas,$provice,$schooling,$insutrys){
-            for($i = 0;$i<sizeof($data);$i++){
-                $j = 0;
-                foreach ($data[$i] as $key => $value){
-//                    print_r($key);
-                    if($key == 'address'){
-                        $addressArr = strChangeArr($data[$i]->address,EXPLODE_STR);
-                        $proviceName = $this->findAddress(intval($addressArr[0]),$provice);
-                        $cityName = $this->findAddress(intval($addressArr[1]),$provice);
-                        $datas[$i+1][$j] = $proviceName.$cityName;
-                    }else if($key == 'industry'){
+            if($data != null)
+                for($i = 0;$i<sizeof($data);$i++){
+                    $j = 0;
+                    foreach ($data[$i] as $key => $value){
+    //                    print_r($key);
+                        if($key == 'address'){
+                            $addressArr = strChangeArr($data[$i]->address,EXPLODE_STR);
+                            $proviceName = $this->findAddress(intval($addressArr[0]),$provice);
+                            $cityName = $this->findAddress(intval($addressArr[1]),$provice);
+                            $datas[$i+1][$j] = $proviceName.$cityName;
+                        }else if($key == 'industry'){
+                            
+                            $insutry = strChangeArr($data[$i]->industry,EXPLODE_STR);
+                            $return_ins = '';
+                            $lenght = $insutry!=null ? count($insutry) : 0;
                         
-                        $insutry = strChangeArr($data[$i]->industry,EXPLODE_STR);
-                        $return_ins = '';
-                        $lenght = $insutry!=null ? count($insutry) : 0;
-                       
-			 for($z = 0;$z<$lenght;$z++){
-                    
-                            $return_ins.= $this->findIndustry(intval($insutry[$z]),$insutrys);
+                for($z = 0;$z<$lenght;$z++){
+                        
+                                $return_ins.= $this->findIndustry(intval($insutry[$z]),$insutrys);
+                            }
+                            
+                            $datas[$i+1][$j] = $return_ins;
+                        
+                        }else if($key == 'schooling_id'){
+                            $schoolingName = $this->findSchooling(intval($data[$i]->schooling_id),$schooling);
+                            $datas[$i+1][$j] = $schoolingName;
+                        
+                        }else if($key == 'create_time'){
+                            $datas[$i+1][$j] = date("Y-m-d",$data[$i]->create_time) ;
+                        }
+                        else{
+                            $datas[$i+1][$j] = $value;
                         }
                         
-                        $datas[$i+1][$j] = $return_ins;
-                       
-                    }else if($key == 'schooling_id'){
-                        $schoolingName = $this->findSchooling(intval($data[$i]->schooling_id),$schooling);
-                        $datas[$i+1][$j] = $schoolingName;
-                       
-                    }else if($key == 'create_time'){
-                        $datas[$i+1][$j] = date("Y-m-d",$data[$i]->create_time) ;
-                    }
-                    else{
-                        $datas[$i+1][$j] = $value;
+                        $j++;
                     }
                     
-                    $j++;
                 }
-                
-            }
             return $datas;
         }
         

@@ -17,7 +17,7 @@
         
         public static function getAllMajorFollow(){
             $result =  DB::table(self::$sTabelName)->get(['id','name']);
-            $len = sizeof($result);
+            $len = $result != null ? sizeof($result) : 0;
             $major_follows = [];
             for($i = 0;$i<$len;$i++){
                 $major_follows[$result[$i]->id] = $result[$i]->name;
