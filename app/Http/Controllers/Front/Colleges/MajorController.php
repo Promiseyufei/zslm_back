@@ -153,11 +153,12 @@
 //                $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
 //                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
              
+
                 if(!empty($majors[$i]->magor_logo_name))
                     $majors[$i]->magor_logo_name = splicingImgStr('admin', 'info', $majors[$i]->magor_logo_name);
                 if(!empty($majors[$i]->major_cover_name))
                     $majors[$i]->major_cover_name = splicingImgStr('admin', 'info', $majors[$i]->major_cover_name);
-                if($majors[$i]->province !== '')
+                if($majors[$i]->province !== ''  && $majors[$i]->province != null)
                     $majors[$i]->province = getProCity($majors[$i]->province);
                 $major_confirms_str = strChangeArr($majors[$i]->major_confirm,EXPLODE_STR);
                 $major_confirms_str = changeStringToInt($major_confirms_str);
