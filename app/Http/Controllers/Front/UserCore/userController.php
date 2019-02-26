@@ -70,6 +70,16 @@
         }
     
         /**
+         *
+         */
+        
+        public function getDing(Request $request){
+            if(!isset($request->id))
+                return responseToJson(1,'缺少id');
+            $newCount = newUsers::getCountUserNews($request->id,0);
+            return responseToJson(0,'success',$newCount);
+        }
+        /**
          * 获取用户关注的院校
          * @param Request $request
          *

@@ -117,7 +117,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::post("refund","userController@userRefund");
 
         Route::get("getFrontProvince","UserAccountController@getFrontProvince");
-        
+        Route::get("getding","userController@getDing");
       
     });
 

@@ -241,8 +241,14 @@
     
         public function getAllConpon(Request $request){
             $coupon = coachOrganize::getAllCoupon();
-            if(sizeof($coupon) == 0)
+            
+            if(empty($coupon) || sizeof($coupon) == 0)
                 return responseToJson(1,'暂无数据');
+            
+            for($i = 0;$i<sizeof($coupon);$i++){
+                $coupon[$i]->logo_name = splicingImgStrPro('admin/info/',$coupon[$i]->logo_name);
+                $coupon[$i]->cover_name = splicingImgStrPro('admin/info/',$coupon[$i]->cover_name);
+            }
             return responseToJson(0,'success',$coupon);
         }
     }
