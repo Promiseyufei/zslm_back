@@ -502,7 +502,7 @@
      */
     function loginSuccess($request, $userPhone)
     {
-        Redis::set(getUserStatusString($userPhone, 0), 1);
+        Redis::setex(getUserStatusString($userPhone, 0), 24 * 60 * 60, 1);
         
         if (!Redis::exists(getUserStatusString($userPhone, 0))) {
             $session = $request->session();

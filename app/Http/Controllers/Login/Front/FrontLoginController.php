@@ -119,7 +119,7 @@ class FrontLoginController extends Controller {
     public function sendSmsCode(Request $request) {
         if($this->judgeIsPhone($request->userPhone)) {
             $code = generateCode();
-            Redis::setex(getUserStatusString($request->userPhone, 1), 1000, $code);
+            Redis::setex(getUserStatusString($request->userPhone, 1), 60, $code);
             $is_send = SmsController::sendSms($request->userPhone, ['code' => $code], 'MBA小助手短信验证');
             if($is_send->Message == 'OK' || $is_send->Code == 'OK') {
                 return responseToJson(0, '发送成功');
