@@ -52,8 +52,8 @@
                         $get_activity_info['activitys'][$key]->active_img = splicingImgStr('admin', 'info', $item->active_img);
                     if ($item->magor_logo_name != '')
                         $get_activity_info['activitys'][$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
-                    if ($item->province !== '')
-                        $get_activity_info['activitys'][$key]->province = getProCity($item->province);
+                    if ($item->province !== '' && !empty($item->province))
+                        $get_activity_info['activitys'][$key]->province = getProCity_B($item->province);
                 }
                 if (empty($get_activity_info['activitys'])) return responseToJson(1, '没有查询到数据');
                 return responseToJson(0, 'success', $get_activity_info);
@@ -124,8 +124,8 @@
                     if ($item->magor_logo_name != '')
                         $get_activitys['info'][$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
                     
-                    if ($item->province !== '')
-                        $get_activitys['info'][$key]->province = getProCity($item->province);
+                    if ($item->province !== '' && !empty($item->province))
+                        $get_activitys['info'][$key]->province = getProCity_B($item->province);
                 }
                 return responseToJson(0, 'success', $get_activitys);
                 
@@ -217,8 +217,8 @@
                 $get_activitys['info'][$key]->begin_time = date("Y-m-d", $item->begin_time);
                 $get_activitys['info'][$key]->end_time = date("Y-m-d", $item->end_time);
                 $get_activitys['info'][$key]->update_time = date("Y-m-d", $item->update_time);
-                if ($item->province !== '')
-                    $get_activitys['info'][$key]->province = getProCity($item->province);
+                if ($item->province !== '' && !empty($item->province))
+                    $get_activitys['info'][$key]->province = getProCity_B($item->province);
             }
             return responseToJson(0, 'success', $get_activitys);
             
@@ -276,8 +276,8 @@
                 $major = ZslmMajor::getMjorInfo($host_major_id, ['id', 'magor_logo_name', 'major_cover_name', 'z_name', 'province']);
                 
                 if (!empty($host_major_id) || !empty($major)) {
-                    if ($major->province !== '') {
-                        $p = getProCity($major->province);
+                    if ($major->province !== '' && !empty($major->province)) {
+                        $p = getProCity_B($major->province);
                         $major->province = $p['province'];
                         $major->city = $p['city'];
                     }
