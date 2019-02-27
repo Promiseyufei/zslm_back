@@ -505,7 +505,7 @@
         if(empty($addr) || sizeof($addr) == 0)
             return $pro;
         $addr = $addr[0];
-        if ($addr != null && sizeof($addr) > 0) {
+        if (!empty($empty)) {
             $pro['province'] = $addr->name;
             
             if ($addressArr != null && sizeof($addressArr) > 2) {
