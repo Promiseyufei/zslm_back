@@ -675,3 +675,14 @@
         }
     }
 
+
+    function secret($string,$code,$operation=false){
+        $code = md5($code);
+        $iv = substr($code,0,16);
+        $key = substr($code,16);
+        if($operation){
+            return openssl_decrypt(base64_decode($string),"AES-128-CBC",$key,OPENSSL_RAW_DATA,$iv);
+        }
+        return base64_encode(openssl_encrypt($string,"AES-128-CBC",$key,OPENSSL_RAW_DATA,$iv));
+    }
+

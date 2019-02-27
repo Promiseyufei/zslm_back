@@ -31,7 +31,8 @@ class WeixinController extends Controller{
         if(!empty($user_data) && ($userOpenId = $user_data->getId())) {
            $data = $this->selectThirdAccount($user_data->getId(), 1, $request);
            if(!empty($data)) {
-               echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/index/"."$data';</script>";
+                $data = urlencode(iconv("gb2312", "UTF-8", $data));    
+                echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/index/"."$data';</script>";
            }
            else echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/Login/thirdBind/"."$userOpenId';</script>";
         }
