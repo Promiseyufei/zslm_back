@@ -98,6 +98,33 @@ class major_recruit_project
         
         return $result;
     }
+
+    //front
+    public static function getProjectByMids($id,$min,$max,$order = 0,$sorce_type,$enrollment_mode,$size = 3,$fileds){
+        $query =  DB::table(self::$sTableName)
+        ->leftJoin('dict_recruitment_pattern', self::$sTableName . '.recruitment_pattern', '=', 'dict_recruitment_pattern.id')
+        ->leftJoin('dict_fraction_type', self::$sTableName . '.score_type', '=', 'dict_fraction_type.id')
+        ->where(self::$sTableName . '.is_delete',0)->where(self::$sTableName . '.is_show',0)->where(self::$sTableName . '.major_id',$id);
+        if($min != 0 && $max != 0 && !empty($min) && !empty(!$max))
+            $query = $query->where('min_cost'>$min)->where('max_cost','<',$max);
+        if($sorce_type != '' && !empty($sorce_type)){
+            $types = strChangeArr($sorce_type, EXPLODE_STR);
+            $query = $query->whereIn(self::$sTableName . '.score_type',$types);
+        }
+        if($enrollment_mode != '' && !empty($enrollment_mode)){
+            $enrollment_modes = strChangeArr($enrollment_mode, EXPLODE_STR);
+            $query = $query->where('enrollment_mode',$enrollment_modes);
+        }
+        $desc = $order == 0 ? 'desc':'asc';
+        
+        $query = $query->orderBy("min_cost",$desc);
+        if($size !=0){
+          $query =  $query->limit($size);
+        }
+        $result = $query->get($fileds);
+        
+        return $result;
+    }
     
     
     
