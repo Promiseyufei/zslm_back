@@ -29,11 +29,11 @@
                 ->where('account',$request->account)
                 ->where('password',$request->password)->first();
             
-            
-            $result =  DB::table(self::$sTableName)->where('is_delete',0)
-                ->where('account',$request->account)
-                ->where('password',$request->password)
-                ->update(['last_login'=>$lasttime->now_login,'now_login'=>time()]);
+            if(!empty($lasttime))
+                $result =  DB::table(self::$sTableName)->where('is_delete',0)
+                    ->where('account',$request->account)
+                    ->where('password',$request->password)
+                    ->update(['last_login'=>$lasttime->now_login,'now_login'=>time()]);
         }
         
         public static function getLoginTime($account){

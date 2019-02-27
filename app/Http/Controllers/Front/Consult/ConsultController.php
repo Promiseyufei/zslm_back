@@ -130,6 +130,7 @@ class ConsultController extends Controller{
             if($consult_id == 0) return responseToJson(1, '参数错误');
             $consult_info = ZslmInformation::getAppointInfoMsgss($consult_id, ['zslm_information.id', 'zslm_information.zx_name', 'zslm_information.z_text','zslm_information.create_time', 'zslm_information.z_image', 'zslm_information.z_alt', 'is_delete', 'dict_information_type.name as type_name']);
             if(empty($consult_info) || $consult_info->is_delete == 1) return responseToJson(1, '不存在该咨询');
+            if(!empty($consult_info->z_image)) $consult_info->z_image = splicingImgStr('admin', 'info', $consult_info->z_image);
             $consult_info->publisher = '专硕联盟';
             $consult_info->create_time = date("Y.m.d", $consult_info->create_time);
             return responseToJson(0, 'success', $consult_info);
