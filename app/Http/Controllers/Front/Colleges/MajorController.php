@@ -203,8 +203,9 @@
                 return responseToJson(1,'没有数据');
     
             $major[0]->file = majorFiles::getMajorFile($request->id);
-            $fileds = ['id','project_name','student_count','language','eductional_systme',
-                'can_conditions','score_describe','score_type','recruitment_pattern',
+            $fileds = ['major_recruit_project.id','project_name','student_count','language','eductional_systme',
+                'can_conditions','score_describe',
+                'dict_recruitment_pattern.name as recruitment_pattern', 'dict_fraction_type.name as score_type',
                 'graduation_certificate','other_explain','cost',"enrollment_mode",
                 'class_situation'];
     
@@ -222,7 +223,7 @@
             $major[0]->major_follow_id = $major_follow;
             unset($major[0]->major_confirm);
             unset($major[0]->major_follow);
-            $major[0]->project = majorRecruitProject::getProjectByMid($request->id,0,
+            $major[0]->project = majorRecruitProject::getProjectByMids($request->id,0,
                 0,0,'','',0,$fileds);
             
             if(!isset($request->u_id) && !is_numeric($request->u_id)) $is_guanzhu = false;
