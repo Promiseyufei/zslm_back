@@ -498,10 +498,13 @@
     {
         $pro = [];
         $addressArr = strChangeArr($proStr, EXPLODE_STR);
-        $addr = dictRegion::getOneArea($addressArr[0])[0];
-//        $pro['province'] =
+        $addr = dictRegion::getOneArea($addressArr[0]);
+        
         $pro['province'] = '';
         $pro['city'] = '';
+        if(empty($addr) || sizeof($addr) == 0)
+            return $pro;
+        $addr = $addr[0];
         if ($addr != null && sizeof($addr) > 0) {
             $pro['province'] = $addr->name;
             
@@ -513,6 +516,7 @@
             }
             return $pro;
         }
+        return $pro;
     }
     
     

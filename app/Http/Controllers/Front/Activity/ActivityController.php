@@ -166,17 +166,15 @@
                         $get_activitys['info'][$key]->end_time = date("m-d", $item->end_time);
                         
                         if ($item->province !== '' && !empty($item->province))
-                            try {
                                 $get_activitys['info'][$key]->province = getProCity_B($item->province);
-                            } catch (\Exception $e) {
-//                                dd($item);
-                                return responseToJson(1,'出错了');
-                            }
+                            
                     }
                 return $get_activitys;
                 
             } else return null;
         }
+        
+        
         
         /**获取用户关注的activity
          *
