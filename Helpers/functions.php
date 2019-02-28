@@ -480,10 +480,17 @@
     {
         $pro = [];
         $addressArr = strChangeArr($proStr, EXPLODE_STR);
-        $pro['province'] = dictRegion::getOneArea($addressArr[0])[0]->name;
+
+        $regionName = dictRegion::getOneArea($addressArr[0]);
+
+        $pro['province'] = count($regionName)?$regionName[0]->name:'';
+
         $pro['city'] = '';
-        if ($addressArr != null && sizeof($addressArr) > 1)
-            $pro['city'] = dictRegion::getOneArea($addressArr[1])[0]->name;
+        if ($addressArr != null && sizeof($addressArr) > 1){
+            $regionName = dictRegion::getOneArea($addressArr[1]);
+            $pro['city'] = count($regionName)?$regionName[0]->name:'';
+        }
+
         return $pro;
     }
     

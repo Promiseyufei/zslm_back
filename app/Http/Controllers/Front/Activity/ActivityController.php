@@ -253,7 +253,7 @@
                 $activity = ZslmActivitys::getAppointAcInfos($activity_id);
                 if (!empty($activity)) {
                     $now_time = time();
-                    $activity->start_state = $now_time < $activity->begin_time ? 0 : $now_time > $activity->end_time ? 2 : 1;
+                    $activity->start_state = $now_time < $activity->begin_time ? 0 : ($now_time > $activity->end_time ? 2 : 1);
                     $activity->begin_time = date("Y-m-d H:i", $activity->begin_time);
                     $activity->end_time = date("Y-m-d H:i", $activity->end_time);
                     return responseToJson(0, 'success', $activity);
