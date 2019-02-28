@@ -173,7 +173,6 @@
         
         
         //front
-        
         private static function getSqlQuery($provice, $type, $name, $if_back, $if_coupon)
         {
             $query = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)->where('father_id', 0);
@@ -191,18 +190,30 @@
                 $query = $query->where("if_coupons", $if_coupon);
             return $query;
         }
-        
+
+        /**
+         * 获取指定条件的辅导机构
+         * @param $provice
+         * @param $type
+         * @param $name
+         * @param $page
+         * @param $page_size
+         * @param $if_back
+         * @param $if_coupon
+         * @param $fields
+         * @return mixed
+         */
         public static function getSelectCoach($provice, $type, $name, $page, $page_size, $if_back, $if_coupon, $fields)
         {
-            
             $query = self::getSqlQuery($provice, $type, $name, $if_back, $if_coupon);
+
             $result = $query->offset(($page - 1) * $page_size)->limit($page_size)->get($fields)->map(function($item) {
                 $item->logo_name = splicingImgStr('admin', 'info', $item->logo_name);
                 $item->cover_name = splicingImgStr('admin', 'info', $item->cover_name);
                 return $item;
             });
+
             return $result;
-            
         }
         
         public static function getSonCoach($f_id,$fields)

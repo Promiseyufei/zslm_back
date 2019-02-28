@@ -34,19 +34,21 @@
          */
         public function getSelectCoach(Request $request)
         {
-            if(!$request->method('get'))
-                return responseToJson(1,'请求方式错误');
-            if(!isset($request->page) || !isset($request->page_size) || !is_numeric($request->page) || !is_numeric($request->page_size))
-                return responseToJson(1,'没有页码、页面大小或者页码、也买你大小不是数字');
+            if(!$request->method('get')) return responseToJson(1,'请求方式错误');
+
+            $page = $request->page?(int)$request->page:1;
+            $page_size = $request->page_size?(int)$request->page_size:10;
+
             $provice = '';
             
             if (!empty($request->provice) && $request->provice != ''){
                 $provice = dictRegion::getProvinceIdByName_c($request->provice);
                 $provice = $provice->id;
             }
+
             $fields = ['id', 'coach_name', 'province', 'if_coupons', 'if_back_money', 'cover_name', 'cover_alt', 'logo_name', 'logo_alt'];
             $coachs = coachOrganize::getSelectCoach($provice, $request->coach_type,
-                $request->coach_name, $request->page, $request->page_size,
+                $request->coach_name, $page , $page_size,
                 $request->if_back, $request->if_coupon, $fields);
         
             if ($coachs == null || sizeof($coachs) == 0)
