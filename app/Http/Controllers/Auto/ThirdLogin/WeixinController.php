@@ -17,7 +17,7 @@ use App\Models\user_information as UserInformation;
 use App\Models\user_third_accounts as UserThirdAccounts;
 use App\Http\Controllers\Login\Front\FrontLoginController;
 
-define('INDEX_URL', 'http://www.mbahelper.cn/front/index/');
+define('INDEX_URL', 'http://www.mbahelper.cn/#/front/index/');
 class WeixinController extends Controller{
 
     public function redirectToProvider(Request $request)
@@ -32,9 +32,9 @@ class WeixinController extends Controller{
            $data = $this->selectThirdAccount($user_data->getId(), 1, $request);
            if(!empty($data)) {
                 $data = urlencode(iconv("gb2312", "UTF-8", $data));    
-                echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/front/index/"."$data';</script>";
+                echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/index/"."$data';</script>";
            }
-           else echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/front/Login/thirdBind/"."$userOpenId';</script>";
+           else echo "<script type='text/javascript'>window.location.href ='http://www.mbahelper.cn/#/front/Login/thirdBind/"."$userOpenId';</script>";
         }
        else echo "<script type='text/javascript'>window.location.href = " . INDEX_URL ."'front/Login/loginRoute/shortMessage';</script>"; 
     }
