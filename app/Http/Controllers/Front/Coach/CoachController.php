@@ -120,6 +120,7 @@
                 return responseToJson(1,'没有数据');
             $coach[0]->son_coach = coachOrganize::getSonCoach($request->id,$fields);
             $f = ['id','name','type','is_enable'];
+
             //获取辅导机构的优惠券
             $coach[0]->coupon = zslm_coupon::getFrontCouponByCoach($request->id,$f);
             if($coach[0]->coupon != null)
