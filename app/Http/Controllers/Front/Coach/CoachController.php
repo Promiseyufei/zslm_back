@@ -186,14 +186,14 @@
             
             $id = $request->id;
             $coupon_ids =  user_coupon::getCouponIdWithUse($id , $is_use);
-            if($coupon_ids == null || sizeof($coupon_ids) == 0){
-                return responseToJson(1,'没有优惠券' , ['nouse'=>0,'use'=>0,'enable'=>0]);
-            }
-
 
             $c1 = zslm_coupon::getUserCoachCouponCount($request->id,0,0);   //  未使用
             $c2 = zslm_coupon::getUserCoachCouponCount($request->id,1,1);   //  已使用
             $c3 = zslm_coupon::getUserCoachCouponCount($request->id,2,0);   //  已失效
+
+            if($coupon_ids == null || sizeof($coupon_ids) == 0){
+                return responseToJson(1,'没有优惠券' , ['nouse'=>$c1,'use'=>$c2,'enable'=>$c3]);
+            }
 
             $coupon_id_arr = [];
             for($i = 0;$i<sizeof($coupon_ids);$i++){
