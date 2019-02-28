@@ -228,7 +228,13 @@
                 ->get($fields);
             return $result;
         }
-    
+
+        /**
+         * 查询指定建值的辅导机构信息
+         * @param $id
+         * @param $fields
+         * @return mixed
+         */
         public static function getAllCoachByIds($id,$fields)
         {
             $result = DB::table(self::$sTableName)
