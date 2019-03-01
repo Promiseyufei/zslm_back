@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use function Couchbase\defaultDecoder;
 use DB;
 use Illuminate\Http\Request;
 

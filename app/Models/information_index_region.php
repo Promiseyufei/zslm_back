@@ -73,5 +73,12 @@ class information_index_region
     public static function getAllRegionName(){
         return DB::table(self::$sTableName)->get(['id','region_name']);
     }
+    
+    /**
+     * 获取咨询区域的数据
+     */
+    public static function getAllRegionInfo(){
+        return DB::table(self::$sTableName)->get();
+    }
 
 }

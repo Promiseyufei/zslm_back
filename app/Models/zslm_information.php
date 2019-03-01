@@ -375,6 +375,20 @@ class zslm_information
         ->leftJoin('activity_relation', self::$sTableName . '.id', '=', 'activity_relation.activity_id')
         ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')->where(self::$sTableName . '.id', $activityId)->select('zslm_major.id', 'z_name', 'magor_logo_name')->first();
     }
-
+    
+    /**
+     * 获取推荐区域的咨询
+     * @param $ids 咨询id数组
+     */
+    public static function getRecommendInfo($ids){
+    
+        return DB::table(self::$sTableName)
+            ->whereIn('id',$ids)
+            ->where('is_delete',0)
+            ->where('is_recommend',1)
+            ->orderBy('weight','desc')
+            ->orderBy('create_time','desc')
+            ->get(['id','zx_name','create_time','z_image']);
+    }
 
 }
