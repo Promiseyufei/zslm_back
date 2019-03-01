@@ -67,7 +67,7 @@ class ConsultController extends Controller{
     public function getConsultType(Request $request) {
         if($request->isMethod('get')) {
             $info_type_list = Dict::dictInformationType()->toArray();
-            array_push($info_type_list, (object)['id' => 0, 'name' => 'All']);
+            array_unshift($info_type_list, (object)['id' => 0, 'name' => 'All']);
             return responseToJson(0, 'success', $info_type_list);
         }
     }
@@ -94,8 +94,6 @@ class ConsultController extends Controller{
      */
     public function getConsultListInfo(Request $request) {
         if($request->isMethod('get')) {
-            // if(defined($request->infoTypeId)) return responseToJson(1, '参数错误');
-            // dd($request->infoTypeId);
             $pageCount = isset($request->pageCount) ? $request->pageCount : 9;
             $pageNumber = isset($request->pageNumber) ? $request->pageNumber : 1;
             $get_consult_info_list = ZslmInformation::getConsultListInfos($request->infoTypeId, $pageCount, $pageNumber);
