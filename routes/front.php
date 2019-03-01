@@ -155,5 +155,8 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::post('usecoupon', 'couponController@useCoupon');
     });
     
+    Route::group(['prefix' => 'recommend', 'namespace' => 'Infomation'],function() {
+        Route::get('getrecommend', 'InformationController@getRecommend');
+    });
     
 });

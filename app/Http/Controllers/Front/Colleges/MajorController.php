@@ -77,7 +77,7 @@
                 }
                 $fileds = ['project_name','cost','language','class_situation','student_count'];
                 $majors[$i]->product = majorRecruitProject::getProjectByMid($majors[$i]->id,
-                    $request->min, $request->max, $request->money_ordre,
+                    $request->min, $request->max, $request->money_order,
                     $request->score_type, $request->enrollment_mode, $request->project_count,$fileds);
 //                if($majors[$i]->major_confirm_id != 0 || $majors[$i]->major_confirm_id != '')
 //                    $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
