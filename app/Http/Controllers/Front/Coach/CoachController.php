@@ -29,6 +29,11 @@
          *
          * 用于在院校列表页面，通过用户选择和输入的筛选条件，筛选符合条件的辅导机构
          *
+         * @param provice 地区
+         * @param coach_type 辅导形式　0线上，1线下，2线上＋线下
+         * @param coach_name 辅导机构名称
+         * @param if_back 是否支持退款（0支持，1不支持）
+         * @param if_coupon 是否支持优惠券  （0支持，1不支持）
          * @param page 页码
          * @param page_size 页面大小
          */
