@@ -173,36 +173,59 @@
         
         
         //front
-        
         private static function getSqlQuery($provice, $type, $name, $if_back, $if_coupon)
         {
             $query = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)->where('father_id', 0);
-            if ($provice != '')
+            if ($provice != ''){
                 $query = $query->where('province', 'like', $provice . '%');
-            if ($type != '' && !empty($type) && $type != '2'){
-                $types = strChangeArr($type, EXPLODE_STR);
-                $query = $query->whereIn("coach_type", $types);
             }
-            if ($name != '' && !empty($name))
+
+            if (isset($type) && $type != '2'){
+//                $types = strChangeArr($type, EXPLODE_STR);
+                $query = $query->where("coach_type", $type);
+            }
+            if ($name != '' && !empty($name)){
                 $query = $query->where('coach_name', 'like', '%' . $name . '%');
-            if ($if_back != 2 && !empty($if_back))
+            }
+
+            if ($if_back != 2){
                 $query = $query->where("if_back_money", $if_back);
-            if ($if_coupon != 2 && !empty($if_coupon))
+            }
+
+            if ($if_coupon != 2){
                 $query = $query->where("if_coupons", $if_coupon);
+            }
+
             return $query;
         }
-        
+
+        /**
+         * 获取指定条件的辅导机构
+         * @param $provice
+         * @param $type
+         * @param $name
+         * @param $page
+         * @param $page_size
+         * @param $if_back
+         * @param $if_coupon
+         * @param $fields
+         * @return mixed
+         */
         public static function getSelectCoach($provice, $type, $name, $page, $page_size, $if_back, $if_coupon, $fields)
         {
-            
+//            DB::enableQueryLog();
+
             $query = self::getSqlQuery($provice, $type, $name, $if_back, $if_coupon);
+
             $result = $query->offset(($page - 1) * $page_size)->limit($page_size)->get($fields)->map(function($item) {
                 $item->logo_name = splicingImgStr('admin', 'info', $item->logo_name);
                 $item->cover_name = splicingImgStr('admin', 'info', $item->cover_name);
                 return $item;
             });
+
+//            dd(DB::getQueryLog());
+
             return $result;
-            
         }
         
         public static function getSonCoach($f_id,$fields)
@@ -228,7 +251,13 @@
                 ->get($fields);
             return $result;
         }
-    
+
+        /**
+         * 查询指定建值的辅导机构信息
+         * @param $id
+         * @param $fields
+         * @return mixed
+         */
         public static function getAllCoachByIds($id,$fields)
         {
             $result = DB::table(self::$sTableName)

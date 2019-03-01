@@ -374,39 +374,137 @@ class zslm_activitys
      * 前台找活动页面获得筛选结果
      */
     public static function getFrontActiListInfo($keyword, $majorType, $provinceIdArr, $activityType, $activityState, $activityDate, $pageCount, $pageNumber) {
+        $sql = self::getGroupSelectSql('count' , $keyword, $majorType, $provinceIdArr, $activityType, $activityState, $activityDate);
 
-        $handel = DB::table(self::$sTableName)
+        $count = DB::select($sql);
+
+        $sql = self::getGroupSelectSql('list' , $keyword, $majorType, $provinceIdArr, $activityType, $activityState, $activityDate);
+        $sql .= " order by ".self::$sTableName.".id desc limit ".$pageCount." offset ".$pageCount * ($pageNumber - 1);
+
+        $list = DB::select($sql);
+
+        /*$handel = DB::table(self::$sTableName)
             ->leftJoin('activity_relation', self::$sTableName . '.id', '=', 'activity_relation.activity_id')
             ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
             ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
-            ->where(self::$sTableName . '.show_state', 0)->where(self::$sTableName . '.is_delete', 0)
-            ->where('active_name', 'like', '%' . $keyword . '%');
+            ->where(self::$sTableName . '.show_state', 0)->where(self::$sTableName . '.is_delete', 0);
 
-        if(!empty($majorType) && count($majorType) > 0) 
+        if(!empty($keyword)){
+            $handel->where('active_name', 'like', '%' . $keyword . '%');
+        }
+
+        if(!empty($majorType) && count($majorType) > 0){
             $handel = $handel->whereIn('major_type', $majorType);
+        }
 
+        if(!empty($provinceIdArr) && count($provinceIdArr) > 0){
+            $arr = [];
+
+            foreach($provinceIdArr as $v){
+                $arr[] = $v->id;
+            }
+
+            $handel = $handel->whereIn(self::$sTableName.'.province', $arr);
+        }
         
         if(!empty($activityType) && count($activityType))
             $handel = $handel->whereIn('active_type', $activityType);
         
-        if(!empty($activityState) && count($activityState)) 
+        if(!empty($activityState) && count($activityState)){
             $handel = $handel->whereIn('active_status', $activityState);
+        }
+
+        if(!empty($activityDate) && count($activityDate)){
+//            $handel->select('FROM_UNIXTIME(begin_time , "%m") as time');
+            $handel = $handel->whereIn('FROM_UNIXTIME('.self::$sTableName.'.begin_time , "%m")'  , $activityDate);
+            $list = $handel->count();
+            dd($list);
+        }
+
+        DB::enableQueryLog();
 
         $count = $handel->count();
+
+        dd(DB::getQueryLog());
+
+
         
         $get_info = $handel->orderBy('show_weight', 'desc')->offset($pageCount * ($pageNumber - 1))->limit($pageCount)->select(
-            self::$sTableName . '.id', 
-            self::$sTableName . '.active_name', 
-            self::$sTableName . '.province', 
-            self::$sTableName . '.begin_time', 
-            self::$sTableName . '.end_time', 
-            self::$sTableName . '.active_img', 
+            self::$sTableName . '.id',
+            self::$sTableName . '.active_name',
+            self::$sTableName . '.province',
+            self::$sTableName . '.begin_time',
+            self::$sTableName . '.end_time',
+            self::$sTableName . '.active_img',
             'dict_activity_type.name as activity_type',
             'zslm_major.z_name',
             'zslm_major.magor_logo_name'
-        )->get();
+        )->get();*/
 
-        return ['count'=> $count, 'info' => $get_info];
+        return ['count'=> $count[0]->count, 'info' => $list];
+    }
+
+    // 拼接原生SQL
+    public static function getGroupSelectSql($type , $keyword, $majorType, $provinceIdArr, $activityType, $activityState, $activityDate){
+        if($type == 'count'){
+            $select = "count(1) as count";
+        }elseif($type == 'list'){
+            $selectArr = [
+                self::$sTableName . '.id',
+                self::$sTableName . '.active_name',
+                self::$sTableName . '.province',
+                self::$sTableName . '.begin_time',
+                self::$sTableName . '.end_time',
+                self::$sTableName . '.active_img',
+                'dict_activity_type.name as activity_type',
+                'zslm_major.z_name',
+                'zslm_major.magor_logo_name'
+            ];
+
+            $select = implode(',' , $selectArr);
+        }
+
+        $sql = "select ".$select." from ".self::$sTableName." as ".self::$sTableName." left join activity_relation as activity_relation on ".self::$sTableName
+            .".id = activity_relation.activity_id left join zslm_major as zslm_major on activity_relation.host_major_id = zslm_major.id left join dict_activity_type as dict_activity_type on ".
+            self::$sTableName.".active_type = dict_activity_type.id where 1 = 1";
+
+        // 活动名称
+        if(!empty($keyword)){
+            $sql .= " and ".self::$sTableName.".active_name like %".$keyword."%";
+        }
+
+        // 专业类型
+        if(!empty($majorType) && count($majorType)){
+            $sql .= " and ".self::$sTableName.".major_type in (".implode(',' , $majorType).")";
+        }
+
+        // 地区
+        if(!empty($provinceIdArr) && count($provinceIdArr)){
+            $arr = [];
+
+            foreach($provinceIdArr as $v){
+                $arr[] = $v->id;
+            }
+
+            $sql .= " and ".self::$sTableName.".province in (".implode(',' , $arr).")";
+        }
+
+        // 活动类型
+        if(!empty($activityType) && count($activityType)){
+            $sql .= " and ".self::$sTableName.".active_type in (".implode(',' , $activityType).")";
+        }
+
+        // 活动状态
+        if(!empty($activityState) && count($activityState)){
+            $sql .= " and ".self::$sTableName.".active_status in (".implode(',' , $activityState).")";
+        }
+
+        // 时间
+        if(!empty($activityDate) && count($activityDate)){
+            $sql .= " and FROM_UNIXTIME(".self::$sTableName.".begin_time , '%m') in (".implode(',' , $activityDate).")";
+        }
+
+        return $sql;
     }
 
 

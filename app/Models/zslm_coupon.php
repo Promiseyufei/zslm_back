@@ -129,7 +129,15 @@
         {
             return DB::table(self::$sTableName)->where('coach_id', $c_id)->get($fields);
         }
-        
+
+        /**
+         * 获取符合和状态的优惠券
+         * @param $c_ids
+         * @param $page
+         * @param $page_size
+         * @param $type
+         * @return mixed
+         */
         public static function getCoachByCoupon($c_ids, $page, $page_size, $type)
         {
             $result = DB::table(self::$sTableName)
@@ -160,25 +168,28 @@
             
             return $query->get([self::$sTableName.'.id',self::$sTableName.'.name',self::$sTableName.'.type']);
         }
-    
-        public static function getUserCoachCouponCount($u_id, $type, $is_use)
+
+        /**
+         * 获取指定用户 对应状态的优惠券
+         * @param $u_id
+         * @param $type
+         * @return mixed
+         */
+        public static function getUserCoachCouponCount($u_id, $type , $is_use)
         {
             $query = DB::table(self::$sTableName)
                 ->join('user_coupon', self::$sTableName . '.id', '=', 'user_coupon.coupon_id')
                 ->where('user_id', $u_id)
+                ->where('is_use', $is_use)
                 ->where( 'user_coupon.is_delete', 0);
-            if($type == 2)
+            if($type == 2){
                 $query = $query ->where('is_enable', 1);
-            
-            if ($type == 0){
+            }elseif ($type == 0){
                 $query = $query->where('use_time', 0);
                 $query = $query->where('is_enable',0);
-                $query = $query->where('is_use',0);
-            }
-            else if ($type == 1){
-                $query = $query->where('is_use',1);
+            }else if ($type == 1){
                 $query = $query->where('use_time', '>', 0);
-                $query = $query->where('is_enable',0);
+                $query = $query->where('is_enable', 0);
             }
         
         

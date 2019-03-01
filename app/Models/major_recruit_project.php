@@ -79,16 +79,22 @@ class major_recruit_project
     //front
     public static function getProjectByMid($id,$min,$max,$order = 0,$sorce_type,$enrollment_mode,$size = 3,$fileds){
         $query =  DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->where('major_id',$id);
-        if($min != 0 && $max != 0 && !empty($min) && !empty(!$max))
-            $query = $query->where('min_cost'>$min)->where('max_cost','<',$max);
+        if(!empty($max) && empty($min)) {
+            $query = $query->where('max_cost', '<', $max);
+        }
+        else if(!empty($max) && !empty($min)) {
+            $query = $query->where('min_cost', '>=',$min)->where('max_cost','<=',$max);
+        }
         if($sorce_type != '' && !empty($sorce_type)){
             $types = strChangeArr($sorce_type, EXPLODE_STR);
             $query = $query->whereIn('score_type',$types);
         }
+       
         if($enrollment_mode != '' && !empty($enrollment_mode)){
             $enrollment_modes = strChangeArr($enrollment_mode, EXPLODE_STR);
-            $query = $query->where('enrollment_mode',$enrollment_modes);
+            $query = $query->whereIn('recruitment_pattern',$enrollment_modes);
         }
+        // dd($enrollment_modes);
         $desc = $order == 0 ? 'desc':'asc';
         
         $query = $query->orderBy("min_cost",$desc);
@@ -112,9 +118,10 @@ class major_recruit_project
             $types = strChangeArr($sorce_type, EXPLODE_STR);
             $query = $query->whereIn(self::$sTableName . '.score_type',$types);
         }
+        // dd($enrollment_modes);
         if($enrollment_mode != '' && !empty($enrollment_mode)){
             $enrollment_modes = strChangeArr($enrollment_mode, EXPLODE_STR);
-            $query = $query->where('enrollment_mode',$enrollment_modes);
+            $query = $query->whereIn('recruitment_pattern',$enrollment_modes);
         }
         $desc = $order == 0 ? 'desc':'asc';
         

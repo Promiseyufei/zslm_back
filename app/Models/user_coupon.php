@@ -29,6 +29,7 @@
                 ->where('user_id',$id)
                 ->where('use_time',0)
                 ->where('is_enable',0)
+                ->where('is_use' , $status)
                 ->count('zslm_coupon.id');
         }
     
