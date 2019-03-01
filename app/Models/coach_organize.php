@@ -176,11 +176,13 @@
         private static function getSqlQuery($provice, $type, $name, $if_back, $if_coupon)
         {
             $query = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)->where('father_id', 0);
-            if ($provice != '')
+            if ($provice != ''){
                 $query = $query->where('province', 'like', $provice . '%');
-            if ($type != '' && $type != '2'){
-                $types = strChangeArr($type, EXPLODE_STR);
-                $query = $query->whereIn("coach_type", $types);
+            }
+
+            if (isset($type) && $type != '2'){
+//                $types = strChangeArr($type, EXPLODE_STR);
+                $query = $query->where("coach_type", $type);
             }
             if ($name != '' && !empty($name)){
                 $query = $query->where('coach_name', 'like', '%' . $name . '%');
