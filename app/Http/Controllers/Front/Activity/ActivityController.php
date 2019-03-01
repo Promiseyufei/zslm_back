@@ -76,19 +76,19 @@
         /**
          * 前台活动列表页获得搜索的活动
          *
-         * @param $keyword string
-         * @param $majorType array
-         * @param $province array
-         * @param $activityType array
-         * @param $activityState array
-         * @param $activityDate int
-         * @param $pageCount 页面显示行数
-         * @param @pageNumber 页面下表
+         * @param $keyword string       关键字
+         * @param $majorType array      专业类型
+         * @param $province array       活动地点（城市）
+         * @param $activityType array   活动类型id数组
+         * @param $activityState array  活动开始状态数组
+         * @param $activityDate int     月份
+         * @param $pageCount            页面显示行数
+         * @param @pageNumber           页面下表
          *
          * @return
          * 活动id
          * 活动名称
-         * 活动地点（城市）
+         * 活动类型
          * 活动日期范围
          * 活动开始状态
          * 活动封面
@@ -99,8 +99,7 @@
         {
             
             if ($request->isMethod('get')) {
-                // dd($request);
-                
+
                 $provice_id_arr = [];
                 $keyword = !empty($request->keyword) ? trim($request->keyword) : '';
                 $pageCount = !empty($request->pageCount) ? $request->pageCount : 12;
@@ -112,21 +111,24 @@
                 $get_activitys = ZslmActivitys::getFrontActiListInfo($keyword, $request->majorType, $provice_id_arr, $request->activityType,
                     $request->activityState, $request->activityDate, $pageCount, $pageNumber);
                 
-                $get_activitys['info'] = $get_activitys['info']->toArray();
-                
-                foreach ($get_activitys['info'] as $key => $item) {
-                    $now_time = time();
-                    $get_activitys['info'][$key]->start_state = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
-                    $get_activitys['info'][$key]->begin_time = date("m-d", $item->begin_time);
-                    $get_activitys['info'][$key]->end_time = date("m-d", $item->end_time);
-                    if ($item->active_img != '')
-                        $get_activitys['info'][$key]->active_img = splicingImgStr('admin', 'info', $item->active_img);
-                    if ($item->magor_logo_name != '')
-                        $get_activitys['info'][$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
-                    
-                    if ($item->province !== '' && !empty($item->province))
-                        $get_activitys['info'][$key]->province = getProCity_B($item->province);
+//                $get_activitys['info'] = $get_activitys['info']->toArray();
+
+                if(count($get_activitys['info'])){
+                    foreach ($get_activitys['info'] as $key => $item) {
+                        $now_time = time();
+                        $get_activitys['info'][$key]->start_state = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
+                        $get_activitys['info'][$key]->begin_time = date("m-d", $item->begin_time);
+                        $get_activitys['info'][$key]->end_time = date("m-d", $item->end_time);
+                        if ($item->active_img != '')
+                            $get_activitys['info'][$key]->active_img = splicingImgStr('admin', 'info', $item->active_img);
+                        if ($item->magor_logo_name != '')
+                            $get_activitys['info'][$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
+
+                        if ($item->province !== '' && !empty($item->province))
+                            $get_activitys['info'][$key]->province = getProCity_B($item->province);
+                    }
                 }
+
                 return responseToJson(0, 'success', $get_activitys);
                 
             } else return responseToJson(2, 'error');

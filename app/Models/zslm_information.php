@@ -305,7 +305,13 @@ class zslm_information
         });
     }
 
-
+    /**
+     * 根据咨询类型查询咨询列表
+     * @param int $consultTypeId
+     * @param int $pageCount
+     * @param int $pageNumber
+     * @return array
+     */
     public static function getConsultListInfos($consultTypeId = 0, $pageCount = 9, $pageNumber = 1) {
         $handel = DB::table(self::$sTableName);
         if($consultTypeId != 0) 
