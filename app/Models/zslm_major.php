@@ -275,8 +275,9 @@
             $result = $query->count('id');
             return $result;
         }
-    
-        public static function getMajorByYearSelect( $z_name,$year, $page, $page_size, $felds, $order = 0)
+
+        // 查询学校列表
+        public static function getMajorByYearSelect($z_name,$year, $page, $page_size, $felds, $order = 0)
         {
         
             $query = DB::table(self::$sTableName)->where("is_show", 0)->where('is_delete', 0);
@@ -324,6 +325,191 @@
             $data = DB::table(self::$sTableName)->where('is_delete', 0)->whereIn('id', $id)->get($felds);
             return $data;
         }
-        
-        
+
+
+        public static function getSchoolList($request){
+            // 查询数量
+            $size = !empty($request->page_size)?(int)$request->page_size:12;
+            // 页码
+            $page = !empty($request->page)?(int)$request->page:1;
+
+            // 总数量
+            $count = self::getGroupSelectSql('count' , '' , $request->provice ,
+                $request->z_name , $request->z_type , $request->professional_direction ,
+                $request->score_type , $request->enrollment_mode , $request->major_order ,
+                $request->min , $request->max , $page , $size);
+
+
+            $select = [
+                self::$sTableName.'.id',
+                self::$sTableName.'.province',
+                self::$sTableName.'.magor_logo_name',
+                self::$sTableName.'.z_name',
+                self::$sTableName.'.update_time',
+//                self::$sTableName.'.city',
+                self::$sTableName.'.major_confirm',
+                self::$sTableName.'.major_follow',
+            ];
+
+            // 列表
+            $list = self::getGroupSelectSql('list' , $select , $request->provice ,
+                $request->z_name , $request->z_type , $request->professional_direction ,
+                $request->score_type , $request->enrollment_mode , $request->major_order ,
+                $request->min , $request->max , $page , $size);
+
+
+            foreach($list as $k=>$v){
+                $list[$k]->product = self::getMajorRecruitProject($v->id , $request->score_type , $request->enrollment_mode  , $request-> money_order , $request->min , $request->max);
+                $list[$k]->major_confirm = self::getMajorConfirm($v->major_confirm);
+                $list[$k]->major_follow = self::getMajorConfirm($v->major_follow);
+                $list[$k]->magor_logo_name = splicingImgStr('admin', 'info' , $v->magor_logo_name);
+
+            }
+
+            return  [
+                'list'  =>  $list,
+                'count' =>  $count,
+            ];
+        }
+
+        // 根据条件组合查询学校专业信息
+        public static function getGroupSelectSql($type , $select = '', $provice , $z_name , $z_type , $professional_direction , $score_type , $enrollment_mode , $major_order , $min , $max , $page , $size){
+            $where = [
+                self::$sTableName.'.is_delete'  => 0,
+            ];
+
+            $ModelObject = DB::table(self::$sTableName)->where($where);
+
+            // 省份
+            if(!empty($provice)){
+                $arr = explode(',' , $provice);
+                $provice = [];
+                foreach($arr as $v){
+                    $provice[] = DB::table('dict_region')->where('name' , $v)->value('id');
+                }
+
+                $ModelObject->whereIn(self::$sTableName.'.province' , $provice);
+            }
+
+            // 名称
+            if(!empty($z_name)){
+                $ModelObject->where(self::$sTableName.'.z_name', 'like', '%' . $z_name . '%');
+            }
+
+            // 专业类型
+            if(!empty($z_type)){
+                $ModelObject->whereIn(self::$sTableName.'.z_type' , explode(',' , $z_type));
+            }
+
+            // 专业方向
+            if(!empty($professional_direction)){
+                $ModelObject->whereIn(self::$sTableName.'.professional_direction', explode(',' , $professional_direction));
+            }
+
+            // 分数线
+            if(!empty($score_type)){
+                $ModelObject->whereIn('major_recruit_project.score_type', explode(',' , $score_type));
+            }
+
+            // 统招模式
+            if(!empty($enrollment_mode)){
+                $ModelObject->whereIn('major_recruit_project.recruitment_pattern', explode(',' , $enrollment_mode));
+            }
+
+            // 学习费用
+            if(!empty($max) && empty($min)) {
+                $ModelObject->where('max_cost', '<', $max);
+            }elseif(!empty($max) && !empty($min)) {
+                $ModelObject->where('major_recruit_project.min_cost', '>=',$min)->where('major_recruit_project.max_cost','<=',$max);
+            }
+
+            if($type == 'count'){
+//                DB::enableQueryLog();
+
+                $list =  $ModelObject->leftJoin('major_recruit_project' , 'major_recruit_project.major_id' , '=' , self::$sTableName.'.id')
+                    ->select([self::$sTableName.'.id'])
+                    ->groupBy(self::$sTableName.'.id')
+                    ->get();
+
+//                dd(DB::getQueryLog());
+
+                return count($list);
+            }elseif($type == 'list'){
+
+                $list = $ModelObject->leftJoin('major_recruit_project' , 'major_recruit_project.major_id' , '=' , self::$sTableName.'.id')
+                    ->select($select)
+                    ->groupBy(self::$sTableName.'.id')
+                    ->offset(($page - 1) * $size)
+                    ->limit($size)
+                    ->orderBy(self::$sTableName.'.weight' , $major_order == 0?'DESC':'ASC')
+                    ->get()->toArray();
+
+                return $list;
+            }
+        }
+
+        // 获取院校专业招生项目
+        public static function getMajorRecruitProject($major_id , $score_type , $enrollment_mode , $money_order , $min , $max){
+            $where = [
+                'major_id'  =>  $major_id,
+            ];
+
+            $select = [
+                'project_name',
+                'cost',
+                'language',
+                'class_situation',
+                'class_situation',
+                'student_count',
+            ];
+
+            $ModelObject = DB::table('major_recruit_project')->where($where);
+
+            // 分数线
+            if(!empty($score_type)){
+                $ModelObject->whereIn('major_recruit_project.score_type', explode(',' , $score_type));
+            }
+
+            // 统招模式
+            if(!empty($enrollment_mode)){
+                $ModelObject->whereIn('major_recruit_project.recruitment_pattern', explode(',' , $enrollment_mode));
+            }
+
+            // 学费
+            if(!empty($max) && empty($min)) {
+                $ModelObject->where('max_cost', '<', $max);
+            }elseif(!empty($max) && !empty($min)) {
+                $ModelObject->where('min_cost', '>=',$min)->where('max_cost','<=',$max);
+            }
+
+            $info = $ModelObject->select($select)
+                ->orderBy('major_recruit_project.min_cost' , $money_order == 0?'DESC':'ASC')
+                ->get()->toArray();
+
+            return $info;
+        }
+
+        // 专业认证
+        public static function getMajorConfirm($major_confirm_id){
+            $name = DB::table('dict_major_confirm')->whereIn('id' , explode(',' , $major_confirm_id))->select('name')->get()->toArray();
+
+            $major_confirm = [];
+            foreach($name as $v){
+                $major_confirm[] = $v->name;
+            }
+
+            return implode(',' , $major_confirm);
+        }
+
+        // 院校性质
+        public static function getMajorFollow($major_follow_id){
+            $name = DB::table('dict_major_follow')->whereIn('id' , explode(',' , $major_follow_id))->select('name')->get()->toArray();
+
+            $major_follow = [];
+            foreach($name as $v){
+                $major_follow[] = $v->name;
+            }
+
+            return implode(',' , $major_follow);
+        }
     }

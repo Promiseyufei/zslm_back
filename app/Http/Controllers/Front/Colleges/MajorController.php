@@ -41,31 +41,40 @@
 
     class MajorController extends Controller
     {
+        // 查询学校信息
         public function getMajor(Request $request)
         {
             if (!$request->method('get')) {
                 return responseToJson(1, '请求方式错误');
             }
-            if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
-                return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
-            $provice = '';
-            // if (!empty($request->provice) && $request->provice != '')
-            //     $provice = dictRegion::getProvinceIdByName($request->provice)
-            //;
+
+            $info = zslmMajor::getSchoolList($request);
+            return responseToJson(0, 'success', $info);
+
+
+//            if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
+//                return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
+            /*$provice = '';
+
             $felds = ['id', 'province', 'magor_logo_name',
                 'z_name', 'update_time', 'major_confirm', 'major_follow'];
             
             $majors = zslmMajor::getMajorBySelect($request->z_type, $request->z_name,
-                $provice, $request->professional_direction, $request->page, $request->page_size, $felds, $request->major_order);
+                $provice, $request->professional_direction, $page, $size, $felds, $request->major_order);
+
+            var_dump($majors);
             
             if (empty($majors))
                 return responseToJson(1, "暂无数据");
             
-            $major_confirms = majorConfirm::getAllMajorConfirm();
-            $major_follows = majorFollow::getAllMajorFollow();
+            $major_confirms = majorConfirm::getAllMajorConfirm(); // 专业认证字典
+            $major_follows = majorFollow::getAllMajorFollow();  //  院校性质字典
+
             for ($i = 0; $i < sizeof($majors); $i++) {
+
                 $majors[$i]->update_time = date("Y-m-d", $majors[$i]->update_time);
                 $addressArr = strChangeArr($majors[$i]->province, EXPLODE_STR);
+
                 if($addressArr != null && sizeof($addressArr) >0){
                     $majors[$i]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
                     $majors[$i]->city = '';
@@ -78,7 +87,7 @@
                 $fileds = ['project_name','cost','language','class_situation','student_count'];
                 $majors[$i]->product = majorRecruitProject::getProjectByMid($majors[$i]->id,
                     $request->min, $request->max, $request->money_order,
-                    $request->score_type, $request->enrollment_mode, $request->project_count,$fileds);
+                    $request->score_type, $request->enrollment_mode, $request->project_count,$fileds); // 院校专业招生项目
 //                if($majors[$i]->major_confirm_id != 0 || $majors[$i]->major_confirm_id != '')
 //                    $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
 //
@@ -99,7 +108,7 @@
             }
             $count = zslmMajor::getMajorBySelectCount($request->z_type, $request->z_name, $provice);
             $majors->count = $count;
-            return responseToJson(0, 'success', [$majors,$count]);
+            return responseToJson(0, 'success', [$majors,$count]);*/
         }
         
         public function getInfo(Request $request)
