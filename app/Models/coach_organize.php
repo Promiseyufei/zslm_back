@@ -188,11 +188,11 @@
                 $query = $query->where('coach_name', 'like', '%' . $name . '%');
             }
             
-            if ($if_back != 2){
+            if ($if_back != 2 && isset($if_back)){
                 $query = $query->where("if_back_money", $if_back);
             }
 
-            if ($if_coupon != 2){
+            if ($if_coupon != 2 && isset($if_coupon)){
                 $query = $query->where("if_coupons", $if_coupon);
             }
 

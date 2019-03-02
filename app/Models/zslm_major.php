@@ -424,14 +424,10 @@
             }
 
             if($type == 'count'){
-//                DB::enableQueryLog();
-
                 $list =  $ModelObject->leftJoin('major_recruit_project' , 'major_recruit_project.major_id' , '=' , self::$sTableName.'.id')
                     ->select([self::$sTableName.'.id'])
                     ->groupBy(self::$sTableName.'.id')
                     ->get();
-
-//                dd(DB::getQueryLog());
 
                 return count($list);
             }elseif($type == 'list'){
