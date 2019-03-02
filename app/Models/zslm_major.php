@@ -326,7 +326,7 @@
             return $data;
         }
 
-
+        // 获取学校列表
         public static function getSchoolList($request){
             // 查询数量
             $size = !empty($request->page_size)?(int)$request->page_size:12;
@@ -442,6 +442,7 @@
                     ->offset(($page - 1) * $size)
                     ->limit($size)
                     ->orderBy(self::$sTableName.'.weight' , $major_order == 0?'DESC':'ASC')
+                    ->orderBy(self::$sTableName.'.id' , 'DESC')
                     ->get()->toArray();
 
                 return $list;
