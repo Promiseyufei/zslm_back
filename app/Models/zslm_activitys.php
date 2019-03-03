@@ -541,7 +541,8 @@ class zslm_activitys
 
         $ac_info = $handel->offset($pageCount * $pageNumber)->limit($pageCount)
             ->select('id', 'active_img', 'active_name', 'begin_time')->get();
-            
+
+
         return ['count' => $count, 'acInfo' => $ac_info];
 
     }
