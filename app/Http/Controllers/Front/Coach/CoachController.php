@@ -135,6 +135,7 @@
 
             $coach[0]->logo_name = splicingImgStr('admin', 'info', $coach[0]->logo_name);
             $coach[0]->cover_name = splicingImgStr('admin', 'info', $coach[0]->cover_name);
+            $coach[0]->update_time = date('Y.m.d' , $coach[0]->update_time);
 
             $fields = ['coach_organize.id', 'coach_name', 'phone', 'address', 'web_url', 'update_time',
                 'coach_type', 'describe', 'logo_name', 'logo_alt', 'cover_name', 'cover_alt', 'dict_region.name as province'];
