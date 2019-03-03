@@ -39,6 +39,7 @@
          */
         public function getSelectCoach(Request $request)
         {
+
             if (!$request->method('get')) return responseToJson(1, '请求方式错误');
             
             $page = $request->page ? (int)$request->page : 1;
@@ -50,20 +51,22 @@
                 $provice = dictRegion::getProvinceIdByName_c($request->provice);
                 $provice = $provice->id;
             }
-            
+
             $fields = ['id', 'coach_name', 'province', 'if_coupons', 'if_back_money', 'cover_name', 'cover_alt', 'logo_name', 'logo_alt' , 'logo_white'];
             
             $coachs = coachOrganize::getSelectCoach($provice, $request->coach_type,
                 $request->coach_name, $page, $page_size,
                 $request->if_back, $request->if_coupon, $fields);
+
             
             if ($coachs == null || sizeof($coachs) == 0)
                 return responseToJson(1, '暂时没有数据');
             $len = sizeof($coachs);
-            $f = ['id', 'coach_name'];
+            $f = ['coach_organize.id', 'coach_name'];
             for ($i = 0; $i < $len; $i++) {
                 $coachs[$i]->son_coachs = coachOrganize::getSonCoach($coachs[$i]->id, $f);
             }
+            
             $count = coachOrganize::getSelectCoachCount($provice, $request->coach_type,
                 $request->coach_name, $request->if_back, $request->if_coupon);
             
