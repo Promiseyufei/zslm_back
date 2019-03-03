@@ -232,7 +232,8 @@
         public static function getSonCoach($f_id,$fields)
         {
             $result = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)
-                ->where('father_id', $f_id)->get($fields);
+                ->leftJoin('dict_region' , 'dict_region.id' , '=' , self::$sTableName.'.province')
+                ->where(self::$sTableName.'.father_id', $f_id)->get($fields);
             return $result;
         }
         

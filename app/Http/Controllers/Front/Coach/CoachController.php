@@ -129,6 +129,9 @@
             $coach = coachOrganize::getCoachById($request->id, $fields);
             if ($coach == null || sizeof($coach) == 0)
                 return responseToJson(1, '没有数据');
+
+            $fields = ['coach_organize.id', 'coach_name', 'phone', 'address', 'web_url', 'update_time',
+                'coach_type', 'describe', 'logo_name', 'logo_alt', 'cover_name', 'cover_alt', 'dict_region.name as province'];
             $coach[0]->son_coach = coachOrganize::getSonCoach($request->id, $fields);
             $f = ['id', 'name', 'type', 'is_enable'];
             
