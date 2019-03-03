@@ -160,17 +160,18 @@
 
             if(empty($majors)) return [];
 
-
-            for ($i = 2; $i < sizeof($majors); $i++) {
+            for ($i = 0; $i < sizeof($majors); $i++) {
+//                    var_dump($majors[$i]->magor_logo_name);
 //                $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
 //                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
              
 
-                if(!empty($majors[$i]->magor_logo_name)){
+                if(isset($majors[$i]->magor_logo_name)){
                     $majors[$i]->magor_logo_name = splicingImgStr('admin', 'info', $majors[$i]->magor_logo_name);
+//                    var_dump($majors[$i]->magor_logo_name);
                 }
 
-                if(!empty($majors[$i]->major_cover_name)){
+                if(isset($majors[$i]->major_cover_name)){
                     $majors[$i]->major_cover_name = splicingImgStr('admin', 'info', $majors[$i]->major_cover_name);
                 }
 
