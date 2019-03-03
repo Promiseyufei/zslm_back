@@ -220,7 +220,7 @@
             $result = $query->offset(($page - 1) * $page_size)->limit($page_size)->orderBy('weight' , 'DESC')->get($fields)->map(function($item) {
                 $item->logo_name = splicingImgStr('admin', 'info', $item->logo_name);
                 $item->cover_name = splicingImgStr('admin', 'info', $item->cover_name);
-                $item->logo_white = splicingImgStr('admin', 'info', $item->logo_white);
+                if(isset($item->logo_white)) $item->logo_white = splicingImgStr('admin', 'info', $item->logo_white);
                 return $item;
             });
 
