@@ -52,15 +52,15 @@
             return responseToJson(0, 'success', $info);
 
 
-//            if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
-//                return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
-            /*$provice = '';
+            /*if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
+                return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
+            $provice = '';
 
             $felds = ['id', 'province', 'magor_logo_name',
                 'z_name', 'update_time', 'major_confirm', 'major_follow'];
             
             $majors = zslmMajor::getMajorBySelect($request->z_type, $request->z_name,
-                $provice, $request->professional_direction, $page, $size, $felds, $request->major_order);
+                $provice, $request->professional_direction, $request->page, $request->page_size, $felds, $request->major_order);
 
             var_dump($majors);
             

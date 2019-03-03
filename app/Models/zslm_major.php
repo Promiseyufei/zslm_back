@@ -342,13 +342,14 @@
 
             $select = [
                 self::$sTableName.'.id',
-                self::$sTableName.'.province',
+//                self::$sTableName.'.province',
                 self::$sTableName.'.magor_logo_name',
                 self::$sTableName.'.z_name',
                 self::$sTableName.'.update_time',
 //                self::$sTableName.'.city',
-                self::$sTableName.'.major_confirm',
-                self::$sTableName.'.major_follow',
+                self::$sTableName.'.major_confirm as major_confirm_id',
+                self::$sTableName.'.major_follow as major_follow_id',
+                'dict_region.name as province',
             ];
 
             // 列表
@@ -360,9 +361,10 @@
 
             foreach($list as $k=>$v){
                 $list[$k]->product = self::getMajorRecruitProject($v->id , $request->score_type , $request->enrollment_mode  , $request-> money_order , $request->min , $request->max);
-                $list[$k]->major_confirm = self::getMajorConfirm($v->major_confirm);
-                $list[$k]->major_follow = self::getMajorConfirm($v->major_follow);
+                $list[$k]->major_confirm_id = self::getMajorConfirm($v->major_confirm_id);
+                $list[$k]->major_follow_id = self::getMajorConfirm($v->major_follow_id);
                 $list[$k]->magor_logo_name = splicingImgStr('admin', 'info' , $v->magor_logo_name);
+                $list[$k]->update_time = date('Y-m-d H:i:s' , $v->update_time);
 
             }
 
@@ -403,7 +405,7 @@
 
             // 专业方向
             if(!empty($professional_direction)){
-                $ModelObject->whereIn(self::$sTableName.'.professional_direction', explode(',' , $professional_direction));
+                $ModelObject->whereIn('major_recruit_project.professional_direction', explode(',' , $professional_direction));
             }
 
             // 分数线
@@ -433,6 +435,7 @@
             }elseif($type == 'list'){
 
                 $list = $ModelObject->leftJoin('major_recruit_project' , 'major_recruit_project.major_id' , '=' , self::$sTableName.'.id')
+                    ->leftJoin('dict_region' , 'dict_region.id' , '=' , self::$sTableName.'.province')
                     ->select($select)
                     ->groupBy(self::$sTableName.'.id')
                     ->offset(($page - 1) * $size)
