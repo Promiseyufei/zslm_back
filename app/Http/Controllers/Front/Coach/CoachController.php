@@ -138,8 +138,15 @@
             $coach[0]->update_time = date('Y.m.d' , $coach[0]->update_time);
 
             $fields = ['coach_organize.id', 'coach_name', 'phone', 'address', 'web_url', 'update_time',
-                'coach_type', 'describe', 'logo_name', 'logo_alt', 'cover_name', 'cover_alt', 'dict_region.name as province'];
+                'coach_type', 'describe', 'logo_name', 'logo_alt', 'cover_name', 'cover_alt', 'dict_region.name as province' , 'if_coupons' , 'if_back_money'];
             $coach[0]->son_coach = coachOrganize::getSonCoach($request->id, $fields);
+
+            foreach($coach[0]->son_coach as $k=>$v){
+                $coach[0]->son_coach[$k]->update_time = date('Y.m.d' , $v->update_time);
+                $coach[0]->son_coach[$k]->cover_name = splicingImgStr('admin', 'info', $v->cover_name);
+                $coach[0]->son_coach[$k]->logo_name = splicingImgStr('admin', 'info', $v->logo_name);
+            }
+
             $f = ['id', 'name', 'type', 'is_enable'];
             
             //获取辅导机构的优惠券
