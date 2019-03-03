@@ -362,7 +362,7 @@
             foreach($list as $k=>$v){
                 $list[$k]->product = self::getMajorRecruitProject($v->id , $request->score_type , $request->enrollment_mode  , $request-> money_order , $request->min , $request->max);
                 $list[$k]->major_confirm_id = self::getMajorConfirm($v->major_confirm_id);
-                $list[$k]->major_follow_id = self::getMajorConfirm($v->major_follow_id);
+                $list[$k]->major_follow_id = self::getMajorFollow($v->major_follow_id);
                 $list[$k]->magor_logo_name = splicingImgStr('admin', 'info' , $v->magor_logo_name);
                 $list[$k]->update_time = date('Y-m-d H:i:s' , $v->update_time);
 
