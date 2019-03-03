@@ -440,7 +440,7 @@
                     ->groupBy(self::$sTableName.'.id')
                     ->offset(($page - 1) * $size)
                     ->limit($size)
-                    ->orderBy(self::$sTableName.'.weight' , $major_order == 0?'DESC':'ASC')
+                    ->orderBy(self::$sTableName.'.weight' , $major_order == 1?'DESC':'ASC')
                     ->orderBy(self::$sTableName.'.id' , 'DESC')
                     ->get()->toArray();
 
@@ -483,7 +483,7 @@
             }
 
             $info = $ModelObject->select($select)
-                ->orderBy('major_recruit_project.min_cost' , $money_order == 0?'DESC':'ASC')
+                ->orderBy('major_recruit_project.min_cost' , $money_order == 1?'DESC':'ASC')
                 ->get()->toArray();
 
             return $info;
