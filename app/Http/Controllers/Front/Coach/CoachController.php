@@ -133,6 +133,9 @@
             if ($coach == null || sizeof($coach) == 0)
                 return responseToJson(1, '没有数据');
 
+            $coach[0]->logo_name = splicingImgStr('admin', 'info', $coach[0]->logo_name);
+            $coach[0]->cover_name = splicingImgStr('admin', 'info', $coach[0]->cover_name);
+
             $fields = ['coach_organize.id', 'coach_name', 'phone', 'address', 'web_url', 'update_time',
                 'coach_type', 'describe', 'logo_name', 'logo_alt', 'cover_name', 'cover_alt', 'dict_region.name as province'];
             $coach[0]->son_coach = coachOrganize::getSonCoach($request->id, $fields);
