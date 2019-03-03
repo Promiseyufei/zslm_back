@@ -23,6 +23,7 @@
             
             if(!$request->isMethod('get'))
                 return responseToJson(1,"请求错误");
+
             $major = new MajorController();
             $majors = $major->getMajorToIndex('');
             $coach = new CoachController();

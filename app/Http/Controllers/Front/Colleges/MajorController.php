@@ -153,29 +153,40 @@
             $zero = null;
             $major_confirms = majorConfirm::getAllMajorConfirm();
             $major_follows = majorFollow::getAllMajorFollow();
+
             
             $majors = zslmMajor::getMajorBySelect($zero, $name,
                 '', null, $page, $page_size, $felds, 0);
-            if(empty($majors))
-                return [];
-            for ($i = 0; $i < sizeof($majors); $i++) {
+
+            if(empty($majors)) return [];
+
+
+            for ($i = 2; $i < sizeof($majors); $i++) {
 //                $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
 //                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
              
 
-                if(!empty($majors[$i]->magor_logo_name))
+                if(!empty($majors[$i]->magor_logo_name)){
                     $majors[$i]->magor_logo_name = splicingImgStr('admin', 'info', $majors[$i]->magor_logo_name);
-                if(!empty($majors[$i]->major_cover_name))
+                }
+
+                if(!empty($majors[$i]->major_cover_name)){
                     $majors[$i]->major_cover_name = splicingImgStr('admin', 'info', $majors[$i]->major_cover_name);
-                if($majors[$i]->province !== ''  && $majors[$i]->province != null)
+                }
+
+                if($majors[$i]->province !== ''  && $majors[$i]->province != null){
                     $majors[$i]->province = getProCity($majors[$i]->province);
+                }
+
                 $major_confirms_str = strChangeArr($majors[$i]->major_confirm,EXPLODE_STR);
                 $major_confirms_str = changeStringToInt($major_confirms_str);
+
                 $major_follow_str = strChangeArr($majors[$i]->major_follow,EXPLODE_STR);
                 $major_follow_str = changeStringToInt($major_follow_str);
-    
+
                 $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
                 $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
+
                 $majors[$i]->major_confirm_id = $major_confirm;
                 $majors[$i]->major_follow_id = $major_follow;
                 unset($majors[$i]->major_confirm);
@@ -466,11 +477,15 @@
          */
         public function getConfirmsOrFollow($val_arrl,$get_arr){
             $result = '';
-            if($val_arrl != null)
+
+            if(!$val_arrl){
                 for($i = 0;$i < sizeof($val_arrl);$i++){
                     $result.=$get_arr[$val_arrl[$i]].',';
                 }
-            $result =  substr($result, 0, -1) ;
+
+                $result =  substr($result, 0, -1) ;
+            }
+
             return $result;
         }
     
