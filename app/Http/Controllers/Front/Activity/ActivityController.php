@@ -300,8 +300,6 @@
                 if ($activity_id == 0) return responseToJson(1, '参数错误');
                 $relation_activity = ActivityRelation::getAppointContent($activity_id, 'relation_activity');
                 $tuijian_activity_id_arr = !empty($relation_activity) ? strChangeArr($relation_activity, ',') : [];
-
-                var_dump($tuijian_activity_id_arr);
                 
                 $tuijian_ac = ZslmActivitys::getFrontPopularAcInfo($tuijian_activity_id_arr, $request->pageNumber);
                 

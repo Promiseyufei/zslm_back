@@ -51,7 +51,7 @@
                 $provice = $provice->id;
             }
             
-            $fields = ['id', 'coach_name', 'province', 'if_coupons', 'if_back_money', 'cover_name', 'cover_alt', 'logo_name', 'logo_alt'];
+            $fields = ['id', 'coach_name', 'province', 'if_coupons', 'if_back_money', 'cover_name', 'cover_alt', 'logo_name', 'logo_alt' , 'logo_white'];
             
             $coachs = coachOrganize::getSelectCoach($provice, $request->coach_type,
                 $request->coach_name, $page, $page_size,
