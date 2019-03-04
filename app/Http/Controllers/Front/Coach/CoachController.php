@@ -151,6 +151,7 @@
             
             //获取辅导机构的优惠券
             $coach[0]->coupon = zslm_coupon::getFrontCouponByCoach($request->id, $f);
+            
             if ($coach[0]->coupon != null)
                 for ($i = 0; $i < sizeof($coach[0]->coupon); $i++) {
                     $user_coupont = user_coupon::getUserCouponByCouponId($request->u_id, $coach[0]->coupon[$i]->id);
@@ -174,9 +175,9 @@
                 $get_activitys['info'][$key]->active_img = splicingImgStr('admin', 'info', $item->active_img);
                 $get_activitys['info'][$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
                 if ($item->province !== '')
-                    $get_activitys['info'][$key]->province = getProCity($item->province);
+                    $get_activitys['info'][$key]->province = getProCity_B($item->province);
             }
-            
+            $coach[0]->province = getProCity_B($coach[0]->province);
             $coach[0]->best_hot_active = $get_activitys;
             return responseToJson(0, 'success', $coach);
         }

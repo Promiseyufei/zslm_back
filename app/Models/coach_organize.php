@@ -248,7 +248,6 @@
         {
             $result = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)
                 ->where('id',$id)
-                ->where('father_id', 0)
                 ->limit(1)
                 ->get($fields);
             return $result;
