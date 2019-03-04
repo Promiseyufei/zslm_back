@@ -41,31 +41,40 @@
 
     class MajorController extends Controller
     {
+        // 查询学校信息
         public function getMajor(Request $request)
         {
             if (!$request->method('get')) {
                 return responseToJson(1, '请求方式错误');
             }
+
+            $info = zslmMajor::getSchoolList($request);
+            return responseToJson(0, 'success', $info);
+
+
             if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
                 return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
             $provice = '';
-            // if (!empty($request->provice) && $request->provice != '')
-            //     $provice = dictRegion::getProvinceIdByName($request->provice)
-            //;
+
             $felds = ['id', 'province', 'magor_logo_name',
                 'z_name', 'update_time', 'major_confirm', 'major_follow'];
             
             $majors = zslmMajor::getMajorBySelect($request->z_type, $request->z_name,
                 $provice, $request->professional_direction, $request->page, $request->page_size, $felds, $request->major_order);
+
+            var_dump($majors);
             
             if (empty($majors))
                 return responseToJson(1, "暂无数据");
             
-            $major_confirms = majorConfirm::getAllMajorConfirm();
-            $major_follows = majorFollow::getAllMajorFollow();
+            $major_confirms = majorConfirm::getAllMajorConfirm(); // 专业认证字典
+            $major_follows = majorFollow::getAllMajorFollow();  //  院校性质字典
+
             for ($i = 0; $i < sizeof($majors); $i++) {
+
                 $majors[$i]->update_time = date("Y-m-d", $majors[$i]->update_time);
                 $addressArr = strChangeArr($majors[$i]->province, EXPLODE_STR);
+
                 if($addressArr != null && sizeof($addressArr) >0){
                     $majors[$i]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
                     $majors[$i]->city = '';
@@ -78,7 +87,7 @@
                 $fileds = ['project_name','cost','language','class_situation','student_count'];
                 $majors[$i]->product = majorRecruitProject::getProjectByMid($majors[$i]->id,
                     $request->min, $request->max, $request->money_order,
-                    $request->score_type, $request->enrollment_mode, $request->project_count,$fileds);
+                    $request->score_type, $request->enrollment_mode, $request->project_count,$fileds); // 院校专业招生项目
 //                if($majors[$i]->major_confirm_id != 0 || $majors[$i]->major_confirm_id != '')
 //                    $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
 //
@@ -144,29 +153,41 @@
             $zero = null;
             $major_confirms = majorConfirm::getAllMajorConfirm();
             $major_follows = majorFollow::getAllMajorFollow();
+
             
             $majors = zslmMajor::getMajorBySelect($zero, $name,
                 '', null, $page, $page_size, $felds, 0);
-            if(empty($majors))
-                return [];
+
+            if(empty($majors)) return [];
+
             for ($i = 0; $i < sizeof($majors); $i++) {
+//                    var_dump($majors[$i]->magor_logo_name);
 //                $majors[$i]->major_confirm_id = $major_confirms[$majors[$i]->major_confirm_id];
 //                $majors[$i]->major_follow_id = $major_follows[$majors[$i]->major_follow_id];
              
 
-                if(!empty($majors[$i]->magor_logo_name))
+                if(isset($majors[$i]->magor_logo_name)){
                     $majors[$i]->magor_logo_name = splicingImgStr('admin', 'info', $majors[$i]->magor_logo_name);
-                if(!empty($majors[$i]->major_cover_name))
+//                    var_dump($majors[$i]->magor_logo_name);
+                }
+
+                if(isset($majors[$i]->major_cover_name)){
                     $majors[$i]->major_cover_name = splicingImgStr('admin', 'info', $majors[$i]->major_cover_name);
-                if($majors[$i]->province !== ''  && $majors[$i]->province != null)
+                }
+
+                if($majors[$i]->province !== ''  && $majors[$i]->province != null){
                     $majors[$i]->province = getProCity($majors[$i]->province);
+                }
+
                 $major_confirms_str = strChangeArr($majors[$i]->major_confirm,EXPLODE_STR);
                 $major_confirms_str = changeStringToInt($major_confirms_str);
+
                 $major_follow_str = strChangeArr($majors[$i]->major_follow,EXPLODE_STR);
                 $major_follow_str = changeStringToInt($major_follow_str);
-    
+
                 $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
                 $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
+
                 $majors[$i]->major_confirm_id = $major_confirm;
                 $majors[$i]->major_follow_id = $major_follow;
                 unset($majors[$i]->major_confirm);
@@ -457,11 +478,15 @@
          */
         public function getConfirmsOrFollow($val_arrl,$get_arr){
             $result = '';
-            if($val_arrl != null)
+
+            if(!$val_arrl){
                 for($i = 0;$i < sizeof($val_arrl);$i++){
                     $result.=$get_arr[$val_arrl[$i]].',';
                 }
-            $result =  substr($result, 0, -1) ;
+
+                $result =  substr($result, 0, -1) ;
+            }
+
             return $result;
         }
     

@@ -39,6 +39,7 @@
          */
         public function getSelectCoach(Request $request)
         {
+
             if (!$request->method('get')) return responseToJson(1, '请求方式错误');
             
             $page = $request->page ? (int)$request->page : 1;
@@ -50,20 +51,22 @@
                 $provice = dictRegion::getProvinceIdByName_c($request->provice);
                 $provice = $provice->id;
             }
-            
-            $fields = ['id', 'coach_name', 'province', 'if_coupons', 'if_back_money', 'cover_name', 'cover_alt', 'logo_name', 'logo_alt'];
+
+            $fields = ['id', 'coach_name', 'province', 'if_coupons', 'if_back_money', 'cover_name', 'cover_alt', 'logo_name', 'logo_alt' , 'logo_white'];
             
             $coachs = coachOrganize::getSelectCoach($provice, $request->coach_type,
                 $request->coach_name, $page, $page_size,
                 $request->if_back, $request->if_coupon, $fields);
+
             
             if ($coachs == null || sizeof($coachs) == 0)
                 return responseToJson(1, '暂时没有数据');
             $len = sizeof($coachs);
-            $f = ['id', 'coach_name'];
+            $f = ['coach_organize.id', 'coach_name'];
             for ($i = 0; $i < $len; $i++) {
                 $coachs[$i]->son_coachs = coachOrganize::getSonCoach($coachs[$i]->id, $f);
             }
+            
             $count = coachOrganize::getSelectCoachCount($provice, $request->coach_type,
                 $request->coach_name, $request->if_back, $request->if_coupon);
             
@@ -129,7 +132,21 @@
             $coach = coachOrganize::getCoachById($request->id, $fields);
             if ($coach == null || sizeof($coach) == 0)
                 return responseToJson(1, '没有数据');
+
+            $coach[0]->logo_name = splicingImgStr('admin', 'info', $coach[0]->logo_name);
+            $coach[0]->cover_name = splicingImgStr('admin', 'info', $coach[0]->cover_name);
+            $coach[0]->update_time = date('Y.m.d' , $coach[0]->update_time);
+
+            $fields = ['coach_organize.id', 'coach_name', 'phone', 'address', 'web_url', 'update_time',
+                'coach_type', 'describe', 'logo_name', 'logo_alt', 'cover_name', 'cover_alt', 'dict_region.name as province' , 'if_coupons' , 'if_back_money'];
             $coach[0]->son_coach = coachOrganize::getSonCoach($request->id, $fields);
+
+            foreach($coach[0]->son_coach as $k=>$v){
+                $coach[0]->son_coach[$k]->update_time = date('Y.m.d' , $v->update_time);
+                $coach[0]->son_coach[$k]->cover_name = splicingImgStr('admin', 'info', $v->cover_name);
+                $coach[0]->son_coach[$k]->logo_name = splicingImgStr('admin', 'info', $v->logo_name);
+            }
+
             $f = ['id', 'name', 'type', 'is_enable'];
             
             //获取辅导机构的优惠券
@@ -152,8 +169,10 @@
             foreach ($get_activitys['info'] as $key => $item) {
                 $now_time = time();
                 $get_activitys['info'][$key]->start_state = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
-                $get_activitys['info'][$key]->begin_time = date("m-d", $item->begin_time);
-                $get_activitys['info'][$key]->end_time = date("m-d", $item->end_time);
+                $get_activitys['info'][$key]->begin_time = date("m月d日", $item->begin_time);
+                $get_activitys['info'][$key]->end_time = date("m月d日", $item->end_time);
+                $get_activitys['info'][$key]->active_img = splicingImgStr('admin', 'info', $item->active_img);
+                $get_activitys['info'][$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
                 if ($item->province !== '')
                     $get_activitys['info'][$key]->province = getProCity($item->province);
             }

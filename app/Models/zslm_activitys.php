@@ -501,7 +501,15 @@ class zslm_activitys
 
         // 时间
         if(!empty($activityDate) && count($activityDate)){
-            $sql .= " and FROM_UNIXTIME(".self::$sTableName.".begin_time , '%m') in (".implode(',' , $activityDate).")";
+            if(max($activityDate) == 1){ // 本周的起始时间
+                $beginTime = mktime(0,0,0,date('m'),date('d')-date('w')+1-7,date('Y'));
+                $endTime = mktime(23,59,59,date('m'),date('d')-date('w')+7-7,date('Y'));
+            }elseif(max($activityDate) == 2){ // 本月的起始时间
+                $beginTime = mktime(0,0,0,date('m'),1,date('Y'));
+                $endTime = mktime(23,59,59,date('m'),date('t'),date('Y'));
+            }
+
+            $sql .= " and (".self::$sTableName.".begin_time >= ".$beginTime." and ".self::$sTableName.".begin_time <= ".$endTime.")";
         }
 
         return $sql;
@@ -533,7 +541,8 @@ class zslm_activitys
 
         $ac_info = $handel->offset($pageCount * $pageNumber)->limit($pageCount)
             ->select('id', 'active_img', 'active_name', 'begin_time')->get();
-            
+
+
         return ['count' => $count, 'acInfo' => $ac_info];
 
     }

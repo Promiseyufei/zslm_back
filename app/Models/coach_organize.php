@@ -187,12 +187,12 @@
             if ($name != '' && !empty($name)){
                 $query = $query->where('coach_name', 'like', '%' . $name . '%');
             }
-
-            if ($if_back != 2){
+            
+            if ($if_back != 2 && isset($if_back)){
                 $query = $query->where("if_back_money", $if_back);
             }
 
-            if ($if_coupon != 2){
+            if ($if_coupon != 2 && isset($if_coupon)){
                 $query = $query->where("if_coupons", $if_coupon);
             }
 
@@ -217,9 +217,10 @@
 
             $query = self::getSqlQuery($provice, $type, $name, $if_back, $if_coupon);
 
-            $result = $query->offset(($page - 1) * $page_size)->limit($page_size)->get($fields)->map(function($item) {
+            $result = $query->offset(($page - 1) * $page_size)->limit($page_size)->orderBy('weight' , 'DESC')->get($fields)->map(function($item) {
                 $item->logo_name = splicingImgStr('admin', 'info', $item->logo_name);
                 $item->cover_name = splicingImgStr('admin', 'info', $item->cover_name);
+                if(isset($item->logo_white)) $item->logo_white = splicingImgStr('admin', 'info', $item->logo_white);
                 return $item;
             });
 
@@ -231,7 +232,8 @@
         public static function getSonCoach($f_id,$fields)
         {
             $result = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)
-                ->where('father_id', $f_id)->get($fields);
+                ->leftJoin('dict_region' , 'dict_region.id' , '=' , self::$sTableName.'.province')
+                ->where(self::$sTableName.'.father_id', $f_id)->get($fields);
             return $result;
         }
         
