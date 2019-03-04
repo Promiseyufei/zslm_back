@@ -56,7 +56,7 @@
                 return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
             $provice = '';
 
-            $felds = ['id', 'province', 'magor_logo_name',
+            $felds = ['id', 'province', 'magor_logo_name', 'z_type',
                 'z_name', 'update_time', 'major_confirm', 'major_follow'];
             
             $majors = zslmMajor::getMajorBySelect($request->z_type, $request->z_name,
