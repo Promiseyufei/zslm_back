@@ -34,8 +34,8 @@ class urls_bt
      *
      * @return mixed 广告位对象，包含广告位的id
      */
-    public static function getBannerByName($b_name){
-        return DB::table(self::$sTableName)->where('name',$b_name)->first(['id']);
+    public static function getBannerByPath($b_name){
+        return DB::table(self::$sTableName)->where('url',$b_name)->first(['id']);
     }
 
 }

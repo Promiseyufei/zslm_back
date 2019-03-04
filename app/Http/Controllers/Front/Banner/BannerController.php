@@ -26,7 +26,7 @@
             if(!isset($request->b_name) || !isset($request->limit) || !isset($request->type))
                 return responseToJson(1,'参数错误');
             
-            $bt_id = UrlsBt::getBannerByName($request->b_name);
+            $bt_id = UrlsBt::getBannerByPath($request->b_name);
             if(!isset($bt_id))
                 return responseToJson(1,'广告位名称错误');
             $banners = BannerAd::getBannerByById($bt_id->id,$request->limit,$request->type);
