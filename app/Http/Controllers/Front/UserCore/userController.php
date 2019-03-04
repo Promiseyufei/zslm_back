@@ -174,31 +174,46 @@
                 'required' => ' :attribute 为空.',
                 'numeric' => ':attribute 不是数字'
             ];
-           $v = Validator::make($request->all(), [
-               'c_name' => 'required',
-               'money' => 'required|numeric',
-                   'is_coupon' => 'required|numeric',
-               'time'=>'required|numeric',
-               'phone'=>'required',
-               'refund_type'=>'required|numeric',
-               'alipay_account'=>'required',
-               'name'=>'required',
-               'card'=>'required',
-               'blank_addr'=>'required',
-               'message'=>'required',
-               'u_id'=>'required|numeric',
-               'f_id'=>'required|numeric',
-               'cou_id'=>'required|numeric',
-           ],$messages);
-           $errors = $v->errors();
+
+            $v = Validator::make($request->all(), [
+                'c_name' => 'required',
+                'money' => 'required|numeric',
+                'is_coupon' => 'required|numeric',
+                'time'=>'required|numeric',
+                'phone'=>'required',
+                'refund_type'=>'required|numeric',
+                'alipay_account'=>'required',
+                'name'=>'required',
+                'card'=>'required',
+                'blank_addr'=>'required',
+                'message'=>'required',
+                'u_id'=>'required|numeric',
+                'f_id'=>'required|numeric',
+                'cou_id'=>'required|numeric',
+            ],$messages);
+
+            $errors = $v->errors();
+
             $g = "/^1[34578]\d{9}$/";
-            if($errors != null && sizeof($errors) > 0 )
+
+            if($errors != null && sizeof($errors) > 0 ){
                 return responseToJson(1,$errors->first());
+            }
+
             if(!preg_match($g,$request->phone)){
                 return responseToJson(1,'请输入正确格式的手机号');
             }
             if(!validataBankCard($request->card)){
                 return responseToJson(1,'请输入正确格式的银行卡号');
+            }
+
+            if(!empty($request->cou_id)){ // 如果有优惠卷序列号 判断是否有申请过退款 有就不能在申请
+                $id = DB::table('refund_apply')->where('coupon_id' , $request->cou_id)
+                ->where('account_id' , $request->u_id)->value('id');
+
+                if($id){
+                    return responseToJson(1,'已有相同的优惠卷序列号退款信息，请不要重复提交');
+                }
             }
             
             $request->c_name =preg_replace('# #','',$request->c_name);
@@ -206,13 +221,12 @@
             $request->name =preg_replace('# #','',$request->name);
             $request->blank_addr =preg_replace('# #','',$request->blank_addr);
             $request->message =preg_replace('# #','',$request->message);
-           $fileUrl = 'public/refund/';
+            $fileUrl = 'public/refund/';
      
-           $i = 0;
+            $i = 0;
     
-     
-             $ext = ['jpg','jpeg','png'];
-           DB::beginTransaction();
+            $ext = ['jpg','jpeg','png'];
+            DB::beginTransaction();
             try{
                 $file_names='';
                 foreach($_FILES as $key => $value){
