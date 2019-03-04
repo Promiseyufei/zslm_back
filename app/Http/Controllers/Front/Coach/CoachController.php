@@ -293,7 +293,9 @@
         
         public function getAllConpon(Request $request)
         {
-            $coupon = coachOrganize::getAllCoupon();
+            $where = ['is_delete'=>0];
+
+            $coupon = coachOrganize::getAllCoupon($where , $request->name);
             
             if (empty($coupon) || sizeof($coupon) == 0)
                 return responseToJson(1, '暂无数据');

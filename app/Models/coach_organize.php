@@ -269,8 +269,14 @@
             return $result;
         }
     
-        public static function getAllCoupon(){
-            return DB::table(self::$sTableName)->where('is_delete',0)->where('is_show',0)->where('father_id',0)->get(['id','coach_name','logo_name','cover_name']);
+        public static function getAllCoupon($where = ['is_delete'=>0] , $name = ''){
+            $query = DB::table(self::$sTableName)->where($where)->where('is_show',0)->where('father_id',0);
+
+            if($name){
+                $query->where('coach_name' , 'like' , '%'.$name.'%');
+            }
+
+            return $query->get(['id','coach_name','logo_name','cover_name']);
         
         }
 
