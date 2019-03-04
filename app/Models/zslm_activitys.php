@@ -522,6 +522,7 @@ class zslm_activitys
             ->where(self::$sTableName . '.id', $acId)
             ->select(
                 self::$sTableName . '.id', 
+                self::$sTableName . '.title',
                 self::$sTableName . '.active_name', 
                 self::$sTableName . '.begin_time', 
                 self::$sTableName . '.end_time',

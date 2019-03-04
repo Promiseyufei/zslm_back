@@ -127,7 +127,7 @@
             if (!isset($request->id) || !is_numeric($request->id))
                 return responseToJson(1, 'id错误');
             
-            $fields = ['id', 'coach_name', 'phone', 'address', 'web_url', 'update_time',
+            $fields = ['id', 'coach_name', 'phone', 'address', 'web_url', 'update_time', 'title',
                 'coach_type', 'describe', 'logo_name', 'logo_alt', 'cover_name', 'cover_alt', 'province'];
             $coach = coachOrganize::getCoachById($request->id, $fields);
             if ($coach == null || sizeof($coach) == 0)

@@ -61,8 +61,6 @@
             
             $majors = zslmMajor::getMajorBySelect($request->z_type, $request->z_name,
                 $provice, $request->professional_direction, $request->page, $request->page_size, $felds, $request->major_order);
-
-            var_dump($majors);
             
             if (empty($majors))
                 return responseToJson(1, "暂无数据");
@@ -216,7 +214,7 @@
     
             $felds = ['id', 'z_name', 'magor_logo_name',
                 'major_follow_id', 'province','index_web',
-                'admissions_web','address','phone', 'major_confirm_id',
+                'admissions_web','address','phone', 'major_confirm_id','title',
                 'access_year','wc_image','wb_image','major_confirm','major_follow', 'major_cover_name'];
             
             $major = zslmMajor::getMajorById($request->id,$felds);
