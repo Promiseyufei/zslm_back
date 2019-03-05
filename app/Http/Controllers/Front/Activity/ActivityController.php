@@ -157,6 +157,8 @@
                 $get_activitys = ZslmActivitys::getFrontActiListInfoNoCount('', $request->majorType, $provice_id_arr, $request->activityType,
                     
                     $request->activityState, $request->activityDate, $page_size, $page);
+
+//                dd($get_activitys);
                 
                 $get_activitys['info'] = $get_activitys['info']->toArray();
                 
@@ -166,7 +168,8 @@
                         $get_activitys['info'][$key]->start_state = $now_time < $item->begin_time ? 0 : $now_time > $item->end_time ? 2 : 1;
                         $get_activitys['info'][$key]->begin_time = date("m月d日", $item->begin_time);
                         $get_activitys['info'][$key]->end_time = date("m月d日", $item->end_time);
-                        
+                        $get_activitys['info'][$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
+
                         if ($item->province !== '' && !empty($item->province))
                                 $get_activitys['info'][$key]->province = getProCity_B($item->province);
                             
