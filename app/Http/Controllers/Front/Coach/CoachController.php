@@ -106,7 +106,7 @@
         
         public function getIndexInfo($name, $page = 1, $page_size = 3)
         {
-            $fields = ['id', 'coach_name', 'if_coupons', 'if_back_money', 'cover_name', 'cover_alt', 'logo_name', 'logo_alt'];
+            $fields = ['id', 'coach_name', 'if_coupons', 'if_back_money', 'cover_name', 'cover_alt', 'logo_name', 'logo_alt' , 'logo_white'];
             $coachs = coachOrganize::getSelectCoach('', null,
                 $name, $page, $page_size,
                 null, null, $fields);
