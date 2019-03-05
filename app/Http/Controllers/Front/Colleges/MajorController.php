@@ -426,6 +426,7 @@
             $fileds = ['id', 'z_name', 'major_follow', 'province','index_web',
                 'admissions_web','address','phone', 'major_confirm',
                 'access_year','wc_image'];
+
             $majors = zslmMajor::getVsMajorsByIds($ids,$fileds);
 
             // dd($majors);
@@ -435,7 +436,7 @@
     
             $major_confirms = majorConfirm::getAllMajorConfirm();
             $major_follows = majorFollow::getAllMajorFollow();
-            
+
             $fileds = ['id','project_name','student_count','language','eductional_systme',
                 'can_conditions','score_describe','score_type','recruitment_pattern',
                 'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
@@ -449,7 +450,7 @@
                     $major_confirms_str = changeStringToInt($major_confirms_str);
                     $major_follow_str = strChangeArr($majors[$i]->major_follow,EXPLODE_STR);
                     $major_follow_str = changeStringToInt($major_follow_str);
-        
+
                     $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
                     $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
                     $majors[$i]->major_confirm_id = $major_confirm;
@@ -477,9 +478,9 @@
         public function getConfirmsOrFollow($val_arrl,$get_arr){
             $result = '';
 
-            if(!$val_arrl){
-                for($i = 0;$i < sizeof($val_arrl);$i++){
-                    $result.=$get_arr[$val_arrl[$i]].',';
+            if($val_arrl){
+                for($i = 0;$i < count($val_arrl);$i++){
+                    if(isset($get_arr[$val_arrl[$i]])) $result.= $get_arr[$val_arrl[$i]].',';
                 }
 
                 $result =  substr($result, 0, -1) ;
