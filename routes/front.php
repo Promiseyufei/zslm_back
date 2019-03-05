@@ -51,11 +51,12 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get("getallcoupon","CoachController@getAllConpon");
     });
 
+
     /**
      * 选院校
      */
     Route::group(['prefix' => 'colleges', 'namespace' => 'Colleges'],function() {
-    
+
         Route::get("getmajor","MajorController@getMajor");
 
         Route::get("info","MajorController@getInfo");
@@ -157,6 +158,17 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     
     Route::group(['prefix' => 'recommend', 'namespace' => 'Infomation'],function() {
         Route::get('getrecommend', 'InformationController@getRecommend');
+    });
+
+    /**
+     * 字典
+     */
+    Route::group(['prefix' => 'dict' , 'namespace'=>'Dict'] , function(){
+        Route::get('getMajorDirection', 'DictController@getMajorDirection');
+        Route::get('getRegion', 'DictController@getRegion');
+        Route::get('getMajorType', 'DictController@getMajorType');
+        Route::get('getRecruitmentPattern', 'DictController@getRecruitmentPattern');
+        Route::get('getFractionType', 'DictController@getFractionType');
     });
     
 });
