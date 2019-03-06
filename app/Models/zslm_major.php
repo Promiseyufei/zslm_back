@@ -384,11 +384,11 @@
 
             // 省份
             if(!empty($provice)){
-                $arr = explode(',' , $provice);
+                /*$arr = explode(',' , $provice);
                 $provice = [];
                 foreach($arr as $v){
                     $provice[] = DB::table('dict_region')->where('name' , $v)->value('id');
-                }
+                }*/
 
                 $ModelObject->whereIn(self::$sTableName.'.province' , $provice);
             }

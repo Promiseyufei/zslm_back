@@ -11,6 +11,7 @@ namespace App\Http\Controllers\Front\Dict;
 
 use App\Http\Controllers\Controller;
 use DB;
+use Illuminate\Http\Request;
 
 class DictController extends Controller
 {
@@ -39,14 +40,21 @@ class DictController extends Controller
     }
 
     /**
-     * 获取有院校的省市字典
+     * 获取省市字典
      * @return $this
      */
-    public function getRegion(){
-        // 获取学校所在省
-        $provinces = DB::table('zslm_major')->where('is_delete' , 0)
-            ->where('province' , '>' , 0)
-            ->groupBy('province')->get(['province']);
+    public function getRegion(Request $request){
+        if(!isset($request->type) || $request->type == 1){
+            // 获取学校所在省
+            $provinces = DB::table('zslm_major')->where('is_delete' , 0)
+                ->where('province' , '>' , 0)
+                ->groupBy('province')->get(['province']);
+        }elseif($request->type == 2){
+            // 获取辅导机构所在省
+            $provinces = DB::table('coach_organize')->where('is_delete' , 0)
+                ->where('province' , '>' , 0)
+                ->groupBy('province')->get(['province']);
+        }
 
         if(count($provinces)){
             // 遍历获取到需要的字段存到数组里
