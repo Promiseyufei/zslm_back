@@ -176,8 +176,9 @@
         private static function getSqlQuery($provice, $type, $name, $if_back, $if_coupon)
         {
             $query = DB::table(self::$sTableName)->where('is_show', 0)->where('is_delete', 0)->where('father_id', 0);
-            if ($provice != ''){
-                $query = $query->where('province', 'like', $provice . '%');
+
+            if (count($provice)){
+                $query = $query->whereIn('province', $provice);
             }
 
             if (isset($type) && $type != '2'){
@@ -214,7 +215,6 @@
         public static function getSelectCoach($provice, $type, $name, $page, $page_size, $if_back, $if_coupon, $fields)
         {
 //            DB::enableQueryLog();
-
             $query = self::getSqlQuery($provice, $type, $name, $if_back, $if_coupon);
 
             $result = $query->offset(($page - 1) * $page_size)->limit($page_size)->orderBy('weight' , 'DESC')->get($fields)->map(function($item) {

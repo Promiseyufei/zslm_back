@@ -45,12 +45,15 @@
             $page = $request->page ? (int)$request->page : 1;
             $page_size = $request->page_size ? (int)$request->page_size : 10;
             
-            $provice = '';
+            $provice = [];
             
             if (!empty($request->provice) && $request->provice != '') {
-                $provice = dictRegion::getProvinceIdByName_c($request->provice);
-                $provice = $provice->id;
+                /*$provice = dictRegion::getProvinceIdByName_c($request->provice);
+                $provice = $provice->id;*/
+                $provice = explode(',' , $request->provice);
             }
+
+//            dd($provice);
 
             $fields = ['id', 'coach_name', 'province', 'if_coupons', 'if_back_money', 'cover_name', 'cover_alt', 'logo_name', 'logo_alt' , 'logo_white'];
             
