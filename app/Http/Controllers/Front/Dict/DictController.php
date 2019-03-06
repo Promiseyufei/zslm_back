@@ -54,6 +54,11 @@ class DictController extends Controller
             $provinces = DB::table('coach_organize')->where('is_delete' , 0)
                 ->where('province' , '>' , 0)
                 ->groupBy('province')->get(['province']);
+        }elseif($request->type == 3){
+            // 获取活动所在省
+            $provinces = DB::table('zslm_activitys')->where('is_delete' , 0)
+                ->where('province' , '>' , 0)
+                ->groupBy('province')->get(['province']);
         }
 
         if(count($provinces)){
@@ -74,11 +79,19 @@ class DictController extends Controller
      * 获取有院校的专业类型字典
      * @return $this
      */
-    public function getMajorType(){
-        // 获取学校专业类型
-        $majorTypes = DB::table('zslm_major')->where('is_delete' , 0)
-            ->where('z_type' , '>' , 0)
-            ->groupBy('z_type')->get(['z_type']);
+    public function getMajorType(Request $request){
+        if(!isset($request->type) || $request->type == 1){
+            // 获取学校专业类型
+            $majorTypes = DB::table('zslm_major')->where('is_delete' , 0)
+                ->where('z_type' , '>' , 0)
+                ->groupBy('z_type')->get(['z_type']);
+        }elseif($request->type == 3){
+            // 获取活动专业类型
+            $majorTypes = DB::table('zslm_activitys')->where('is_delete' , 0)
+                ->where('major_type' , '>' , 0)
+                ->groupBy('major_type')->get(['major_type as z_type']);
+        }
+
 
         if(count($majorTypes)){
             // 遍历获取到需要的字段存到数组里
@@ -138,6 +151,26 @@ class DictController extends Controller
             }
 
             $info =DB::table('dict_fraction_type')->whereIn('id' , $scoreType)->orderBy('id' , 'asc')->get(['id' , 'name']);
+            return responseToJson(0 , '查询成功' , $info);
+        }
+
+        return responseToJson(0 , '查询成功' , []);
+    }
+
+    public function getActivityType(){
+        // 获取活动类型
+        $activeTypes = DB::table('zslm_activitys')->where('is_delete' , 0)
+            ->where('active_type' , '>' , 0)
+            ->groupBy('active_type')->get(['active_type']);
+
+        if(count($activeTypes)){
+            // 遍历获取到需要的字段存到数组里
+            $activeType = [];
+            foreach($activeTypes as $v){
+                $activeType[] = $v->active_type;
+            }
+
+            $info =DB::table('dict_activity_type')->whereIn('id' , $activeType)->orderBy('id' , 'asc')->get(['id' , 'name']);
             return responseToJson(0 , '查询成功' , $info);
         }
 

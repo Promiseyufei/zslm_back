@@ -169,6 +169,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
         Route::get('getMajorType', 'DictController@getMajorType');
         Route::get('getRecruitmentPattern', 'DictController@getRecruitmentPattern');
         Route::get('getFractionType', 'DictController@getFractionType');
+        Route::get('getActivityType', 'DictController@getActivityType');
     });
     
 });
