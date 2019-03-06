@@ -50,6 +50,18 @@
 
             $info = zslmMajor::getSchoolList($request);
             return responseToJson(0, 'success', $info);
+
+
+
+            if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request ->page) || !is_numeric($request->page_size))
+                return responseToJson(1, '没有页码、页面大小或者页码、页面大小不是数字');
+            $provice = '';
+
+            $felds = ['id', 'province', 'magor_logo_name', 'z_type',
+                'z_name', 'update_time', 'major_confirm', 'major_follow'];
+            
+            $majors = zslmMajor::getMajorBySelect($request->z_type, $request->z_name,
+                $provice, $request->professional_direction, $request->page, $request->page_size, $felds, $request->major_order);
             
             
 //            if (!isset($request->page) || !isset($request->page_size) || !is_numeric($request->page) || !is_numeric($request->page_size))
@@ -431,13 +443,15 @@
                 return responseToJson(1, "m_ids 错误");
             }
             
-            $ids = strChangeArr($request->m_ids, EXPLODE_STR);
-            
-            $fileds = ['id', 'z_name', 'major_follow', 'province', 'index_web',
-                'admissions_web', 'address', 'phone', 'major_confirm',
-                'access_year', 'wc_image'];
-            $majors = zslmMajor::getVsMajorsByIds($ids, $fileds);
-            
+
+            $ids = strChangeArr($request->m_ids,EXPLODE_STR);
+    
+            $fileds = ['id', 'z_name', 'major_follow', 'province','index_web',
+                'admissions_web','address','phone', 'major_confirm',
+                'access_year','wc_image'];
+
+            $majors = zslmMajor::getVsMajorsByIds($ids,$fileds);
+
             // dd($majors);
             
             if ($majors == null || sizeof($majors) == 0)
@@ -445,10 +459,11 @@
             
             $major_confirms = majorConfirm::getAllMajorConfirm();
             $major_follows = majorFollow::getAllMajorFollow();
-            
-            $fileds = ['id', 'project_name', 'student_count', 'language', 'eductional_systme',
-                'can_conditions', 'score_describe', 'score_type', 'recruitment_pattern',
-                'graduation_certificate', 'other_explain', 'cost', "enrollment_mode", 'class_situation'];
+
+
+            $fileds = ['id','project_name','student_count','language','eductional_systme',
+                'can_conditions','score_describe','score_type','recruitment_pattern',
+                'graduation_certificate','other_explain','cost',"enrollment_mode",'class_situation'];
             
             if ($majors != null)
                 for ($i = 0; $i < sizeof($majors); $i++) {
@@ -459,9 +474,10 @@
                     $major_confirms_str = changeStringToInt($major_confirms_str);
                     $major_follow_str = strChangeArr($majors[$i]->major_follow, EXPLODE_STR);
                     $major_follow_str = changeStringToInt($major_follow_str);
-                    
-                    $major_confirm = $this->getConfirmsOrFollow($major_confirms_str, $major_confirms);
-                    $major_follow = $this->getConfirmsOrFollow($major_follow_str, $major_follows);
+
+
+                    $major_confirm = $this->getConfirmsOrFollow($major_confirms_str,$major_confirms);
+                    $major_follow = $this->getConfirmsOrFollow($major_follow_str,$major_follows);
                     $majors[$i]->major_confirm_id = $major_confirm;
                     $majors[$i]->major_follow_id = $major_follow;
                     
@@ -488,10 +504,11 @@
         public function getConfirmsOrFollow($val_arrl, $get_arr)
         {
             $result = '';
-            
-            if (!$val_arrl) {
-                for ($i = 0; $i < sizeof($val_arrl); $i++) {
-                    $result .= $get_arr[$val_arrl[$i]] . ',';
+
+
+            if($val_arrl){
+                for($i = 0;$i < count($val_arrl);$i++){
+                    if(isset($get_arr[$val_arrl[$i]])) $result.= $get_arr[$val_arrl[$i]].',';
                 }
                 
                 $result = substr($result, 0, -1);

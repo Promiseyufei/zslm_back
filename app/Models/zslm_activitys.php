@@ -560,7 +560,8 @@ class zslm_activitys
             ->leftJoin('zslm_major', 'activity_relation.host_major_id', '=', 'zslm_major.id')
             ->leftJoin('dict_activity_type', self::$sTableName . '.active_type', '=', 'dict_activity_type.id')
             ->where(self::$sTableName . '.show_state', 0)->where(self::$sTableName . '.is_delete', 0)
-            ->where('active_name', 'like', '%' . $keyword . '%');
+            ->where('active_name', 'like', '%' . $keyword . '%')
+            ->where('activity_relation.host_major_id' , '>' , 0);
         
         if(!empty($majorType) && count($majorType) > 0)
             $handel = $handel->whereIn('major_type', $majorType);
