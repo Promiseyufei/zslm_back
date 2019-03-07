@@ -128,6 +128,7 @@
                         $major_follow = $major_c->getConfirmsOrFollow($major_follow_str,$major_follows);
                         $userMajor[$i]->major_confirm_id = $major_confirm;
                         $userMajor[$i]->major_follow_id = $major_follow;
+                        $userMajor[$i]->magor_logo_name = splicingImgStr('admin', 'info', $userMajor[$i]->magor_logo_name);
                         unset($userMajor[$i]->major_confirm);
                         unset($userMajor[$i]->major_follow);
                     }
