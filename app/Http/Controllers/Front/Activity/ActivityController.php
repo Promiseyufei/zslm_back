@@ -169,6 +169,7 @@
                         $get_activitys['info'][$key]->begin_time = date("m月d日", $item->begin_time);
                         $get_activitys['info'][$key]->end_time = date("m月d日", $item->end_time);
                         $get_activitys['info'][$key]->magor_logo_name = splicingImgStr('admin', 'info', $item->magor_logo_name);
+                        $get_activitys['info'][$key]->active_img = splicingImgStr('admin', 'info', $item->active_img);
 
                         if ($item->province !== '' && !empty($item->province))
                                 $get_activitys['info'][$key]->province = getProCity_B($item->province);
