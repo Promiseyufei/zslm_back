@@ -300,13 +300,17 @@
             return  $result;
         }
     
-        public static function getMajorByYearSelectCount($year, $z_name)
+        public static function getMajorByYearSelectCount($z_name , $year)
         {
             $query = DB::table(self::$sTableName)->where("is_show", 0)->where('is_delete', 0);
-            if ($year != 0 && !empty($year))
+            if ($year != 0 && !empty($year)){
                 $query = $query->where('access_year', $year);
-            if ($z_name != '' && !empty($z_name))
+            }
+
+            if ($z_name != '' && !empty($z_name)){
                 $query = $query->where('z_name', 'like', '%' . $z_name . '%');
+            }
+
             $result = $query->count('id');
             return $result;
         }
