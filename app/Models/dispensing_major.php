@@ -18,4 +18,8 @@
             return $data;
         }
 
+        public static function judgeStopDis($majorName) {
+            return DB::table(self::$sTableName)->where('is_delete', 0)->where('major_add', $majorName)->where('stop_dispensing')->pluck('stop_dispensing');
+        }
+
     }
