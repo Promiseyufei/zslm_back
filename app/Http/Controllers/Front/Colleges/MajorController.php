@@ -393,8 +393,13 @@
             $addressArr = strChangeArr($major_msg[0]->province, EXPLODE_STR);
             $major_msg[0]->province = dictRegion::getOneArea($addressArr[0])[0]->name;
             $major_msg[0]->city = '';
-            if ($addressArr != null && sizeof($addressArr) > 1)
+            if ($addressArr != null && sizeof($addressArr) > 1){
                 $major_msg[0]->city = dictRegion::getOneArea($addressArr[1])[0]->name;
+            }
+
+            $major_msg[0]->magor_logo_name = splicingImgStr('admin', 'info', $major_msg[0]->magor_logo_name);
+            $major_msg[0]->major_cover_name = splicingImgStr('admin', 'info', $major_msg[0]->major_cover_name);
+
             return responseToJson(0, 'success', $major_msg);
             
         }

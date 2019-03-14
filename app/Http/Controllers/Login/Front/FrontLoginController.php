@@ -31,7 +31,7 @@ class FrontLoginController extends Controller {
                     loginSuccess($request, $user_phone);
                     $user_info = UserInformation::getUserViewsInfo($user->id);
                     if($user_info->head_portrait != '') $user_info->head_portrait = splicingImgStr('front', 'user', $user_info->head_portrait);
-                    return responseToJson(0, 'success', $user_info);
+                    return responseToJson(0, '登陆成功', $user_info);
                 }
                 else {
                     return responseToJson(1, '账号或密码错误');
@@ -47,7 +47,7 @@ class FrontLoginController extends Controller {
                     loginSuccess($request, $user_phone);
                     $user_info = UserInformation::getUserViewsInfo($user->id);
                     if($user_info->head_portrait != '') $user_info->head_portrait = splicingImgStr('front', 'user', $user_info->head_portrait);
-                    return responseToJson(0, 'success', $user_info);
+                    return responseToJson(0, '登陆成功', $user_info);
                 }
                 else {
                     return $this->judgeAgree($request, $user_phone);
