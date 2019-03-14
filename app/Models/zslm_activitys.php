@@ -470,7 +470,7 @@ class zslm_activitys
 
         // 活动名称
         if(!empty($keyword)){
-            $sql .= " and ".self::$sTableName.".active_name like %".$keyword."%";
+            $sql .= " and ".self::$sTableName.".active_name like '%".$keyword."%'";
         }
 
         // 专业类型
