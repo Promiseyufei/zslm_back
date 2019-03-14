@@ -62,5 +62,19 @@
             }
             
         }
+
+        /**
+         * 获取优惠券使用说明
+         * @param Request $request
+         * @return $this
+         */
+        public function getCouponcol(Request $request){
+            if(!$request->id){
+                return responseToJson(1 , '参数错误');
+            }
+
+            $couponcol = DB::table('zslm_coupon')->where(['id'=>$request->id])->value('zslm_couponcol');
+            return responseToJson(0 , '获取成功' , $couponcol);
+        }
         
     }
