@@ -110,7 +110,7 @@ class AccountsController extends AccountControllerBase
             for($i = 0;$i<sizeof($school);$i++){
                 $school_arr[$school[$i]->id] = $school[$i]->name;
             }
-        
+
         if($result[0] != null)
             for($i = 0;$i<sizeof($result[0]);$i++){
                 $provice_name = '';
@@ -118,9 +118,10 @@ class AccountsController extends AccountControllerBase
                 $return_ins = '';
                 $result[0][$i]->weixin = '未绑定';
                 $result[0][$i]->weibo = '未绑定';
-                
-                
-                $result[0][$i]->schooling_id = $school_arr[$result[0][$i]->schooling_id];
+
+                if($result[0][$i]->schooling_id){
+                    $result[0][$i]->schooling_id = $school_arr[$result[0][$i]->schooling_id];
+                }
 
                 if($thread != null)
                     for($j = 0;$j<sizeof($thread);$j++){
@@ -134,8 +135,8 @@ class AccountsController extends AccountControllerBase
                 if($result[0][$i]->address != null) {
                     $provice_arr = strChangeArr($result[0][$i]->address,EXPLODE_STR);
                     $provice = DictRegion::getAllArea();
-                    $provice_name=$this->findAddress($provice_arr[0],$provice);
-                    $city_name = $this->findAddress($provice_arr[1],$provice);
+                    $provice_name= isset($provice_arr[0])?$this->findAddress($provice_arr[0],$provice):'';
+                    $city_name = isset($provice_arr[1])?$this->findAddress($provice_arr[1],$provice):'';
                 }
                 if($result[0][$i]->industry != null){
                     $insutry = strChangeArr($result[0][$i]->industry,EXPLODE_STR);
