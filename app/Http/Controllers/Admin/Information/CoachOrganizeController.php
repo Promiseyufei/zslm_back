@@ -554,9 +554,13 @@ class CoachOrganizeController extends Controller
             $one->coach_logo_img_name = splicingImgStr('admin', 'info', $one->logo_name);
         if(!empty($one->cover_name))
             $one->coach_cover_img_name = splicingImgStr('admin', 'info', $one->cover_name);
-        
-        return ($one != null && sizeof($one) == 1) ? responseToJson(0,'success',$one) : responseToJson(1,'no date');
-        
+
+
+//        dd($one);
+
+//        return ($one != null && count($one) == 1) ? responseToJson(0,'success',$one) : responseToJson(1,'no date');
+        return $one ? responseToJson(0,'success',$one) : responseToJson(1,'no date');
+
     }
     
     public function setNewKTD(Request $request){

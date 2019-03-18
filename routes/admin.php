@@ -10,6 +10,7 @@
     Route::post('/admin/login', 'Admin\Login@validateLogin');
     Route::get('/admin/createuuid', 'Admin\Login@createUUID');
     Route::post('/admin/loginout', 'Admin\Login@loginout');
+    Route::post('/admin/img', 'Admin\img@imgUpdate');
     
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'login'], function () {
 
