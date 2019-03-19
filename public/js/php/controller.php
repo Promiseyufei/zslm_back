@@ -1,6 +1,12 @@
 <?php
 //header('Access-Control-Allow-Origin: http://www.baidu.com'); //设置http://www.baidu.com允许跨域访问
 //header('Access-Control-Allow-Headers: X-Requested-With,X_Requested_With'); //设置允许的跨域header
+header('Access-Control-Allow-Origin:*');  //  *号代表所有的域名都可以访问，可单独设置请求的域名
+// 响应类型
+header('Access-Control-Allow-Methods:*');  //  *号代表可以接收所有的请求，可单独设置
+// 响应头设置
+header('Access-Control-Allow-Headers:x-requested-with,X_Requested_With,content-type');
+
 date_default_timezone_set("Asia/chongqing");
 error_reporting(E_ERROR);
 header("Content-Type: text/html; charset=utf-8");
