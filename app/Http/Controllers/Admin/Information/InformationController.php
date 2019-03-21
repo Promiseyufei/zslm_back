@@ -417,7 +417,6 @@ class InformationController extends Controller
      *     }
      */ 
     public function createInfo(InfoCreateRequest $request) {
-
         if(!$request->isMethod('post')) return responseToJson(2, '请求方式错误');
 
         $img_handle = $request->file('infoImage');
@@ -436,7 +435,12 @@ class InformationController extends Controller
         try {
             DB::beginTransaction();
 
-            $create_info_id = ZslmInformation::createOneInfo($create_msg);
+            if($request->infoId > 0){
+                $create_info_id = ZslmInformation::createOneInfo($create_msg , 1 , $request->infoId);
+            }else{
+                $create_info_id = ZslmInformation::createOneInfo($create_msg);
+            }
+
     
             $is_create_img = createDirImg($img_name, $img_handle, 'info');
     
