@@ -79,6 +79,7 @@
             $newCount = newUsers::getCountUserNews($request->id,0);
             return responseToJson(0,'success',$newCount);
         }
+
         /**
          * 获取用户关注的院校
          * @param Request $request
@@ -97,7 +98,7 @@
             
                 $userMajor = userFollowMajor::getUserFollowMajors($request->id,
                     $request->page,$request->page_size,
-                    ['major_id','z_name','province','major_follow_id','major_confirm_id','magor_logo_name','major_logo_alt','major_follow','major_confirm','index_web']);
+                    ['major_id','z_name','province','major_follow_id','major_confirm_id','magor_logo_name','major_logo_alt','major_follow','major_confirm','index_web','is_focus']);
                 if($userMajor == null || sizeof($userMajor) == 0){
                     return responseToJson(1,'无数据');
                 }
@@ -105,6 +106,7 @@
                 $major_confirms = majorConfirm::getAllMajorConfirm();
                 $major_follows = majorFollow::getAllMajorFollow();
                 $major_c = new MajorController();
+
                 if($userMajor != null)
                     for ($i = 0; $i < sizeof($userMajor); $i++) {
                         $addressArr = strChangeArr($userMajor[$i]->province, EXPLODE_STR);
