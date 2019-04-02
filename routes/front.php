@@ -102,6 +102,7 @@ Route::group(['prefix' => 'front', 'namespace' => 'Front'],function() {
     Route::group(['prefix' => 'usercore', 'namespace' => 'UserCore'],function() {
         Route::get("getuserinfo","userController@getUserInfo");
         Route::get("getusermajor","userController@getUserMajor");
+        Route::get("cancelUserMajor","userController@cancelUserMajor");
 
         Route::get("getUserAccountInfo","UserAccountController@getUserAccountInfo");
 

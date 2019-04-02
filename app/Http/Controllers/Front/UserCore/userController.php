@@ -7,6 +7,7 @@
      */
     
     namespace App\Http\Controllers\Front\UserCore;
+    use App\Models\user_follow_major;
     use DB;
     use App\Http\Controllers\Front\Colleges\MajorController;
     use App\Models\news_users as newUsers;
@@ -138,6 +139,23 @@
             
             }else
                 return responseToJson(1,'没有页数、页码或者页数、页码不为数字');
+        }
+
+        /**
+         * 取消关注
+         * @param Request $request
+         * @return $this
+         */
+        public function cancelUserMajor(Request $request){
+            if(!$request->id || !$request->major_id){
+                return responseToJson(1,'参数不正确！');
+            }
+
+            $res = DB::table(user_follow_major::$sTableName)
+                ->where(['user_id'=>$request->id,'major_id'=>$request->major_id])
+                ->update(['is_focus'=>1]);
+
+            return $res?responseToJson(0,'取消关注成功'):responseToJson(1 , '取消关注失败！');
         }
     
         /**
