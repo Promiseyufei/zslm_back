@@ -99,7 +99,6 @@
         {
             
             if ($request->isMethod('get')) {
-
                 $provice_id_arr = [];
                 $keyword = !empty($request->keyword) ? trim($request->keyword) : '';
                 $pageCount = !empty($request->pageCount) ? $request->pageCount : 12;

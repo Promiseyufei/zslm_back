@@ -496,7 +496,37 @@ class zslm_activitys
 
         // 活动状态
         if(!empty($activityState) && count($activityState)){
-            $sql .= " and ".self::$sTableName.".active_status in (".implode(',' , $activityState).")";
+            $time = time();
+            if(count($activityState) == 1){ // 单个条件
+                switch($activityState[0]){
+                    case 0: // 未开始
+                        $sql .= " and ".self::$sTableName.".begin_time > ".$time;
+                        break;
+                    case 1: // 进行中
+                        $sql .= " and ".self::$sTableName.".begin_time <= ".$time." and ".self::$sTableName.".end_time > ".$time;
+                        break;
+                    case 2: // 已结束
+                        $sql .= " and ".self::$sTableName.".end_time <= ".$time;
+                        break;
+                }
+            }elseif(count($activityState) == 2){ // 两个条件的
+                $sql .= " and (";
+                foreach($activityState as $k=>$v){
+                    switch($v){
+                        case 0: // 未开始
+                            $sql .= '('.self::$sTableName.".begin_time > ".$time.($k==0?') or ':')');
+                            break;
+                        case 1: // 进行中
+                            $sql .= "(".self::$sTableName.".begin_time <= ".$time." and ".self::$sTableName.".end_time > ".$time.($k==0?') or ':')');
+                            break;
+                        case 2: // 已结束
+                            $sql .= "(".self::$sTableName.".end_time <= ".$time.($k==0?') or ':')');
+                            break;
+
+                    }
+                }
+                $sql .= ")";
+            }
         }
 
         // 时间
