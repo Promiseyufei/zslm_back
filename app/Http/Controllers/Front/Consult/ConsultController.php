@@ -32,7 +32,7 @@ class ConsultController extends Controller{
                 $get_consult_info['info'][$key]->time = date("Y.m.d",$item->time);
                 $get_consult_info['info'][$key]->img = splicingImgStr('admin', 'info', $item->img);
                 $get_consult_info['info'][$key]->content = changeString(strip_tags($item->content), 0, 100, '...');
-                $get_consult_info['info'][$key]->author = 'MBA Helper';
+                $get_consult_info['info'][$key]->author = 'MBA  Helper';
             }
             if(empty($get_consult_info['info'])) return responseToJson(1, '没有查询到数据');
             return responseToJson(0, 'success', $get_consult_info);
