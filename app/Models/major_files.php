@@ -222,7 +222,18 @@
         
         public static function getMajorFile($id)
         {
-            $files = DB::table(self::$sTableName)->where('major_id', $id)->where('is_delete', 0)->get(['file_name', 'file_alt']);
+            $files = DB::table(self::$sTableName)->where('major_id', $id)
+                ->where('is_delete', 0)->whereNotNull('file_url')
+                ->get(['file_name', 'file_alt','file_url']);
+
+
+            if($files){
+                foreach($files as $k=>$v){
+                    $arr = explode('/' , $v->file_url);
+                    $v->file_url = array_pop($arr);
+                }
+            }
+  
             return $files;
         }
         
