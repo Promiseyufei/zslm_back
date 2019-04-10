@@ -39,7 +39,7 @@ class Cors
         $headers = [
             'Access-Control-Allow-Origin' => '*',
             'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS, PUT, PATCH, DELETE',
-            'Access-Control-Allow-Headers' => 'Origin, Content-Type, Cookie, Accept, multipart/form-data, application/json,x-www-form-urlencoded, UUID, Authorization, X-Requested-With, Application'
+            'Access-Control-Allow-Headers' => 'Origin, Content-Type, Cookie, Accept, x-www-form-urlencoded, UUID, Authorization, X-Requested-With, Application, access-control-allow-origin'
         ];
         
         if ($response instanceof $IlluminateResponse) {
