@@ -562,7 +562,8 @@
      */
     function splicingImgStr($direction, $range, $name)
     {
-        return 'http://' . $_SERVER['HTTP_HOST'] . '/storage/' . $direction . '/' . $range . '/' . $name;
+//        return 'http://' . $_SERVER['HTTP_HOST'] . '/storage/' . $direction . '/' . $range . '/' . $name;
+        return 'http://admin.mbahelper.cn'.$name;
     }
     
     
