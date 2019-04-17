@@ -42,14 +42,14 @@ return array(
     /**
      * AccessKeyId
      */
-    'accessKeyId' => 'LTAItBjguvI9h5rV',
+    'accessKeyId' => 'LTAIVpIapr2gZTYh',
 
 
 
     /**
      * AccessKeyScret
      */
-    'accessKeySecret' => '0lqnisn6tSLL30kw3JeHVxyc2t64bp',
+    'accessKeySecret' => 'IV5bwFf3N9lJunnX3ZKKyg09rlBCyu',
 
 
 
@@ -70,8 +70,6 @@ return array(
         'MBA小助手短信验证' => 'SMS_149325185',
         'MBA小助手用于优惠券标识通知' => 'SMS_152506192',
         '专硕联盟网站自定义短信通知' => 'SMS_149096729',
-        '招生服务专题通知订阅用户'  => 'SMS_157686815',
-        '招生服务发送入群信息'  => 'SMS_157682013'
     )
 
 
